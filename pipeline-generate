@@ -73,8 +73,8 @@ end
 
 ONE_RUBY = RUBIES.last || SOFT_FAIL.last
 
-MASTER_RUBY = "rubylang/ruby:master-nightly-bionic"
-SOFT_FAIL << MASTER_RUBY
+MASTER_RUBIES = ["rubylang/ruby:master-nightly-bionic", "ruby:master-debug-nightly-bionic"]
+SOFT_FAIL.concat MASTER_RUBIES
 
 # Run steps for newer Rubies first.
 RUBIES.reverse!
@@ -105,7 +105,16 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default")
   label = +"#{subdirectory} #{rake_task.sub(/[:_]test|test:/, "")}"
   label.sub!(/ test/, "")
   if ruby
-    short_ruby = ruby == MASTER_RUBY ? "master" : ruby.sub(/^ruby:|:latest$/, "")
+    short_ruby = 
+      case ruby
+      when MASTER_RUBIES[0]
+        'master'
+      when MASTER_RUBIES[1]
+        'master-debug'
+      else
+        ruby.sub(/^ruby:|:latest$/, "")
+      end
+
     label << " (#{short_ruby})"
   end
 
