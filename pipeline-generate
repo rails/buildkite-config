@@ -73,7 +73,7 @@ end
 
 ONE_RUBY = RUBIES.last || SOFT_FAIL.last
 
-MASTER_RUBIES = ["rubylang/ruby:master-nightly-bionic", "ruby:master-debug-nightly-bionic"]
+MASTER_RUBIES = ["rubylang/ruby:master-nightly-bionic", "rubylang/ruby:master-debug-nightly-bionic"]
 SOFT_FAIL.concat MASTER_RUBIES
 
 # Run steps for newer Rubies first.
