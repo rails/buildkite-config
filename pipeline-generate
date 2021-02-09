@@ -141,7 +141,7 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", options: ni
   end
   
   if options == "timestamp"
-    env["POSTGRESQL_TEST_MODE"] = "timestamp"
+    env["POSTGRESQL_DATETIME_TYPE"] = "timestamp"
   end
 
   hash = {
