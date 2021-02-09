@@ -99,7 +99,7 @@ def mangle_name(name)
   name.tr("^A-Za-z0-9", "-")
 end
 
-def step_for(subdirectory, rake_task, ruby: nil, service: "default")
+def step_for(subdirectory, rake_task, ruby: nil, service: "default", options: nil)
   return unless REPO_ROOT.join(subdirectory).exist?
 
   label = +"#{subdirectory} #{rake_task.sub(/[:_]test|test:/, "")}"
@@ -139,6 +139,10 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default")
   if RAILS_VERSION < Gem::Version.new("5.2.x")
     env["POSTGRES_IMAGE"] = "postgres:9.6-alpine"
   end
+  
+  if options == "timestamp"
+    env["POSTGRESQL_TEST_MODE"] = "timestamp"
+  end
 
   hash = {
     "label" => label,
@@ -173,43 +177,43 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default")
   STEPS << hash
 end
 
-def steps_for(subdirectory, rake_task, service: "default", &block)
+def steps_for(subdirectory, rake_task, service: "default", options: options, &block)
   RUBIES.each do |ruby|
     if rake_task == "mysql:test"
       next unless ruby =~ /^ruby:(.*)/ && Gem::Version.new($1) < Gem::Version.new("2.4.x")
     end
 
-    step_for(subdirectory, rake_task, ruby: ruby, service: service, &block)
+    step_for(subdirectory, rake_task, ruby: ruby, service: service, options: options, &block)
   end
 end
 
 # GROUP 1: Runs additional isolated tests for non-PR builds
 %w(
-  actionpack      test                        default
-  actionmailer    test                        default
-  activemodel     test                        default
-  activesupport   test                        default
-  actionview      test                        default
-  activejob       test                        default
-  activerecord    mysql:test                  mysqldb
-  activerecord    mysql2:test                 mysqldb
-  activerecord    postgresql:test             postgresdb
-  activerecord    postgresql_timestamp:test   postgresdb
-  activerecord    sqlite3:test                default
-).each_slice(3) do |dir, task, service|
+  actionpack      test                        default          
+  actionmailer    test                        default          
+  activemodel     test                        default          
+  activesupport   test                        default          
+  actionview      test                        default          
+  activejob       test                        default          
+  activerecord    mysql:test                  mysqldb          
+  activerecord    mysql2:test                 mysqldb          
+  activerecord    postgresql:test             postgresdb          
+  activerecord    postgresql:test             postgresdb          timestamp
+  activerecord    sqlite3:test                default          
+).each_slice(4) do |dir, task, service|
   next if task == "mysql:test" && RAILS_VERSION >= Gem::Version.new("5.x")
 
-  steps_for(dir, task, service: service)
+  steps_for(dir, task, service: service, options: options)
 
   next unless MAINLINE
   next if task == "mysql:test"
 
   if dir == "activerecord"
-    step_for(dir, task.sub(":test", ":isolated_test"), service: service) do |x|
+    step_for(dir, task.sub(":test", ":isolated_test"), service: service, options: options) do |x|
       x["parallelism"] = 5 if REPO_ROOT.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
     end
   else
-    step_for(dir, "#{task}:isolated", service: service)
+    step_for(dir, "#{task}:isolated", service: service, options: options)
   end
 end
 
