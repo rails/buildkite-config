@@ -142,7 +142,9 @@ RUN mv -f tmp/Gemfile.lock.updated Gemfile.lock \
         echo "--- :javascript: Building JavaScript package" \
         && (cd actionview && yarn build) \
         && if [ -f railties/test/isolation/assets/package.json ]; then \
-            (cd railties/test/isolation/assets && yarn install); \
+            (cd railties/test/isolation/assets \
+              && sed -i -e "s#RAILS_FRAMEWORK_ROOT#/rails#g" package.json \
+              && yarn install); \
         fi \
         && yarn cache clean; \
     fi
