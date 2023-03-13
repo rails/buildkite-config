@@ -178,7 +178,7 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
 
   hash = {
     "label" => label,
-    "depends_on" => "docker-image-#{(ruby || ONE_RUBY).gsub(/\W/, "-")}",
+    "depends_on" => "docker-image-#{ruby_image(ruby || ONE_RUBY).gsub(/\W/, "-")}",
     "command" => command,
     "group" => group,
     "plugins" => [
@@ -349,7 +349,7 @@ puts YAML.dump("steps" => [
   {
     "group" => "build",
     "steps" => [
-      *RUBIES.map do |ruby|
+      *(RUBIES - [YJIT_RUBY]).map do |ruby|
         {
           "label" => ":docker: #{ruby}",
           "key" => "docker-image-#{ruby.gsub(/\W/, "-")}",
@@ -388,7 +388,6 @@ puts YAML.dump("steps" => [
             "BUNDLER" => BUNDLER,
             "RUBYGEMS" => RUBYGEMS,
             "RUBY_IMAGE" => ruby_image(ruby),
-            "RUBY_YJIT_ENABLE" => ruby == YJIT_RUBY ? "1" : "0",
             "encrypted_0fb9444d0374_key" => nil,
             "encrypted_0fb9444d0374_iv" => nil,
           },
