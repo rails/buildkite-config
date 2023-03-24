@@ -136,7 +136,7 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
     label << " (#{short_ruby(ruby)})"
   end
 
-  if rake_task.start_with?("mysql2:") || rake_task.start_with?("mysql:")
+  if rake_task.start_with?("mysql2:")
     rake_task = "db:mysql:rebuild #{rake_task}"
   elsif rake_task.start_with?("postgresql:")
     rake_task = "db:postgresql:rebuild #{rake_task}"
@@ -215,10 +215,6 @@ end
 
 def steps_for(subdirectory, rake_task, service: "default", pre_steps: [], &block)
   RUBIES.each do |ruby|
-    if rake_task == "mysql:test"
-      next unless ruby =~ /^ruby:(.*)/ && Gem::Version.new($1) < Gem::Version.new("2.4.x")
-    end
-
     step_for(subdirectory, rake_task, ruby: ruby, service: service, pre_steps: pre_steps, &block)
   end
 end
@@ -231,17 +227,13 @@ end
   activesupport   test                default
   actionview      test                default
   activejob       test                default
-  activerecord    mysql:test          mysqldb
   activerecord    mysql2:test         mysqldb
   activerecord    postgresql:test     postgresdb
   activerecord    sqlite3:test        default
 ).each_slice(3) do |dir, task, service|
-  next if task == "mysql:test" && RAILS_VERSION >= Gem::Version.new("5.x")
-
   steps_for(dir, task, service: service)
 
   next unless MAINLINE
-  next if task == "mysql:test"
 
   if dir == "activerecord"
     step_for(dir, task.sub(":test", ":isolated_test"), service: service) do |x|
