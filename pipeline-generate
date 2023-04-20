@@ -136,6 +136,8 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
     label << " (#{short_ruby(ruby)})"
   end
 
+
+  puts "running trilogy tests; rake task #{rake_task} on version #{RAILS_VERSION}. Match #{Gem::Version.new("7.1.0.alpha")}"
   if rake_task.start_with?("mysql2:") || (RAILS_VERSION >= Gem::Version.new("7.1.0.alpha") && rake_task.start_with?("trilogy:"))
     rake_task = "db:mysql:rebuild #{rake_task}"
   elsif rake_task.start_with?("postgresql:")
