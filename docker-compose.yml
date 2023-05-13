@@ -110,7 +110,7 @@ services:
       - "./mysql-initdb.d:/docker-entrypoint-initdb.d"
 
   postgres:
-    image: "${POSTGRES_IMAGE-postgres:alpine}"
+    image: "${POSTGRES_IMAGE-postgres:15.2-alpine}"
     environment:
       POSTGRES_HOST_AUTH_METHOD: "trust"
 
