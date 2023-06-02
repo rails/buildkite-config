@@ -10,7 +10,17 @@ steps:
       if [ -z "$${treesha}" ]; then
         echo "+++ No .buildkite/; using fallback repository"
         rm -rf .buildkite
-        git clone -b "$${CONFIG_BRANCH-main}" "https://github.com/$${CONFIG_FORK-rails}/buildkite-config" .buildkite
+
+        if [ -n "$CONFIG_REPO" ]; then
+          GIT_REPO="$CONFIG_REPO"
+        elif [ -n "$CONFIG_FORK" ]; then
+          GIT_REPO="https://github.com/$CONFIG_FORK/buildkite-config"
+        else
+          GIT_REPO="https://github.com/rails/buildkite-config"
+        fi
+
+        git clone -b "$${CONFIG_BRANCH-main}" "$GIT_REPO" .buildkite
+
         rm -rf .buildkite/.git
         sh -c "$$PIPELINE_COMMAND"
       elif [ "$${#treesha}" -lt 40 ]; then
