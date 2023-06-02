@@ -1,0 +1,15 @@
+# This file is never read -- it's just a copy of the pipeline's
+# configuration in the Buildkite UI.
+
+# This config is intended for running the rails/buildkite-config CI.
+
+steps:
+  - trigger: "rails"
+    label: ":pipeline: Run buildkite-config CI"
+    build:
+      message: "${BUILDKITE_MESSAGE}"
+      commit: "${BUILDKITE_COMMIT}"
+      branch: "main"
+      env:
+        CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
+        CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
