@@ -304,16 +304,14 @@ steps_for("railties", "test", service: "railties") do |x|
 end
 
 step_for("actionpack", "test", service: "default", pre_steps: ["bundle install"]) do |x|
-  x["label"] += " [rack-3]"
-  x["env"]["RACK"] = "~> 3.0"
-  x["soft_fail"] = true
+  x["label"] += " [rack-2]"
+  x["env"]["RACK"] = "~> 2.0"
 end
 
 step_for("railties", "test", service: "railties", pre_steps: ["bundle install"]) do |x|
   x["parallelism"] = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
-  x["label"] += " [rack-3]"
-  x["env"]["RACK"] = "~> 3.0"
-  x["soft_fail"] = true
+  x["label"] += " [rack-2]"
+  x["env"]["RACK"] = "~> 2.0"
 end
 
 # Ugly hacks to just get the build passing for now
