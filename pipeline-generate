@@ -60,11 +60,7 @@ RUBIES = []
 SOFT_FAIL = []
 
 RUBY_MINORS.select { |v| v >= MIN_RUBY }.each do |v|
-  if Gem::Version.new(v) >= Gem::Version.new("3.1")
-    image = "ruby:#{v}-bullseye"
-  else
-    image = "ruby:#{v}"
-  end
+  image = "ruby:#{v}"
 
   if MAX_RUBY && v > MAX_RUBY && !(MAX_RUBY.approximate_recommendation === v)
     SOFT_FAIL << image
