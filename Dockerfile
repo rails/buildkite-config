@@ -69,6 +69,7 @@ RUN echo "--- :ruby: Updating RubyGems and Bundler" \
         libxslt-dev \
         libyaml-dev \
         make \
+        npm \
         patch \
         unzip \
         xz-utils \
