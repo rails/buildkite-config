@@ -4,7 +4,10 @@
 # This config is intended for running the rails/buildkite-config CI.
 
 steps:
-  - trigger: "rails"
+  - block: "Review Build Script"
+    prompt: |
+      Approval is required. Please review the changes carefully before unblocking.
+  - trigger: "rails-ci"
     label: ":pipeline: Run buildkite-config CI"
     build:
       message: "buildkite-config: ${BUILDKITE_MESSAGE}"
