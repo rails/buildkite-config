@@ -5,10 +5,11 @@ require "buildkit"
 
 def buildkite_token
   ENV.fetch("BUILDKITE_TOKEN") {
-    raise "BUILDKITE_TOKEN undefined!"
+    raise "BUILDKITE_TOKEN undefined!\nMake sure your BUILDKITE_TOKEN has `write_pipelines` scope too!"
   }
 end
 
+# Make sure your BUILDKITE_TOKEN has `write_pipelines` scope
 def update_pipeline(pipeline, configuration)
   client = Buildkit.new(token: buildkite_token)
   resp = client.update_pipeline("rails", pipeline, {
