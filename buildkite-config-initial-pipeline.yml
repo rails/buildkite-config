@@ -6,7 +6,13 @@
 steps:
   - block: "Review Build Script"
     prompt: |
-      Approval is required. Please review the changes carefully before unblocking.
+      Our CI scripts run outside the docker containers, which are a necessary security layer.
+
+      Approving a build here is equivalent to copy & pasting it into a production ssh window.
+
+      Prefer a second opinion for any nontrivial change, especially outside `pipeline-generate`.
+
+      - @matthewd
   - trigger: "rails-ci"
     label: ":pipeline: Build Rails main with new config"
     build:
