@@ -11,7 +11,6 @@ steps:
     label: ":pipeline: Run buildkite-config CI"
     build:
       message: "buildkite-config: ${BUILDKITE_MESSAGE}"
-      commit: "${BUILDKITE_COMMIT}"
       branch: "main"
       env:
         CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
