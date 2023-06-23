@@ -14,7 +14,7 @@ steps:
         if [ -n "$$CONFIG_REPO" ]; then
           GIT_REPO="$$CONFIG_REPO"
         elif [ -n "$$CONFIG_FORK" ]; then
-          GIT_REPO="https://github.com/$CONFIG_FORK/buildkite-config"
+          GIT_REPO="https://github.com/$$CONFIG_FORK/buildkite-config"
         else
           GIT_REPO="https://github.com/rails/buildkite-config"
         fi
