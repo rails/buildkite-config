@@ -8,10 +8,19 @@ steps:
     prompt: |
       Approval is required. Please review the changes carefully before unblocking.
   - trigger: "rails-ci"
-    label: ":pipeline: Run buildkite-config CI"
+    label: ":pipeline: Build Rails main with new config"
     build:
-      message: "${BUILDKITE_REPO} ${BUILDKITE_MESSAGE} (${BUILDKITE_BRANCH})"
+      message: "[${BUILDKITE_BRANCH}] ${BUILDKITE_MESSAGE}"
       branch: "main"
+      env:
+        CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
+        CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
+        BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
+  - trigger: "rails-ci"
+    label: ":pipeline: Build Rails 6-1-stable with new config"
+    build:
+      message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
+      branch: "6-1-stable"
       env:
         CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
         CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
