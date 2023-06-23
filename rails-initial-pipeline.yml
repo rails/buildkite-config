@@ -19,7 +19,10 @@ steps:
           GIT_REPO="https://github.com/rails/buildkite-config"
         fi
 
-        git clone -b "$${CONFIG_BRANCH-main}" "$$GIT_REPO" .buildkite
+        GIT_BRANCH="$${CONFIG_BRANCH-main}"
+        GIT_BRANCH="$${GIT_BRANCH#*:}"
+
+        git clone -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
 
         rm -rf .buildkite/.git
         sh -c "$$PIPELINE_COMMAND"
