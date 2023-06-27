@@ -243,6 +243,11 @@ end
     step_for(dir, task.sub(":test", ":isolated_test"), service: service) do |x|
       x["parallelism"] = 5 if REPO_ROOT.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
     end
+  elsif dir == "actiontext"
+    # added during 7.1 development on main
+    if REPO_ROOT.join("actiontext/Rakefile").read.include?("task :isolated")
+      step_for(dir, "#{task}:isolated", service: service)
+    end
   else
     step_for(dir, "#{task}:isolated", service: service)
   end
