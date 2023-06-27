@@ -190,6 +190,7 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
       {
         DOCKER_COMPOSE_PLUGIN => {
           "env" => [
+            "NODE_OPTIONS",
             "PRE_STEPS",
             "RACK"
           ],
@@ -303,6 +304,11 @@ steps_for("activejob", "test:integration", service: "activejob") do |x|
 end
 steps_for("railties", "test", service: "railties") do |x|
   x["parallelism"] = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+  if RAILS_VERSION < Gem::Version.new("7.0")
+    # OpenSSL 3 has now by default disabled some crypto functions used by
+    # Webpack 4 (which Webpacker is locked to)
+    x["env"]["NODE_OPTIONS"] = "--openssl-legacy-provider"
+  end
 end
 
 step_for("actionpack", "test", service: "default", pre_steps: ["bundle install"]) do |x|
@@ -314,6 +320,11 @@ step_for("railties", "test", service: "railties", pre_steps: ["bundle install"])
   x["parallelism"] = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
   x["label"] += " [rack-2]"
   x["env"]["RACK"] = "~> 2.0"
+  if RAILS_VERSION < Gem::Version.new("7.0")
+    # OpenSSL 3 has now by default disabled some crypto functions used by
+    # Webpack 4 (which Webpacker is locked to)
+    x["env"]["NODE_OPTIONS"] = "--openssl-legacy-provider"
+  end
 end
 
 # Ugly hacks to just get the build passing for now
