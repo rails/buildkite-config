@@ -197,7 +197,6 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
           "pull" => service,
           "config" => ".buildkite/docker-compose.yml",
           "shell" => ["runner", subdirectory],
-          "skip-checkout" => true,
         },
       },
     ],
@@ -363,14 +362,6 @@ puts YAML.dump("steps" => [
             {
               DOCKER_COMPOSE_PLUGIN => {
                 "build" => "base",
-                "build-alias" => [
-                  "default",
-                  "mysqldb",
-                  "postgresdb",
-                  "railties",
-                  "activejob",
-                  "actionview",
-                ],
                 "config" => ".buildkite/docker-compose.yml",
                 "env" => [
                   "PRE_STEPS",
