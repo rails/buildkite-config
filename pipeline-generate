@@ -6,8 +6,18 @@ require "net/http"
 require "pathname"
 require "yaml"
 
-QUEUE = ENV["BUILDKITE_AGENT_META_DATA_QUEUE"] || "default"
-IMAGE_BASE = ENV["DOCKER_IMAGE"] || "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{QUEUE}-" unless QUEUE == 'default'}builds"
+STANDARD_QUEUES = [nil, "default", "builder"]
+
+# If the pipeline is running in a non-standard queue, default to
+# running everything in that queue.
+unless STANDARD_QUEUES.include?(ENV["BUILDKITE_AGENT_META_DATA_QUEUE"])
+  ENV["QUEUE"] ||= ENV["BUILDKITE_AGENT_META_DATA_QUEUE"]
+end
+
+BUILD_QUEUE = ENV["BUILD_QUEUE"] || ENV["QUEUE"] || "builder"
+RUN_QUEUE = ENV["RUN_QUEUE"] || ENV["QUEUE"] || "default"
+
+IMAGE_BASE = ENV["DOCKER_IMAGE"] || "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{BUILD_QUEUE}-" unless STANDARD_QUEUES.include?(BUILD_QUEUE)}builds"
 
 BASE_BRANCH = ([ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"], ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
 LOCAL_BRANCH = ([ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
@@ -203,7 +213,7 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
     "env" => env,
     "timeout_in_minutes" => timeout,
     "soft_fail" => SOFT_FAIL.include?(ruby),
-    "agents" => { "queue" => QUEUE },
+    "agents" => { "queue" => RUN_QUEUE },
     "artifact_paths" => ["test-reports/*/*.xml"],
     "retry" => { "automatic" => { "exit_status" => -1, "limit" => 2 } },
   }
@@ -393,7 +403,7 @@ puts YAML.dump("steps" => [
           },
           "timeout_in_minutes" => 15,
           "soft_fail" => SOFT_FAIL.include?(ruby),
-          "agents" => { "queue" => ENV["BUILD_QUEUE"] || QUEUE },
+          "agents" => { "queue" => BUILD_QUEUE },
         }
       end,
     ],
