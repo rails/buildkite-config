@@ -9,18 +9,17 @@ if [ -n "$PRE_STEPS" ]; then
   echo
   echo "--- pre steps"
   eval "$PRE_STEPS"
-  echo "+++ "
 fi
 
 echo
 echo "--- bundle env"
 bundle env
-echo "+++  "
 
 if ! [ -d "$PWD/railties/exe" ]; then
   export PATH="$PATH:$PWD/railties/bin"
 fi
 
+echo
 echo "+++ $dir: $cmd"
 
 cd "$dir"
