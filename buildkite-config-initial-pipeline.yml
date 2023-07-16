@@ -13,6 +13,27 @@ steps:
       Prefer a second opinion for any nontrivial change, especially outside `pipeline-generate`.
 
       - @matthewd
+  - command: |
+      git config --global --add safe.directory /workdir
+      bundle install
+      bin/diff.rb tmp/buildkite-config.diff
+    artifact_paths:
+      - tmp/buildkite-config.diff
+    plugins:
+      - docker#v5.8.0:
+          image: "ruby:latest"
+  - command: |
+      bundle install
+      bin/update-pr.rb tmp/buildkite-config.diff
+    plugins:
+      - docker#v5.8.0:
+          image: "ruby:latest"
+          mount-buildkite-agent: true
+          propagate-environment: true
+          environment:
+            - "GITHUB_TOKEN"
+      - artifacts#v1.9.0:
+          download: "tmp/buildkite-config.diff"
   - trigger: "rails-ci"
     label: ":pipeline: Build Rails main with new config"
     build:
