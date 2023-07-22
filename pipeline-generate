@@ -331,6 +331,19 @@ step_for("railties", "test", service: "railties", pre_steps: ["bundle install"])
   x["env"]["RACK"] = "~> 2.0"
 end
 
+step_for("actionpack", "test", service: "default", pre_steps: ["bundle install"]) do |x|
+  x["label"] += " [rack-head]"
+  x["env"]["RACK"] = "head"
+  x["soft_fail"] = true
+end
+
+step_for("railties", "test", service: "railties", pre_steps: ["bundle install"]) do |x|
+  x["parallelism"] = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+  x["label"] += " [rack-head]"
+  x["env"]["RACK"] = "head"
+  x["soft_fail"] = true
+end
+
 # Ugly hacks to just get the build passing for now
 STEPS.find { |s| s["label"] == "activestorage (2.2)" }&.tap do |s|
   s["soft_fail"] = true
