@@ -288,6 +288,12 @@ step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
   x["label"] += " [mysql_5_7]"
   x["env"]["MYSQL_IMAGE"] = "mysql:5.7"
 end
+if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
+  step_for("activerecord", "trilogy:test", service: "mysqldb") do |x|
+    x["label"] += " [mysql_5_7]"
+    x["env"]["MYSQL_IMAGE"] = "mysql:5.7"
+  end
+end
 if RAILS_VERSION >= Gem::Version.new("5.x")
   step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
     x["label"] += " [mariadb]"
@@ -297,6 +303,12 @@ if RAILS_VERSION >= Gem::Version.new("5.x")
       else
         "mariadb:latest"
       end
+  end
+end
+if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
+  step_for("activerecord", "trilogy:test", service: "mysqldb") do |x|
+    x["label"] += " [mariadb]"
+    x["env"]["MYSQL_IMAGE"] = "mariadb:latest"
   end
 end
 steps_for("actioncable", "test:integration", service: "default") do |x|
