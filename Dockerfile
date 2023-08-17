@@ -4,8 +4,16 @@ FROM ${RUBY_IMAGE:-ruby:latest}
 ARG BUNDLER
 ARG RUBYGEMS
 RUN echo "--- :ruby: Updating RubyGems and Bundler" \
-    #&& (gem update --system 3.3.3) \
-    #&& (gem install bundler -v "${BUNDLER:->= 0}" || gem install bundler -v "< 2") \
+    && export GEM_VERSION=$(gem -v | sed -rn 's/([0-9]\.[0-9]).*/\1/p') \
+    && export BUNDLER_VERSION=$(bundle -v | sed -rn 's/^(Bundler version )([0-9]\.[0-9]).*/\2/p') \
+    && (gem --version) \
+    && (bundle --version) \
+    && (echo $GEM_VERSION) \
+    && (echo $BUNDLER_VERSION) \
+    && (gem install rubygems-update -v "~> $GEM_VERSION.0") \
+    && export GEM_UPDATE_VERSION=$(gem list rubygems-update | sed -rn 's/^(rubygems-update \()([0-9.]+).*/\2/p') \
+    && (gem update --system "$GEM_UPDATE_VERSION") \
+    && (gem install bundler -v "~> $BUNDLER_VERSION.0") \
     && ruby --version && gem --version && bundle --version \
     && echo "--- :package: Installing system deps" \
     && codename="$(. /etc/os-release; x="${VERSION_CODENAME-${VERSION#*(}}"; echo "${x%%[ )]*}")" \
