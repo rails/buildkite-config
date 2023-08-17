@@ -30,6 +30,7 @@ MAINLINE = LOCAL_BRANCH == "main" || LOCAL_BRANCH =~ /\A[0-9-]+(?:-stable)?\z/
 
 DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
 ARTIFACTS_PLUGIN = "artifacts#v1.2.0"
+DOCKER_PLUGIN = "docker#v5.8.0"
 
 REPO_ROOT = Pathname.new(ARGV.shift || File.expand_path("../..", __FILE__))
 
@@ -228,6 +229,32 @@ def steps_for(subdirectory, rake_task, service: "default", pre_steps: [], &block
     step_for(subdirectory, rake_task, ruby: ruby, service: service, pre_steps: pre_steps, &block)
   end
 end
+
+def generic_step(label, command, ruby: ONE_RUBY)
+  STEPS << {
+    "label" => label,
+    "depends_on" => "docker-image-#{ruby_image(ruby).gsub(/\W/, "-")}",
+    "command" => command,
+    "group" => "generic",
+    "plugins" => [
+      {
+        ARTIFACTS_PLUGIN => {
+          "download" => [".buildkite/*", ".buildkite/**/*"],
+        },
+        DOCKER_PLUGIN => {
+          "image" => image_name_for(ruby)
+        }
+      },
+    ],
+    "timeout_in_minutes" => 5,
+    "soft_fail" => true,
+    "agents" => { "queue" => RUN_QUEUE },
+    "artifact_paths" => ["artifacts/*"],
+    "retry" => { "automatic" => { "exit_status" => -1, "limit" => 2 } },
+  }
+end
+
+generic_step "debug", "ruby -v && gem env"
 
 # GROUP 1: Runs additional isolated tests for non-PR builds
 %w(
