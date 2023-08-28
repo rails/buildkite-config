@@ -13,8 +13,31 @@ steps:
       Prefer a second opinion for any nontrivial change, especially outside `pipeline-generate`.
 
       - @matthewd
+  - command: |
+      git config --global --add safe.directory /workdir
+      bundle install
+      bundle exec rake test
+    key: self-test
+    plugins:
+      - docker#v5.8.0:
+          image: "ruby:latest"
+          propagate-environment: true
+  - command: |
+      git config --global --add safe.directory /workdir
+      bundle install
+      bundle exec rake diff
+    key: diff
+    depends_on: self-test
+    plugins:
+      - docker#v5.8.0:
+          image: "ruby:latest"
+          mount-buildkite-agent: true
+          propagate-environment: true
+          environment:
+            - "GITHUB_TOKEN"
   - trigger: "rails-ci"
     label: ":pipeline: Build Rails main with new config"
+    depends_on: diff
     build:
       message: "[${BUILDKITE_BRANCH}] ${BUILDKITE_MESSAGE}"
       branch: "main"
@@ -24,6 +47,7 @@ steps:
         BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
   - trigger: "rails-ci"
     label: ":pipeline: Build Rails 6-1-stable with new config"
+    depends_on: diff
     build:
       message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
       branch: "6-1-stable"

@@ -3,13 +3,24 @@ GEM
   specs:
     addressable (2.8.4)
       public_suffix (>= 2.0.2, < 6.0)
+    autotest (5.0.0)
+      minitest-autotest (~> 1.0)
     buildkit (1.5.0)
       sawyer (>= 0.6)
+    diffy (3.4.2)
     faraday (2.7.7)
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.2)
+    minitest (5.19.0)
+    minitest-autotest (1.1.1)
+      minitest-server (~> 1.0)
+      path_expander (~> 1.0)
+    minitest-server (1.0.7)
+      minitest (~> 5.16)
+    path_expander (1.1.1)
     public_suffix (5.0.1)
+    rake (13.0.6)
     ruby2_keywords (0.0.5)
     sawyer (0.9.2)
       addressable (>= 2.3.5)
@@ -19,7 +30,10 @@ PLATFORMS
   arm64-darwin-23
 
 DEPENDENCIES
+  autotest
   buildkit
+  diffy
+  rake
 
 BUNDLED WITH
    2.4.10
