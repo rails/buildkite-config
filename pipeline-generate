@@ -296,7 +296,7 @@ if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
   end
 end
 if RAILS_VERSION >= Gem::Version.new("5.x")
-  step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
+  step_for("activerecord", "mysql2:test", service: "mariadb") do |x|
     x["label"] += " [mariadb]"
     x["env"]["MYSQL_IMAGE"] =
       if RAILS_VERSION < Gem::Version.new("6.x")
@@ -307,7 +307,7 @@ if RAILS_VERSION >= Gem::Version.new("5.x")
   end
 end
 if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
-  step_for("activerecord", "trilogy:test", service: "mysqldb") do |x|
+  step_for("activerecord", "trilogy:test", service: "mariadb") do |x|
     x["label"] += " [mariadb]"
     x["env"]["MYSQL_IMAGE"] = "mariadb:latest"
   end

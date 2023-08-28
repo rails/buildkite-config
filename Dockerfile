@@ -89,9 +89,6 @@ RUN echo "--- :ruby: Updating RubyGems and Bundler" \
         postgresql-client default-mysql-client sqlite3 \
         git nodejs yarn lsof \
         ffmpeg mupdf mupdf-tools poppler-utils \
-    # await (for waiting on dependent services)
-    && curl -fLsS -o /tmp/await-linux-amd64 https://github.com/betalo-sweden/await/releases/download/v0.4.0/await-linux-amd64 \
-    && install /tmp/await-linux-amd64 /usr/local/bin/await \
     # clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* \
@@ -101,8 +98,8 @@ WORKDIR /rails
 ENV RAILS_ENV=test RACK_ENV=test
 ENV JRUBY_OPTS="--dev -J-Xmx1024M"
 
-ADD .buildkite/await-all .buildkite/runner /usr/local/bin/
-RUN chmod +x /usr/local/bin/await-all /usr/local/bin/runner
+ADD .buildkite/runner /usr/local/bin/
+RUN chmod +x /usr/local/bin/runner
 
 # Wildcard ignores missing files; .empty ensures ADD always has at least
 # one valid source: https://stackoverflow.com/a/46801962
