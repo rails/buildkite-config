@@ -8,7 +8,7 @@ task default: [:test]
 
 task :diff => [:buildkite_config, :rails] do
   diff = Buildkite::Config::Diff.compare
-  puts diff.to_s(:color)
+  #puts diff.to_s(:color)
 
   annotate = Buildkite::Config::Annotate.new(diff)
   annotate.perform

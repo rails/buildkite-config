@@ -1,3 +1,5 @@
+require "tempfile"
+
 module Buildkite::Config
   class Annotate
     def initialize(diff)
@@ -7,7 +9,11 @@ module Buildkite::Config
     def perform
       return if @diff.to_s.empty?
 
-      io = IO.popen("buildkite-agent annotate --style warning '#{plan}'")
+      file = Tempfile.new("generate-pipeline.diff")
+      file.write plan
+      file.close
+
+      io = IO.popen("printf '%b\n' \"$(cat #{file.path})\" | buildkite-agent annotate --style warning")
       output = io.read
       io.close
 
