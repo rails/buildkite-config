@@ -438,8 +438,7 @@ Buildkite::Builder.pipeline do
     command do
       label "my command"
       command "ruby -v"
-      plugin "docker#v5.8.0":
-        image: "ruby:latest"
+      plugin "docker#v5.8.0": {image: "ruby:latest"}
       agents queue: "default"
     end
   end
