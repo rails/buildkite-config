@@ -26,7 +26,7 @@ steps:
     agents:
       queue: "default"
   - command: |
-      go install github.com/neilpa/yajsv
+      go install github.com/neilpa/yajsv@latest
       curl "https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json" -o schema.json
       yajsv -s schema.json .buildkite/pipeline.yml
     label: ":pipeline: json schema validate pipeline.yml"
