@@ -424,7 +424,9 @@ Buildkite::Builder.pipeline do
         })
 
         timeout_in_minutes 15
-        soft_fail SOFT_FAIL.include?(ruby)
+        if SOFT_FAIL.include?(ruby)
+          soft_fail true
+        end
         agents queue: BUILD_QUEUE
       end
     end
@@ -448,7 +450,9 @@ Buildkite::Builder.pipeline do
           env _step["env"]
           timeout_in_minutes _step["timeout_in_minutes"]
 
-          soft_fail _step["soft_fail"]
+          if _step["soft_fail"]
+            soft_fail true
+          end
 
           agents _step["agents"]
           artifact_paths _step["artifact_paths"]
