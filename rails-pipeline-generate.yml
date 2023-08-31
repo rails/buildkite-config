@@ -26,8 +26,9 @@ steps:
     agents:
       queue: "default"
   - command: |
-      npm install -g yaml-lint
-      npx yaml-lint --schema "https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json" .buildkite/pipeline.yml
+      npm install -g pajv
+      curl "https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json" -o schema.json
+      npx pajv -s schema.json -d .buildkite/pipeline.yml
     label: ":pipeline: yaml-lint pipeline.yml"
     depends_on: generate-pipeline
     key: lint-pipeline
