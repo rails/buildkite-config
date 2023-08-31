@@ -26,15 +26,16 @@ steps:
     agents:
       queue: "default"
   - command: |
-      pip install check-jsonschema
-      check-jsonschema --builtin-schema vendor.buildkite .buildkite/pipeline.yml
-    label: ":pipeline: check-jsonschema pipeline.yml"
+      go install github.com/neilpa/yajsv
+      curl "https://raw.githubusercontent.com/buildkite/pipeline-schema/main/schema.json" -o schema.json
+      yajsv -s schema.json .buildkite/pipeline.yml
+    label: ":pipeline: json schema validate pipeline.yml"
     depends_on: generate-pipeline
     soft_fail: true
     key: lint-pipeline
     plugins:
       - docker#v5.8.0:
-          image: "python:3"
+          image: "golang:latest"
       - artifacts#v1.2.0:
           download:
             - ".buildkite/pipeline.yml"
