@@ -432,6 +432,18 @@ Buildkite::Builder.pipeline do
     end
   end
 
+  group do
+    label "zomg"
+
+    command do
+      label "my command"
+      command "ruby -v"
+      plugin "docker#v5.8.0":
+        image: "ruby:latest"
+      agents queue: "default"
+    end
+  end
+
   groups.map do |_group|
     group do
       label _group["group"]
