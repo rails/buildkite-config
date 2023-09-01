@@ -48,7 +48,7 @@ steps:
                   - ".buildkite/**/*"
           timeout_in_minutes: 5
           agents:
-            queue: "default"
+            queue: "$$BUILDKITE_AGENT_META_DATA_QUEUE"
       NESTED
       fi
 
@@ -81,7 +81,7 @@ steps:
                   - ".buildkite/pipeline.yml"
           timeout_in_minutes: 5
           agents:
-            queue: "default"
+            queue: "${QUEUE-builder}"
       NESTED
       ([ -f .buildkite/.dockerignore ] && cp .buildkite/.dockerignore .dockerignore) || true
     plugins:
@@ -89,4 +89,4 @@ steps:
           upload: [".buildkite/**/*", ".dockerignore"]
     timeout_in_minutes: 5
     agents:
-      queue: "default"
+      queue: "${QUEUE-builder}"
