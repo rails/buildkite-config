@@ -23,19 +23,33 @@ steps:
         GIT_BRANCH="$${GIT_BRANCH#*:}"
 
         git clone -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
-
-        rm -rf .buildkite/.git
-        sh -c "$$PIPELINE_COMMAND"
       elif [ "$${#treesha}" -lt 40 ]; then
         echo "Short SHA for .buildkite/"
         exit 1
       elif curl -s -S "https://gist.githubusercontent.com/matthewd/3f98bcc9957c8ddf2204a390bf3a6cdd/raw/list" | grep -a -F -x "$${treesha}"; then
         echo "+++ Known tree; generating pipeline"
         echo ".buildkite/ tree is $${treesha}"
-        sh -c "$$PIPELINE_COMMAND"
       else
         echo "+++ Unknown tree; requesting approval"
         echo ".buildkite/ tree is $${treesha}"
+
+        buildkite-agent pipeline upload <<'NESTED'
+      steps:
+        - block: "Review Build Script"
+          prompt: |
+            This commit uses new build configuration. Please review the changes in .buildkite/ carefully before unblocking.
+        - name: ":pipeline:"
+          command: >-
+            $$PIPELINE_COMMAND
+          plugins:
+            - artifacts#v1.2.0:
+                download:
+                  - ".buildkite/*"
+                  - ".buildkite/**/*"
+          timeout_in_minutes: 5
+          agents:
+            queue: "default"
+      NESTED
       fi
 
       rm -rf .buildkite/.git
