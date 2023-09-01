@@ -17,24 +17,35 @@ steps:
       git config --global --add safe.directory /workdir
       bundle install
       bundle exec rake test
+    label: ":test_tube: buildkite-config: rake test"
     key: self-test
     plugins:
       - docker#v5.8.0:
           image: "ruby:latest"
-          propagate-environment: true
   - command: |
-      git config --global --add safe.directory /workdir
-      bundle install
-      bundle exec rake diff
+      git clone --depth=1 https://github.com/rails/buildkite-config tmp/buildkite-config
+      git clone --depth=1 https://github.com/rails/rails tmp/rails
+
+      sh -c "$$ANNOTATE_COMMAND" > tmp/annotate.diff
+      if [[ -z $(grep '[^[:space:]]' tmp/annotate.diff) ]]; then
+        echo "annotate.diff is empty"
+      else
+        echo "annotate.diff is not empty"
+        cat tmp/annotate.diff
+        printf '%b\n' "$(cat tmp/annotate.diff)" | buildkite-agent annotate --style warning
+      fi
+    label: ":writing_hand: buildkite-config: annotate diff"
+    env:
+      BUNDLE_FROZEN: true
+      ANNOTATE_COMMAND: >-
+        docker run --rm
+        -v "$$PWD":/app:ro -w /app
+        -v "$$PWD/tmp":/app/tmp:rw
+        -e BUNDLE_FROZEN
+        ruby:latest
+        ./pipeline-annotate
     key: diff
     depends_on: self-test
-    plugins:
-      - docker#v5.8.0:
-          image: "ruby:latest"
-          mount-buildkite-agent: true
-          propagate-environment: true
-          environment:
-            - "GITHUB_TOKEN"
   - trigger: "rails-ci"
     label: ":pipeline: Build Rails main with new config"
     depends_on: diff
