@@ -2,7 +2,7 @@
 # configuration in the Buildkite UI.
 
 steps:
-  - name: ":pipeline:"
+  - name: ":pipeline: fetch config repo and upload pipeline"
     command: |
       PATH=/bin:/usr/bin
       set -e
@@ -28,7 +28,36 @@ steps:
       git clone -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
 
       rm -rf .buildkite/.git
-      buildkite-agent pipeline upload .buildkite/rails-pipeline-generate.yml
+      buildkite-agent pipeline upload <<'NESTED'
+      steps:
+        - command: |
+            git config --global --add safe.directory /workdir
+            bundle install
+            bundle exec buildkite-builder preview rails-ci > .buildkite/pipeline.yml
+            bundle exec buildkite-builder run rails-ci
+          label: ":pipeline: buildkite-builder run rails-ci"
+          key: generate-pipeline
+          plugins:
+            - docker#v5.8.0:
+                image: "ruby:latest"
+                mount-buildkite-agent: true
+                propagate-environment: true
+                environment:
+                  - BUNDLE_GEMFILE=.buildkite/Gemfile
+                  - BUILD_QUEUE
+                  - DOCKER_IMAGE
+                  - RUN_QUEUE
+                  - QUEUE
+            - artifacts#v1.2.0:
+                download:
+                  - ".buildkite/*"
+                  - ".buildkite/**/*"
+                upload:
+                  - ".buildkite/pipeline.yml"
+          timeout_in_minutes: 5
+          agents:
+            queue: "default"
+      NESTED
 
       ([ -f .buildkite/.dockerignore ] && cp .buildkite/.dockerignore .dockerignore) || true
     plugins:
