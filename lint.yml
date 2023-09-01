@@ -1,0 +1,4055 @@
+---
+steps:
+- label: build
+  group:
+  steps:
+  - label: ":docker: ruby:3.2"
+    key: docker-image-ruby-3-2
+    agents:
+      queue: builder
+    env:
+      RUBY_IMAGE: ruby:3.2
+      encrypted_0fb9444d0374_key:
+      encrypted_0fb9444d0374_iv:
+    timeout_in_minutes: 15
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".dockerignore"
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        build: base
+        config: ".buildkite/docker-compose.yml"
+        env:
+        - PRE_STEPS
+        - RACK
+        image-name: ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+        cache-from:
+        - base:973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-br-main
+        push:
+        - base:973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-br-main
+        image-repository: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds
+  - label: ":docker: ruby:3.1"
+    key: docker-image-ruby-3-1
+    agents:
+      queue: builder
+    env:
+      RUBY_IMAGE: ruby:3.1
+      encrypted_0fb9444d0374_key:
+      encrypted_0fb9444d0374_iv:
+    timeout_in_minutes: 15
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".dockerignore"
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        build: base
+        config: ".buildkite/docker-compose.yml"
+        env:
+        - PRE_STEPS
+        - RACK
+        image-name: ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+        cache-from:
+        - base:973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-br-main
+        push:
+        - base:973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-br-main
+        image-repository: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds
+  - label: ":docker: ruby:3.0"
+    key: docker-image-ruby-3-0
+    agents:
+      queue: builder
+    env:
+      RUBY_IMAGE: ruby:3.0
+      encrypted_0fb9444d0374_key:
+      encrypted_0fb9444d0374_iv:
+    timeout_in_minutes: 15
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".dockerignore"
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        build: base
+        config: ".buildkite/docker-compose.yml"
+        env:
+        - PRE_STEPS
+        - RACK
+        image-name: ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+        cache-from:
+        - base:973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-br-main
+        push:
+        - base:973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-br-main
+        image-repository: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds
+  - label: ":docker: ruby:2.7"
+    key: docker-image-ruby-2-7
+    agents:
+      queue: builder
+    env:
+      RUBY_IMAGE: ruby:2.7
+      encrypted_0fb9444d0374_key:
+      encrypted_0fb9444d0374_iv:
+    timeout_in_minutes: 15
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".dockerignore"
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        build: base
+        config: ".buildkite/docker-compose.yml"
+        env:
+        - PRE_STEPS
+        - RACK
+        image-name: ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+        cache-from:
+        - base:973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-br-main
+        push:
+        - base:973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-br-main
+        image-repository: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds
+  - label: ":docker: rubylang/ruby:master-nightly-jammy"
+    key: docker-image-rubylang-ruby-master-nightly-jammy
+    agents:
+      queue: builder
+    env:
+      RUBY_IMAGE: rubylang/ruby:master-nightly-jammy
+      encrypted_0fb9444d0374_key:
+      encrypted_0fb9444d0374_iv:
+    soft_fail: true
+    timeout_in_minutes: 15
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".dockerignore"
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        build: base
+        config: ".buildkite/docker-compose.yml"
+        env:
+        - PRE_STEPS
+        - RACK
+        image-name: rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+        cache-from:
+        - base:973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-br-main
+        push:
+        - base:973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-br-main
+        image-repository: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds
+- label: zomg
+  group:
+  steps:
+  - label: my command
+    command:
+    - ruby -v
+    agents:
+      queue: default
+    plugins:
+    - '{:"docker#v5.8.0"=>{:image=>"ruby:latest"}}': {}
+- label: ruby:2.7
+  group:
+  steps:
+  - label: actioncable (2.7)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: actionmailbox (2.7)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailbox
+  - label: actionmailer (2.7)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailer
+  - label: actionpack (2.7)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionpack
+  - label: actionview (2.7)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionview
+  - label: activejob (2.7)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+  - label: activemodel (2.7)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activemodel
+  - label: activerecord mysql2 (2.7)
+    command:
+    - rake db:mysql:rebuild mysql2:test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord postgresql (2.7)
+    command:
+    - rake db:postgresql:rebuild postgresql:test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord sqlite3 (2.7)
+    command:
+    - rake sqlite3:test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord trilogy (2.7)
+    command:
+    - rake db:mysql:rebuild trilogy:test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activestorage (2.7)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activestorage
+  - label: activesupport (2.7)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activesupport
+  - label: guides (2.7)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - guides
+  - label: railties (2.7)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: railties
+        pull: railties
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - railties
+  - label: actioncable integration (2.7)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: activejob integration (2.7)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-ruby-2-7
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-2-7-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: activejob
+        pull: activejob
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+- label: ruby:3.0
+  group:
+  steps:
+  - label: actioncable (3.0)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: actionmailbox (3.0)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailbox
+  - label: actionmailer (3.0)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailer
+  - label: actionpack (3.0)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionpack
+  - label: actionview (3.0)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionview
+  - label: activejob (3.0)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+  - label: activemodel (3.0)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activemodel
+  - label: activerecord mysql2 (3.0)
+    command:
+    - rake db:mysql:rebuild mysql2:test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord postgresql (3.0)
+    command:
+    - rake db:postgresql:rebuild postgresql:test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord sqlite3 (3.0)
+    command:
+    - rake sqlite3:test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord trilogy (3.0)
+    command:
+    - rake db:mysql:rebuild trilogy:test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activestorage (3.0)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activestorage
+  - label: activesupport (3.0)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activesupport
+  - label: guides (3.0)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - guides
+  - label: railties (3.0)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: railties
+        pull: railties
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - railties
+  - label: actioncable integration (3.0)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: activejob integration (3.0)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-ruby-3-0
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-0-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: activejob
+        pull: activejob
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+- label: ruby:3.1
+  group:
+  steps:
+  - label: actioncable (3.1)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: actionmailbox (3.1)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailbox
+  - label: actionmailer (3.1)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailer
+  - label: actionpack (3.1)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionpack
+  - label: actionview (3.1)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionview
+  - label: activejob (3.1)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+  - label: activemodel (3.1)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activemodel
+  - label: activerecord mysql2 (3.1)
+    command:
+    - rake db:mysql:rebuild mysql2:test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord postgresql (3.1)
+    command:
+    - rake db:postgresql:rebuild postgresql:test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord sqlite3 (3.1)
+    command:
+    - rake sqlite3:test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord trilogy (3.1)
+    command:
+    - rake db:mysql:rebuild trilogy:test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activestorage (3.1)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activestorage
+  - label: activesupport (3.1)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activesupport
+  - label: guides (3.1)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - guides
+  - label: railties (3.1)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: railties
+        pull: railties
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - railties
+  - label: actioncable integration (3.1)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: activejob integration (3.1)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-ruby-3-1
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-1-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: activejob
+        pull: activejob
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+- label: ruby:3.2
+  group:
+  steps:
+  - label: actioncable (3.2)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: actionmailbox (3.2)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailbox
+  - label: actionmailer (3.2)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailer
+  - label: actionpack (3.2)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionpack
+  - label: actionpack [rack-2]
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+      PRE_STEPS: bundle install
+      RACK: "~> 2.0"
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionpack
+  - label: actionpack [rack-head]
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+      PRE_STEPS: rm Gemfile.lock && bundle install
+      RACK: head
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionpack
+  - label: actionview (3.2)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionview
+  - label: activejob (3.2)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+  - label: activemodel (3.2)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activemodel
+  - label: activerecord mysql2 (3.2)
+    command:
+    - rake db:mysql:rebuild mysql2:test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord mysql2 [mariadb]
+    command:
+    - rake db:mysql:rebuild mysql2:test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+      MYSQL_IMAGE: mariadb:latest
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord mysql2 [mysql_5_7]
+    command:
+    - rake db:mysql:rebuild mysql2:test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+      MYSQL_IMAGE: mysql:5.7
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord mysql2 [prepared_statements]
+    command:
+    - rake db:mysql:rebuild mysql2:test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+      MYSQL_PREPARED_STATEMENTS: 'true'
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord postgresql (3.2)
+    command:
+    - rake db:postgresql:rebuild postgresql:test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord sqlite3 (3.2)
+    command:
+    - rake sqlite3:test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord sqlite3_mem
+    command:
+    - rake sqlite3_mem:test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord trilogy (3.2)
+    command:
+    - rake db:mysql:rebuild trilogy:test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord trilogy [mariadb]
+    command:
+    - rake db:mysql:rebuild trilogy:test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+      MYSQL_IMAGE: mariadb:latest
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord trilogy [mysql_5_7]
+    command:
+    - rake db:mysql:rebuild trilogy:test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+      MYSQL_IMAGE: mysql:5.7
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activestorage (3.2)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activestorage
+  - label: activesupport (3.2)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activesupport
+  - label: guides (3.2)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - guides
+  - label: railties (3.2)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: railties
+        pull: railties
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - railties
+  - label: railties [rack-2]
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+      PRE_STEPS: bundle install
+      RACK: "~> 2.0"
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: railties
+        pull: railties
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - railties
+  - label: railties [rack-head]
+    command:
+    - rake test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+      PRE_STEPS: rm Gemfile.lock && bundle install
+      RACK: head
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: railties
+        pull: railties
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - railties
+  - label: actioncable integration (3.2)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: actionview ujs
+    command:
+    - rake test:ujs
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: actionview
+        pull: actionview
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionview
+  - label: activejob integration (3.2)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: activejob
+        pull: activejob
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+- label: rubylang/ruby:master-nightly-jammy
+  group:
+  steps:
+  - label: actioncable (master)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: actionmailbox (master)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailbox
+  - label: actionmailer (master)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailer
+  - label: actionpack (master)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionpack
+  - label: actionview (master)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionview
+  - label: activejob (master)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+  - label: activemodel (master)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activemodel
+  - label: activerecord mysql2 (master)
+    command:
+    - rake db:mysql:rebuild mysql2:test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord postgresql (master)
+    command:
+    - rake db:postgresql:rebuild postgresql:test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord sqlite3 (master)
+    command:
+    - rake sqlite3:test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord trilogy (master)
+    command:
+    - rake db:mysql:rebuild trilogy:test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activestorage (master)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activestorage
+  - label: activesupport (master)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activesupport
+  - label: guides (master)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - guides
+  - label: railties (master)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: railties
+        pull: railties
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - railties
+  - label: actioncable integration (master)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: activejob integration (master)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: activejob
+        pull: activejob
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+- label: yjit:rubylang/ruby:master-nightly-jammy
+  group:
+  steps:
+  - label: actioncable (yjit)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: actionmailbox (yjit)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailbox
+  - label: actionmailer (yjit)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailer
+  - label: actionpack (yjit)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionpack
+  - label: actionview (yjit)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionview
+  - label: activejob (yjit)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+  - label: activemodel (yjit)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activemodel
+  - label: activerecord mysql2 (yjit)
+    command:
+    - rake db:mysql:rebuild mysql2:test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord postgresql (yjit)
+    command:
+    - rake db:postgresql:rebuild postgresql:test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord sqlite3 (yjit)
+    command:
+    - rake sqlite3:test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord trilogy (yjit)
+    command:
+    - rake db:mysql:rebuild trilogy:test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activestorage (yjit)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activestorage
+  - label: activesupport (yjit)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activesupport
+  - label: guides (yjit)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - guides
+  - label: railties (yjit)
+    command:
+    - rake test
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: railties
+        pull: railties
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - railties
+  - label: actioncable integration (yjit)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actioncable
+  - label: activejob integration (yjit)
+    command:
+    - rake test:integration
+    depends_on:
+    - docker-image-rubylang-ruby-master-nightly-jammy
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:rubylang-ruby-master-nightly-jammy-018a49ff-7759-45e9-9cfe-99d414dafc01
+      RUBY_YJIT_ENABLE: '1'
+    soft_fail: true
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: activejob
+        pull: activejob
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+- label: isolated
+  group:
+  steps:
+  - label: activerecord mysql2:isolated
+    command:
+    - rake db:mysql:rebuild mysql2:isolated_test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord postgresql:isolated
+    command:
+    - rake db:postgresql:rebuild postgresql:isolated_test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: postgresdb
+        pull: postgresdb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord sqlite3:isolated
+    command:
+    - rake sqlite3:isolated_test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: activerecord trilogy:isolated
+    command:
+    - rake db:mysql:rebuild trilogy:isolated_test
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: mysqldb
+        pull: mysqldb
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activerecord
+  - label: actionmailer isolated
+    command:
+    - rake test:isolated
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionmailer
+  - label: actionpack isolated
+    command:
+    - rake test:isolated
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionpack
+  - label: actionview isolated
+    command:
+    - rake test:isolated
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - actionview
+  - label: activejob isolated
+    command:
+    - rake test:isolated
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activejob
+  - label: activemodel isolated
+    command:
+    - rake test:isolated
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activemodel
+  - label: activesupport isolated
+    command:
+    - rake test:isolated
+    depends_on:
+    - docker-image-ruby-3-2
+    artifact_paths:
+    - test-reports/*/*.xml
+    agents:
+      queue: default
+    retry:
+      automatic:
+      - limit: 2
+        exit_status: -1
+    env:
+      IMAGE_NAME: 973266071021.dkr.ecr.us-east-1.amazonaws.com/builds:ruby-3-2-018a49ff-7759-45e9-9cfe-99d414dafc01
+    timeout_in_minutes: 30
+    plugins:
+    - artifacts#v1.2.0:
+        download:
+        - ".buildkite/*"
+        - ".buildkite/**/*"
+    - docker-compose#v3.7.0:
+        env:
+        - PRE_STEPS
+        - RACK
+        run: default
+        pull: default
+        config: ".buildkite/docker-compose.yml"
+        shell:
+        - runner
+        - activesupport
