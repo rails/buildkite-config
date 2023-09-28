@@ -310,7 +310,7 @@ if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
     x["env"]["MYSQL_IMAGE"] = "mariadb:latest"
   end
 end
-steps_for("actioncable", "test:integration", service: "default") do |x|
+steps_for("actioncable", "db:postgresql:rebuild test:integration", service: "default") do |x|
   if RAILS_VERSION < Gem::Version.new("6.x")
     x["soft_fail"] = true
   else
