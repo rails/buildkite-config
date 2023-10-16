@@ -361,7 +361,7 @@ STEPS.find { |s| s["label"] == "activestorage (2.2)" }&.tap do |s|
 end
 
 # Bug report templates
-STEPS.find { |s| s["label"] =~ /^guides/  }&.tap do |s|
+STEPS.select { |s| s["label"] =~ /^guides/  }.each do |s|
   s["soft_fail"] = true
 end
 if RAILS_VERSION < Gem::Version.new("7.x") && RAILS_VERSION >= Gem::Version.new("6.1")
