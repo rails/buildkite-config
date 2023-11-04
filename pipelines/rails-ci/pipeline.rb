@@ -31,7 +31,7 @@ DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
 ARTIFACTS_PLUGIN = "artifacts#v1.2.0"
 
 #REPO_ROOT = Pathname.new(ARGV.shift || File.expand_path("../..", __FILE__))
-if ENV["BUILDKITE_PIPELINE_NAME"] == "rails-ci" || ENV["BUILDKITE_PIPELINE_NAME"] == "zzak/rails"
+if %w[rails-ci rails-sandbox zzak/rails].include?(ENV["BUILDKITE_PIPELINE_NAME"])
   REPO_ROOT = Pathname.new(Dir.pwd)
 else
   REPO_ROOT = Pathname.new(Dir.pwd) + "tmp/rails"
