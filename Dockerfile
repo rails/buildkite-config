@@ -106,6 +106,9 @@ RUN chmod +x /usr/local/bin/await-all /usr/local/bin/runner
 
 # Wildcard ignores missing files; .empty ensures ADD always has at least
 # one valid source: https://stackoverflow.com/a/46801962
+#
+# Essentially, `ADD railties/exe/* railties/exe/` will error if the wildcard doesn't match any files;
+# `ADD .buildkite/.empty railties/exe/* railties/exe/` always matches at least one source file, so no error
 ADD .buildkite/.empty actioncable/package.jso[n] actioncable/
 ADD .buildkite/.empty actiontext/package.jso[n] actiontext/
 ADD .buildkite/.empty actionview/package.jso[n] actionview/
