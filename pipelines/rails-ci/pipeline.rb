@@ -180,6 +180,7 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
       ruby || ONE_RUBY
     end
 
+  # TODO MYSQL_IMAGE, POSTGRES_IMAGE
   if RAILS_VERSION < Gem::Version.new("5.x")
     env["MYSQL_IMAGE"] = "mysql:5.6"
   elsif RAILS_VERSION < Gem::Version.new("6.x")
