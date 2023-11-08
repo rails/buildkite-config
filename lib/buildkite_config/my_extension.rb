@@ -53,6 +53,10 @@ module Buildkite::Config
       def automatic_retry_on
         @automatic_retry_on ||= { exit_status: -1, limit: 2 }
       end
+
+      def timeout_in_minutes
+        @timeout_in_minutes ||= 30
+      end
     end
 
     def prepare
@@ -111,6 +115,8 @@ module Buildkite::Config
           agents queue: Buildkite::Config::MyExtension.run_queue
           artifact_paths Buildkite::Config::MyExtension.artifact_paths
           automatic_retry_on(**Buildkite::Config::MyExtension.automatic_retry_on)
+          timeout_in_minutes Buildkite::Config::MyExtension.timeout_in_minutes
+          soft_fail args[:soft_fail] || false
         end
       end
 

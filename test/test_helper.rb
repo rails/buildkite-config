@@ -15,6 +15,8 @@ class PipelineFixture < Buildkite::Builder::Pipeline
 end
 
 class TestCase < Minitest::Test
+  make_my_diffs_pretty!
+
   def build_pipeline(data)
     {
       steps: [

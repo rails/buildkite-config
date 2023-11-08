@@ -58,6 +58,8 @@ class TestMyExtension < TestCase
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
         "artifact_paths"=>["test-results/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "timeout_in_minutes"=>30,
+        "soft_fail"=>[false],
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
           {"docker-compose#v3.7.0"=>
@@ -85,6 +87,8 @@ class TestMyExtension < TestCase
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
         "artifact_paths"=>["test-results/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "timeout_in_minutes"=>30,
+        "soft_fail"=>[false],
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
           {"docker-compose#v3.7.0"=>
@@ -100,6 +104,8 @@ class TestMyExtension < TestCase
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
         "artifact_paths"=>["test-results/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "timeout_in_minutes"=>30,
+        "soft_fail"=>[false],
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
           {"docker-compose#v3.7.0"=>
@@ -126,6 +132,8 @@ class TestMyExtension < TestCase
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
         "artifact_paths"=>["test-results/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "timeout_in_minutes"=>30,
+        "soft_fail"=>[false],
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
           {"docker-compose#v3.7.0"=>
@@ -152,6 +160,8 @@ class TestMyExtension < TestCase
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
         "artifact_paths"=>["test-results/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:rubylang-ruby-master-nightly-jammy-local", "RUBY_YJIT_ENABLE"=>"1"},
+        "timeout_in_minutes"=>30,
+        "soft_fail"=>[false],
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
           {"docker-compose#v3.7.0"=>
@@ -178,6 +188,8 @@ class TestMyExtension < TestCase
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
         "artifact_paths"=>["test-results/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local", "PRE_STEPS"=>"rm Gemfile.lock && bundle install"},
+        "timeout_in_minutes"=>30,
+        "soft_fail"=>[false],
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
           {"docker-compose#v3.7.0"=>
@@ -207,6 +219,8 @@ class TestMyExtension < TestCase
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
         "artifact_paths"=>["test-results/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "timeout_in_minutes"=>30,
+        "soft_fail"=>[false],
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
           {"docker-compose#v3.7.0"=>
@@ -238,6 +252,8 @@ class TestMyExtension < TestCase
         "agents"=>{"queue"=>"default"},
         "artifact_paths"=>["test_artifact_paths"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "timeout_in_minutes"=>30,
+        "soft_fail"=>[false],
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
           {"docker-compose#v3.7.0"=>
@@ -269,6 +285,8 @@ class TestMyExtension < TestCase
         "agents"=>{"queue"=>"default"},
         "artifact_paths"=>["test-results/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "timeout_in_minutes"=>30,
+        "soft_fail"=>[false],
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
           {"docker-compose#v3.7.0"=>
@@ -280,5 +298,66 @@ class TestMyExtension < TestCase
     assert_equal expected, pipeline.to_h
   ensure
     Buildkite::Config::MyExtension.instance_variable_set(:@automatic_retry_on, @before_automatic_retry_on)
+  end
+
+  def test_timeout_in_minutes
+    @before_timeout_in_minutes = Buildkite::Config::MyExtension.timeout_in_minutes
+    Buildkite::Config::MyExtension.instance_variable_set(:@timeout_in_minutes, 10)
+
+    pipeline = PipelineFixture.new do
+      use Buildkite::Config::MyExtension
+
+      component
+    end
+
+    expected = {"steps"=>
+      [{"label"=>" ",
+        "command"=>["rake "],
+        "depends_on"=>["docker-image-3-2"],
+        "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
+        "agents"=>{"queue"=>"default"},
+        "artifact_paths"=>["test-results/*/*.xml"],
+        "timeout_in_minutes"=>10,
+        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "soft_fail"=>[false],
+        "plugins"=>
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+          {"docker-compose#v3.7.0"=>
+            {"env"=>["PRE_STEPS", "RACK"],
+            "run"=>"default",
+            "pull"=>"default",
+            "config"=>".buildkite/docker-compose.yml",
+            "shell"=>["runner", nil]}}]}]}
+    assert_equal expected, pipeline.to_h
+  ensure
+    Buildkite::Config::MyExtension.instance_variable_set(:@timeout_in_minutes, @before_timeout_in_minutes)
+  end
+
+  def test_soft_fail
+    pipeline = PipelineFixture.new do
+      use Buildkite::Config::MyExtension
+
+      component soft_fail: true
+    end
+
+    expected = {"steps"=>
+      [{"label"=>" ",
+        "command"=>["rake "],
+        "depends_on"=>["docker-image-3-2"],
+        "agents"=>{"queue"=>"default"},
+        "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
+        "artifact_paths"=>["test-results/*/*.xml"],
+        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "timeout_in_minutes"=>30,
+        "soft_fail"=>true,
+        "plugins"=>
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+          {"docker-compose#v3.7.0"=>
+            {"env"=>["PRE_STEPS", "RACK"],
+            "run"=>"default",
+            "pull"=>"default",
+            "config"=>".buildkite/docker-compose.yml",
+            "shell"=>["runner", nil]}}]}]}
+    assert_equal expected, pipeline.to_h
   end
 end
