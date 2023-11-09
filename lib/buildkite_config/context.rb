@@ -25,6 +25,10 @@ module Buildkite::Config
       @yjit_ruby ||= "yjit:#{master_ruby}"
     end
 
+    def soft_fail
+      @soft_fail ||= []
+    end
+
     # DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
     def docker_compose_plugin
       @docker_compose_plugin ||= "docker-compose#v3.7.0"
@@ -42,12 +46,44 @@ module Buildkite::Config
 
     # BUILD_ID = "local"
     def build_id
-      @local ||= "local"
+      @local ||= ENV["BUILD_ID"] || "local"
+    end
+
+    def rebuild_id
+      @rebuild_id ||= ([ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]] - [""]).first
+    end
+
+    def base_branch
+      @base_branch ||= ([ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"], ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
+    end
+
+    def local_branch
+      @local_branch ||= ([ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
+    end
+
+    def pull_request
+      @pull_request ||= ([ENV["BUILDKITE_PULL_REQUEST"]] - ["false"]).first
+    end
+
+    def standard_queues
+      @standard_queues ||= [nil, "default", "builder"]
+    end
+
+    # If the pipeline is running in a non-standard queue, default to
+    # running everything in that queue.
+    def queue
+      unless standard_queues.include?(ENV["BUILDKITE_AGENT_META_DATA_QUEUE"])
+        @queue ||= ENV["BUILDKITE_AGENT_META_DATA_QUEUE"]
+      end
+    end
+
+    def build_queue
+      @build_queue ||= ENV["BUILD_QUEUE"] || queue || "builder"
     end
 
     # RUN_QUEUE = ENV["RUN_QUEUE"] || ENV["QUEUE"] || "default"
     def run_queue
-      @run_queue ||= ENV["RUN_QUEUE"] || ENV["QUEUE"] || "default"
+      @run_queue ||= ENV["RUN_QUEUE"] || queue || "default"
     end
 
     def artifact_paths
@@ -76,26 +112,11 @@ module Buildkite::Config
       end
     end
 
-    def mangle_name(name)
-      name.tr("^A-Za-z0-9", "-")
-    end
-
     def ruby_image(ruby)
       if ruby == yjit_ruby
         ruby.sub("yjit:", "")
       else
         ruby
-      end
-    end
-
-    # A shortened version of the name for the Buildkite label.
-    def short_ruby(ruby)
-      if ruby == master_ruby
-        "master"
-      elsif ruby == yjit_ruby
-        "yjit"
-      else
-        ruby.sub(/^ruby:|:latest$/, "")
       end
     end
 
@@ -106,5 +127,21 @@ module Buildkite::Config
 
       str << " (#{short_ruby(args[:ruby])})"
     end
+
+    private
+      def mangle_name(name)
+        name.tr("^A-Za-z0-9", "-")
+      end
+
+      # A shortened version of the name for the Buildkite label.
+      def short_ruby(ruby)
+        if ruby == master_ruby
+          "master"
+        elsif ruby == yjit_ruby
+          "yjit"
+        else
+          ruby.sub(/^ruby:|:latest$/, "")
+        end
+      end
   end
 end
