@@ -72,7 +72,7 @@ module Buildkite::Config
     end
 
     dsl do
-      def component(**args)
+      def component(**args, &block)
         _label = to_label(**args)
         _ruby_image = ruby_image(args[:ruby] || Buildkite::Config::MyExtension.one_ruby).gsub(/\W/, "-")
         _service = args[:service] || "default"
@@ -117,9 +117,10 @@ module Buildkite::Config
           automatic_retry_on(**Buildkite::Config::MyExtension.automatic_retry_on)
           timeout_in_minutes Buildkite::Config::MyExtension.timeout_in_minutes
           soft_fail args[:soft_fail] || false
+
+          instance_eval(&block) if block_given?
         end
       end
-
 
       ## Helpers
 

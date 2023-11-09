@@ -360,4 +360,35 @@ class TestMyExtension < TestCase
             "shell"=>["runner", nil]}}]}]}
     assert_equal expected, pipeline.to_h
   end
+
+  def test_component_with_block
+    pipeline = PipelineFixture.new do
+      use Buildkite::Config::MyExtension
+
+      component do
+        label "test_component_with_block"
+        env["MYSQL_IMAGE"] = "mariadb:latest"
+      end
+    end
+
+    expected = {"steps"=>
+      [{"label"=>"test_component_with_block",
+        "command"=>["rake "],
+        "depends_on"=>["docker-image-3-2"],
+        "agents"=>{"queue"=>"default"},
+        "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
+        "artifact_paths"=>["test-results/*/*.xml"],
+        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local", "MYSQL_IMAGE"=>"mariadb:latest"},
+        "timeout_in_minutes"=>30,
+        "soft_fail"=>[false],
+        "plugins"=>
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+          {"docker-compose#v3.7.0"=>
+            {"env"=>["PRE_STEPS", "RACK"],
+            "run"=>"default",
+            "pull"=>"default",
+            "config"=>".buildkite/docker-compose.yml",
+            "shell"=>["runner", nil]}}]}]}
+    assert_equal expected, pipeline.to_h
+  end
 end
