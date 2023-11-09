@@ -365,15 +365,15 @@ class TestMyExtension < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::MyExtension
 
-      component do
-        label "test_component_with_block"
+      component subdirectory: "test", rake_task: "component" do |attrs|
+        label "#{attrs["label"]} with_block"
         env["MYSQL_IMAGE"] = "mariadb:latest"
       end
     end
 
     expected = {"steps"=>
-      [{"label"=>"test_component_with_block",
-        "command"=>["rake "],
+      [{"label"=>"test component with_block",
+        "command"=>["rake component"],
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
@@ -388,7 +388,7 @@ class TestMyExtension < TestCase
             "run"=>"default",
             "pull"=>"default",
             "config"=>".buildkite/docker-compose.yml",
-            "shell"=>["runner", nil]}}]}]}
+            "shell"=>["runner", "test"]}}]}]}
     assert_equal expected, pipeline.to_h
   end
 end

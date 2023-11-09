@@ -118,7 +118,7 @@ module Buildkite::Config
           timeout_in_minutes Buildkite::Config::MyExtension.timeout_in_minutes
           soft_fail args[:soft_fail] || false
 
-          instance_eval(&block) if block_given?
+          instance_exec(@attributes, &block) if block_given?
         end
       end
 
