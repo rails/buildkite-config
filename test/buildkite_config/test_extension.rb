@@ -9,7 +9,7 @@ class TestMyExtension < TestCase
       use Buildkite::Config::MyExtension
 
       group do
-        label to_label(subdirectory: "test", rake_task: "test:all", ruby: "3.2")
+        label my_context.to_label(subdirectory: "test", rake_task: "test:all", ruby: "3.2")
       end
     end
 
@@ -22,7 +22,7 @@ class TestMyExtension < TestCase
       use Buildkite::Config::MyExtension
 
       group do
-        depends_on ruby_image("3.2")
+        depends_on my_context.ruby_image("3.2")
       end
     end
 
@@ -35,11 +35,11 @@ class TestMyExtension < TestCase
       use Buildkite::Config::MyExtension
 
       group do
-        depends_on ruby_image(Buildkite::Config::MyExtension.yjit_ruby)
+        depends_on my_context.ruby_image(my_context.yjit_ruby)
       end
     end
 
-    expected = {"steps" => [{ "depends_on" => [Buildkite::Config::MyExtension.master_ruby], "group" => nil, "steps" => [] }] }
+    expected = {"steps" => [{ "depends_on" => ["rubylang/ruby:master-nightly-jammy"], "group" => nil, "steps" => [] }] }
     assert_equal expected, pipeline.to_h
   end
 
@@ -149,7 +149,7 @@ class TestMyExtension < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::MyExtension
 
-      component ruby: Buildkite::Config::MyExtension::yjit_ruby
+      component ruby: my_context.yjit_ruby
     end
 
     expected = {"steps"=>
@@ -202,13 +202,12 @@ class TestMyExtension < TestCase
   end
 
   def test_agents
-    @before_agent_queue = Buildkite::Config::MyExtension.run_queue
-    Buildkite::Config::MyExtension.instance_variable_set(:@run_queue, "test_agents")
-
     pipeline = PipelineFixture.new do
       use Buildkite::Config::MyExtension
 
-      component
+      component do
+        agents queue: "test_agents"
+      end
     end
 
     expected = {"steps"=>
@@ -230,18 +229,15 @@ class TestMyExtension < TestCase
             "config"=>".buildkite/docker-compose.yml",
             "shell"=>["runner", nil]}}]}]}
     assert_equal expected, pipeline.to_h
-  ensure
-    Buildkite::Config::MyExtension.instance_variable_set(:@run_queue, @before_agent_queue)
   end
 
   def test_artifact_paths
-    @before_artifact_paths = Buildkite::Config::MyExtension.artifact_paths
-    Buildkite::Config::MyExtension.instance_variable_set(:@artifact_paths, ["test_artifact_paths"])
-
     pipeline = PipelineFixture.new do
       use Buildkite::Config::MyExtension
 
-      component
+      component do
+        artifact_paths ["test_artifact_paths"]
+      end
     end
 
     expected = {"steps"=>
@@ -263,18 +259,18 @@ class TestMyExtension < TestCase
             "config"=>".buildkite/docker-compose.yml",
             "shell"=>["runner", nil]}}]}]}
     assert_equal expected, pipeline.to_h
-  ensure
-    Buildkite::Config::MyExtension.instance_variable_set(:@artifact_paths, @before_artifact_paths)
   end
 
   def test_automatic_retry_on
-    @before_automatic_retry_on = Buildkite::Config::MyExtension.automatic_retry_on
-    Buildkite::Config::MyExtension.instance_variable_set(:@automatic_retry_on, {limit: 1, exit_status: 127})
-
     pipeline = PipelineFixture.new do
       use Buildkite::Config::MyExtension
 
-      component
+      component do |attrs|
+        # Reset "automatic_retry_on" from the default
+        # Since this does a push, and we only want a single value, I think.
+        attrs["retry"] = nil
+        automatic_retry_on limit: 1, exit_status: 127
+      end
     end
 
     expected = {"steps"=>
@@ -296,18 +292,15 @@ class TestMyExtension < TestCase
             "config"=>".buildkite/docker-compose.yml",
             "shell"=>["runner", nil]}}]}]}
     assert_equal expected, pipeline.to_h
-  ensure
-    Buildkite::Config::MyExtension.instance_variable_set(:@automatic_retry_on, @before_automatic_retry_on)
   end
 
   def test_timeout_in_minutes
-    @before_timeout_in_minutes = Buildkite::Config::MyExtension.timeout_in_minutes
-    Buildkite::Config::MyExtension.instance_variable_set(:@timeout_in_minutes, 10)
-
     pipeline = PipelineFixture.new do
       use Buildkite::Config::MyExtension
 
-      component
+      component do
+        timeout_in_minutes 10
+      end
     end
 
     expected = {"steps"=>
@@ -329,8 +322,6 @@ class TestMyExtension < TestCase
             "config"=>".buildkite/docker-compose.yml",
             "shell"=>["runner", nil]}}]}]}
     assert_equal expected, pipeline.to_h
-  ensure
-    Buildkite::Config::MyExtension.instance_variable_set(:@timeout_in_minutes, @before_timeout_in_minutes)
   end
 
   def test_soft_fail
