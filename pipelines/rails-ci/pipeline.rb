@@ -103,7 +103,7 @@ Buildkite::Builder.pipeline do
   end
 
   RUBIES.each do |ruby|
-    ruby_group do
+    ruby_group ruby do
       # GROUP 1: Runs additional isolated tests for non-PR builds
       %w(
         actionpack      test                default
