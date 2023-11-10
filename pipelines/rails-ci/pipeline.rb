@@ -1,33 +1,13 @@
 
-require "json"
-require "net/http"
 require "pathname"
 require "yaml"
 
-STANDARD_QUEUES = [nil, "default", "builder"]
-
-# If the pipeline is running in a non-standard queue, default to
-# running everything in that queue.
-unless STANDARD_QUEUES.include?(ENV["BUILDKITE_AGENT_META_DATA_QUEUE"])
-  ENV["QUEUE"] ||= ENV["BUILDKITE_AGENT_META_DATA_QUEUE"]
-end
-
-BUILD_QUEUE = ENV["BUILD_QUEUE"] || ENV["QUEUE"] || "builder"
-RUN_QUEUE = ENV["RUN_QUEUE"] || ENV["QUEUE"] || "default"
-
-IMAGE_BASE = ENV["DOCKER_IMAGE"] || "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{BUILD_QUEUE}-" unless STANDARD_QUEUES.include?(BUILD_QUEUE)}builds"
-
-BASE_BRANCH = ([ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"], ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
 LOCAL_BRANCH = ([ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
-PULL_REQUEST = ([ENV["BUILDKITE_PULL_REQUEST"]] - ["false"]).first
 
 BUILD_ID = ENV["BUILDKITE_BUILD_ID"]
 REBUILD_ID = ([ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]] - [""]).first
 
 MAINLINE = LOCAL_BRANCH == "main" || LOCAL_BRANCH =~ /\A[0-9-]+(?:-stable)?\z/
-
-DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
-ARTIFACTS_PLUGIN = "artifacts#v1.2.0"
 
 #REPO_ROOT = Pathname.new(ARGV.shift || File.expand_path("../..", __FILE__))
 if %w[rails-ci rails-sandbox zzak/rails].include?(ENV["BUILDKITE_PIPELINE_NAME"])
@@ -82,8 +62,6 @@ RUBY_MINORS.select { |v| v >= MIN_RUBY }.each do |v|
   end
 end
 
-ONE_RUBY = RUBIES.last || SOFT_FAIL.last
-
 MASTER_RUBY = "rubylang/ruby:master-nightly-jammy"
 SOFT_FAIL << MASTER_RUBY
 
@@ -99,163 +77,6 @@ SOFT_FAIL.reverse!
 
 # Run soft-failing Ruby steps last.
 RUBIES.concat SOFT_FAIL
-
-STEPS = []
-
-def image_name_for(ruby, suffix = BUILD_ID, short: false)
-  ruby = ruby_image(ruby)
-
-  tag = "#{mangle_name(ruby)}-#{suffix}"
-
-  if short
-    tag
-  else
-    "#{IMAGE_BASE}:#{tag}"
-  end
-end
-
-def mangle_name(name)
-  name.tr("^A-Za-z0-9", "-")
-end
-
-# YJIT uses the same image as ruby-trunk because it's turned on
-# via an ENV var. This needs to remove the `yjit:` added onto the
-# front because otherwise it's not a valid image.
-def ruby_image(ruby)
-  if ruby == YJIT_RUBY
-    ruby.sub("yjit:", "")
-  else
-    ruby
-  end
-end
-
-# A shortened version of the name for the Buildkite label.
-def short_ruby(ruby)
-  if ruby == MASTER_RUBY
-    "master"
-  elsif ruby == YJIT_RUBY
-    "yjit"
-  else
-    ruby.sub(/^ruby:|:latest$/, "")
-  end
-end
-
-def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: [])
-  return unless REPO_ROOT.join(subdirectory).exist?
-
-  label = +"#{subdirectory} #{rake_task.sub(/[:_]test|test:/, "")}"
-  label.sub!(/ test/, "")
-  if ruby
-    label << " (#{short_ruby(ruby)})"
-  end
-
-  if rake_task.start_with?("mysql2:") || (RAILS_VERSION >= Gem::Version.new("7.1.0.alpha") && rake_task.start_with?("trilogy:"))
-    rake_task = "db:mysql:rebuild #{rake_task}"
-  elsif rake_task.start_with?("postgresql:")
-    rake_task = "db:postgresql:rebuild #{rake_task}"
-  end
-
-  env = {
-    "IMAGE_NAME" => image_name_for(ruby || ONE_RUBY),
-  }
-
-  # If we have YJIT_RUBY set the environment variable
-  # to turn it on.
-  if ruby == YJIT_RUBY
-    env["RUBY_YJIT_ENABLE"] = "1"
-  end
-
-  if !pre_steps.empty?
-    env["PRE_STEPS"] = pre_steps.join(" && ")
-  end
-  command = "rake #{rake_task}"
-
-  timeout = 30
-
-  group =
-    if rake_task.include?("isolated")
-      "isolated"
-    else
-      ruby || ONE_RUBY
-    end
-
-  # TODO MYSQL_IMAGE, POSTGRES_IMAGE
-  if RAILS_VERSION < Gem::Version.new("5.x")
-    env["MYSQL_IMAGE"] = "mysql:5.6"
-  elsif RAILS_VERSION < Gem::Version.new("6.x")
-    env["MYSQL_IMAGE"] = "mysql:5.7"
-  end
-
-  if RAILS_VERSION < Gem::Version.new("5.2.x")
-    env["POSTGRES_IMAGE"] = "postgres:9.6-alpine"
-  end
-
-  hash = {
-    "label" => label,
-    "depends_on" => "docker-image-#{ruby_image(ruby || ONE_RUBY).gsub(/\W/, "-")}",
-    "command" => command,
-    "group" => group,
-    "plugins" => [
-      {
-        ARTIFACTS_PLUGIN => {
-          "download" => [".buildkite/*", ".buildkite/**/*"],
-        },
-      },
-      {
-        DOCKER_COMPOSE_PLUGIN => {
-          "env" => [
-            "PRE_STEPS",
-            "RACK"
-          ],
-          "run" => service,
-          "pull" => service,
-          "config" => ".buildkite/docker-compose.yml",
-          "shell" => ["runner", subdirectory],
-        },
-      },
-    ],
-    "env" => env,
-    "timeout_in_minutes" => timeout,
-    "soft_fail" => SOFT_FAIL.include?(ruby),
-    "agents" => { "queue" => RUN_QUEUE },
-    "artifact_paths" => ["test-reports/*/*.xml"],
-    "retry" => { "automatic" => { "exit_status" => -1, "limit" => 2 } },
-  }
-
-  yield hash if block_given?
-
-  STEPS << hash
-end
-
-def steps_for(subdirectory, rake_task, service: "default", pre_steps: [], &block)
-  RUBIES.each do |ruby|
-    step_for(subdirectory, rake_task, ruby: ruby, service: service, pre_steps: pre_steps, &block)
-  end
-end
-
-# Ugly hacks to just get the build passing for now
-STEPS.find { |s| s["label"] == "activestorage (2.2)" }&.tap do |s|
-  s["soft_fail"] = true
-end
-if RAILS_VERSION < Gem::Version.new("7.x") && RAILS_VERSION >= Gem::Version.new("6.1")
-  STEPS.delete_if { |s| s["label"] == "guides (2.7)" || s["label"] == "guides (3.0)" }
-end
-STEPS.delete_if { |s| s["label"] =~ /^guides/ } if RAILS_VERSION < Gem::Version.new("7.0")
-
-###
-
-STEPS.sort_by! do |step|
-  [
-    -step["timeout_in_minutes"],
-    step["group"] == "isolated" ? 2 : 1,
-    step["command"].include?("test:") ? 2 : 1,
-    step["label"],
-  ]
-end
-
-groups = STEPS.group_by { |s| s.delete("group") }.map do |group, steps|
-  { "group" => group, "steps" => steps }
-end
 
 BUILDKITE_ROOT_DIR = if ENV["CI"]
   Pathname.new(File.expand_path("../../.buildkite", __dir__))
