@@ -16,16 +16,16 @@ module Buildkite::Config
       def compose(**args, &block)
         _my_context = my_context
 
-        _ruby_image = _my_context.ruby_image(args[:ruby] || _my_context.one_ruby).gsub(/\W/, "-")
+        _ruby_image = _my_context.ruby_image(context.data.ruby[:version] || _my_context.one_ruby).gsub(/\W/, "-")
         _service = args[:service] || "default"
         _pre_steps = args[:pre_steps] || []
 
         ## Setup ENV
         _env = {
-          "IMAGE_NAME" => _my_context.image_name_for(args[:ruby] || _my_context.one_ruby)
+          "IMAGE_NAME" => _my_context.image_name_for(context.data.ruby[:version] || _my_context.one_ruby)
         }
 
-        if args[:ruby] == _my_context.yjit_ruby
+        if context.data.ruby[:version] == _my_context.yjit_ruby
           _env["RUBY_YJIT_ENABLE"] = "1"
         end
 
@@ -33,10 +33,12 @@ module Buildkite::Config
           _env["PRE_STEPS"] = _pre_steps.join(" && ")
         end
 
+        _label = _my_context.to_label(ruby: context.data.ruby[:version], **args)
+
         #_my_context.my_var = "override"
 
         command do
-          label _my_context.to_label(**args)
+          label _label
           depends_on "docker-image-#{_ruby_image}"
           command "rake #{args[:rake_task]}"
 

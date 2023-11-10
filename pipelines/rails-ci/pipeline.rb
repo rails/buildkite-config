@@ -119,21 +119,21 @@ Buildkite::Builder.pipeline do
       ).each_slice(3) do |dir, task, service|
         next if RAILS_VERSION < Gem::Version.new("7.1.0.alpha") && task == "trilogy:test"
 
-        compose subdirectory: dir, rake_task: task, ruby: pipeline.data.ruby, service: service
+        compose subdirectory: dir, rake_task: task, service: service
 
         next unless MAINLINE
 
         if dir == "activerecord"
-          compose subdirectory: dir, rake_task: task.sub(":test", ":isolated_test"), ruby: ruby, service: service do
+          compose subdirectory: dir, rake_task: task.sub(":test", ":isolated_test"), service: service do
             parallelism 5 if REPO_ROOT.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
           end
         elsif dir == "actiontext"
           # added during 7.1 development on main
           if REPO_ROOT.join("actiontext/Rakefile").read.include?("task :isolated")
-            compose subdirectory: dir, rake_task: "#{task}:isolated", ruby: ruby, service: service
+            compose subdirectory: dir, rake_task: "#{task}:isolated", service: service
           end
         else
-          compose subdirectory: dir, rake_task: "#{task}:isolated", ruby: ruby, service: service
+          compose subdirectory: dir, rake_task: "#{task}:isolated", service: service
         end
       end
 
@@ -144,32 +144,32 @@ Buildkite::Builder.pipeline do
         actionmailbox   test                default
         guides          test                default
       ).each_slice(3) do |dir, task, service|
-        compose subdirectory: dir, rake_task: task, ruby: ruby, service: service
+        compose subdirectory: dir, rake_task: task, service: service
       end
 
       # GROUP 3: Special cases
 
       if RAILS_VERSION >= Gem::Version.new("5.1.x")
-        compose subdirectory: "activerecord", rake_task: "sqlite3_mem:test", ruby: ruby, service: "default"
+        compose subdirectory: "activerecord", rake_task: "sqlite3_mem:test", service: "default"
       end
       if RAILS_VERSION >= Gem::Version.new("6.1.x")
-        compose subdirectory: "activerecord", rake_task: "mysql2:test", ruby: ruby, service: "mysqldb" do |attrs|
+        compose subdirectory: "activerecord", rake_task: "mysql2:test", service: "mysqldb" do |attrs|
           label "#{attrs["label"]} [prepared_statements]"
           env["MYSQL_PREPARED_STATEMENTS"] = "true"
         end
       end
-      compose subdirectory: "activerecord", rake_task: "mysql2:test", ruby: ruby, service: "mysqldb" do |attrs|
+      compose subdirectory: "activerecord", rake_task: "mysql2:test", service: "mysqldb" do |attrs|
         label "#{attrs["label"]} [mysql_5_7]"
         env["MYSQL_IMAGE"] = "mysql:5.7"
       end
       if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
-        compose subdirectory: "activerecord", rake_task: "trilogy:test", ruby: ruby, service: "mysqldb" do |attrs|
+        compose subdirectory: "activerecord", rake_task: "trilogy:test", service: "mysqldb" do |attrs|
           label "#{attrs["label"]} [mysql_5_7]"
           env["MYSQL_IMAGE"] = "mysql:5.7"
         end
       end
       if RAILS_VERSION >= Gem::Version.new("5.x")
-        compose subdirectory: "activerecord", rake_task: "mysql2:test", ruby: ruby, service: "mysqldb" do |attrs|
+        compose subdirectory: "activerecord", rake_task: "mysql2:test", service: "mysqldb" do |attrs|
           label "#{attrs["label"]} [mariadb]"
           env["MYSQL_IMAGE"] =
             if RAILS_VERSION < Gem::Version.new("6.x")
@@ -180,12 +180,12 @@ Buildkite::Builder.pipeline do
         end
       end
       if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
-        compose subdirectory: "activerecord", rake_task: "trilogy:test", ruby: ruby, service: "mysqldb" do |attrs|
+        compose subdirectory: "activerecord", rake_task: "trilogy:test", service: "mysqldb" do |attrs|
           label "#{attrs["label"]} [mariadb]"
           env["MYSQL_IMAGE"] = "mariadb:latest"
         end
       end
-      compose subdirectory: "actioncache", rake_task: "test:integration", ruby: ruby, service: "default" do |attrs|
+      compose subdirectory: "actioncache", rake_task: "test:integration", service: "default" do |attrs|
         if RAILS_VERSION < Gem::Version.new("6.x")
           soft_fail true
         else
@@ -194,38 +194,38 @@ Buildkite::Builder.pipeline do
         end
       end
       if REPO_ROOT.join("actionview/Rakefile").read.include?("task :ujs")
-        compose subdirectory: "actionview", rake_task: "test:ujs", ruby: ruby, service: "actionview" do |attrs|
+        compose subdirectory: "actionview", rake_task: "test:ujs", service: "actionview" do |attrs|
           attrs["retry"] = nil
           automatic_retry_on exit_status: -1, limit: 3
         end
       end
-      compose subdirectory: "activejob", rake_task: "test:integration", ruby: ruby, service: "activejob" do
+      compose subdirectory: "activejob", rake_task: "test:integration", service: "activejob" do
         # Enable soft_fail until the problem in queue_classic is solved.
         # https://github.com/rails/rails/pull/37517#issuecomment-545370408
         soft_fail true # if RAILS_VERSION < Gem::Version.new("5.x")
       end
-      compose subdirectory: "railties", rake_task: "test", ruby: ruby, service: "railties" do
+      compose subdirectory: "railties", rake_task: "test", service: "railties" do
         parallelism = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
       end
 
-      compose subdirectory: "actionpack", rake_task: "test", ruby: ruby, service: "default", pre_steps: ["bundle install"] do |attrs|
+      compose subdirectory: "actionpack", rake_task: "test", service: "default", pre_steps: ["bundle install"] do |attrs|
         label "#{attrs["label"]} [rack-2]"
         env["RACK"] = "~> 2.0"
       end
 
-      compose subdirectory: "railties", rake_task: "test", ruby: ruby, service: "railties", pre_steps: ["bundle install"] do |attrs|
+      compose subdirectory: "railties", rake_task: "test", service: "railties", pre_steps: ["bundle install"] do |attrs|
         parallelism = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
         label "#{attrs["label"]} [rack-2]"
         env["RACK"] = "~> 2.0"
       end
 
-      compose subdirectory: "actionpack", rake_task: "test", ruby: ruby, service: "default", pre_steps: ["rm Gemfile.lock", "bundle install"] do |attrs|
+      compose subdirectory: "actionpack", rake_task: "test", service: "default", pre_steps: ["rm Gemfile.lock", "bundle install"] do |attrs|
         label "#{attrs["label"]} [rack-head]"
         env["RACK"] = "head"
         soft_fail true
       end
 
-      compose subdirectory: "railties", rake_task: "test", ruby: ruby, service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"] do |attrs|
+      compose subdirectory: "railties", rake_task: "test", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"] do |attrs|
         parallelism = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
         label "#{attrs["label"]} [rack-head]"
         env["RACK"] = "head"
