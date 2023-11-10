@@ -274,6 +274,8 @@ Buildkite::Builder.pipeline do
     label "build"
     (RUBIES - [YJIT_RUBY]).map do |ruby|
       builder ruby: ruby do
+        env["BUNDLER"] = BUNDLER
+        env["RUBYGEMS"] = RUBYGEMS
       end
     end
   end
