@@ -145,7 +145,8 @@ class TestDockerCompose < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::DockerCompose
 
-      compose ruby: my_context.yjit_ruby
+      context.data.ruby = { version: my_context.yjit_ruby }
+      compose
     end
 
     expected = {"steps"=>
@@ -164,7 +165,8 @@ class TestDockerCompose < TestCase
             "run"=>"default",
             "pull"=>"default",
             "config"=>".buildkite/docker-compose.yml",
-            "shell"=>["runner", nil]}}]}]}
+            "shell"=>["runner", nil]}}]}],
+        "ruby"=>{"version"=>"yjit:rubylang/ruby:master-nightly-jammy"}}
     assert_equal expected, pipeline.to_h
   end
 
