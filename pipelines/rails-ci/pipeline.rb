@@ -90,6 +90,7 @@ Buildkite::Builder.pipeline do
 
   use Buildkite::Config::DockerBuild
   use Buildkite::Config::DockerCompose
+  use Buildkite::Config::RubyGroup
 
   group do
     label "build"
@@ -102,9 +103,7 @@ Buildkite::Builder.pipeline do
   end
 
   RUBIES.each do |ruby|
-    group do
-      label ruby
-
+    ruby_group do
       # GROUP 1: Runs additional isolated tests for non-PR builds
       %w(
         actionpack      test                default
@@ -120,7 +119,7 @@ Buildkite::Builder.pipeline do
       ).each_slice(3) do |dir, task, service|
         next if RAILS_VERSION < Gem::Version.new("7.1.0.alpha") && task == "trilogy:test"
 
-        compose subdirectory: dir, rake_task: task, ruby: ruby, service: service
+        compose subdirectory: dir, rake_task: task, ruby: pipeline.data.ruby, service: service
 
         next unless MAINLINE
 
