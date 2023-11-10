@@ -40,9 +40,9 @@ module Buildkite::Config
             env: %w[PRE_STEPS RACK],
             "image-name" => _my_context.image_name_for(args[:ruby], short: true),
             "cache-from" => [
-              _my_context.rebuild_id && "base:" + _my_context.image_name_for(ruby, _my_context.rebuild_id),
+              _my_context.rebuild_id && "base:" + _my_context.image_name_for(args[:ruby], _my_context.rebuild_id),
               _my_context.pull_request && "base:" + _my_context.image_name_for(args[:ruby], "pr-#{my_context.pull_request}"),
-              _my_context.local_branch && _my_context.local_branch !~ /:/ && "base:" + _my_context.image_name_for(ruby, "br-#{_my_context.local_branch}"),
+              _my_context.local_branch && _my_context.local_branch !~ /:/ && "base:" + _my_context.image_name_for(args[:ruby], "br-#{_my_context.local_branch}"),
               _my_context.base_branch && "base:" + _my_context.image_name_for(args[:ruby], "br-#{_my_context.base_branch}"),
               "base:" + _my_context.image_name_for(args[:ruby], "br-main"),
             ].grep(String).uniq,
