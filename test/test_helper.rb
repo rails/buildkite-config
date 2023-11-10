@@ -19,11 +19,14 @@ class TestCase < Minitest::Test
 
   def setup
     @before_docker_image = ENV["DOCKER_IMAGE"]
+    @before_build_id = ENV["BUILD_ID"]
+    ENV["BUILD_ID"] = "local"
     ENV["DOCKER_IMAGE"] = "buildkite-config-base"
   end
 
   def teardown
     ENV["DOCKER_IMAGE"] = @before_docker_image
+    ENV["BUILD_ID"] = @before_build_id
   end
 
   def build_pipeline(data)

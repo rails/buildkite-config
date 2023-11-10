@@ -48,9 +48,8 @@ module Buildkite::Config
       @image_base ||= ENV["DOCKER_IMAGE"] || remote_image_base
     end
 
-    # BUILD_ID = "local"
     def build_id
-      @local ||= ENV["BUILD_ID"] || "local"
+      @local ||= ENV["BUILD_ID"]
     end
 
     def rebuild_id
