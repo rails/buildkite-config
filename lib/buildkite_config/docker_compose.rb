@@ -61,7 +61,7 @@ module Buildkite::Config
           artifact_paths _my_context.artifact_paths
           automatic_retry_on(**_my_context.automatic_retry_on)
           timeout_in_minutes _my_context.timeout_in_minutes
-          soft_fail args[:soft_fail] || false
+          soft_fail args[:soft_fail] if args.key?(:soft_fail)
 
           instance_exec(@attributes, &block) if block_given?
         end

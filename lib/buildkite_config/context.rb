@@ -39,9 +39,13 @@ module Buildkite::Config
       @artifacts_plugin ||= "artifacts#v1.2.0"
     end
 
+    def remote_image_base
+      @remote_image_base ||= "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{build_queue}-" unless standard_queues.include?(build_queue)}builds"
+    end
+
     # IMAGE_BASE = "buildkite-config-base"
     def image_base
-      @image_base ||= "buildkite-config-base"
+      @image_base ||= ENV["DOCKER_IMAGE"] || remote_image_base
     end
 
     # BUILD_ID = "local"

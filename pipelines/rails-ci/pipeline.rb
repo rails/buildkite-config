@@ -4,7 +4,6 @@ require "net/http"
 require "pathname"
 require "yaml"
 
-
 STANDARD_QUEUES = [nil, "default", "builder"]
 
 # If the pipeline is running in a non-standard queue, default to
@@ -234,132 +233,6 @@ def steps_for(subdirectory, rake_task, service: "default", pre_steps: [], &block
   end
 end
 
-# GROUP 1: Runs additional isolated tests for non-PR builds
-%w(
-  actionpack      test                default
-  actionmailer    test                default
-  activemodel     test                default
-  activesupport   test                default
-  actionview      test                default
-  activejob       test                default
-  activerecord    mysql2:test         mysqldb
-  activerecord    trilogy:test        mysqldb
-  activerecord    postgresql:test     postgresdb
-  activerecord    sqlite3:test        default
-).each_slice(3) do |dir, task, service|
-  next if RAILS_VERSION < Gem::Version.new("7.1.0.alpha") && task == "trilogy:test"
-
-  steps_for(dir, task, service: service)
-
-  next unless MAINLINE
-
-  if dir == "activerecord"
-    step_for(dir, task.sub(":test", ":isolated_test"), service: service) do |x|
-      x["parallelism"] = 5 if REPO_ROOT.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
-    end
-  elsif dir == "actiontext"
-    # added during 7.1 development on main
-    if REPO_ROOT.join("actiontext/Rakefile").read.include?("task :isolated")
-      step_for(dir, "#{task}:isolated", service: service)
-    end
-  else
-    step_for(dir, "#{task}:isolated", service: service)
-  end
-end
-
-# GROUP 2: No isolated tests, runs for each supported ruby
-%w(
-  actioncable     test                postgresdb
-  activestorage   test                default
-  actionmailbox   test                default
-  guides          test                default
-).each_slice(3) do |dir, task, service|
-  steps_for(dir, task, service: service)
-end
-
-# GROUP 3: Special cases
-
-if RAILS_VERSION >= Gem::Version.new("5.1.x")
-  step_for("activerecord", "sqlite3_mem:test", service: "default")
-end
-if RAILS_VERSION >= Gem::Version.new("6.1.x")
-  step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
-    x["label"] += " [prepared_statements]"
-    x["env"]["MYSQL_PREPARED_STATEMENTS"] = "true"
-  end
-end
-step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
-  x["label"] += " [mysql_5_7]"
-  x["env"]["MYSQL_IMAGE"] = "mysql:5.7"
-end
-if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
-  step_for("activerecord", "trilogy:test", service: "mysqldb") do |x|
-    x["label"] += " [mysql_5_7]"
-    x["env"]["MYSQL_IMAGE"] = "mysql:5.7"
-  end
-end
-if RAILS_VERSION >= Gem::Version.new("5.x")
-  step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
-    x["label"] += " [mariadb]"
-    x["env"]["MYSQL_IMAGE"] =
-      if RAILS_VERSION < Gem::Version.new("6.x")
-        "mariadb:10.2"
-      else
-        "mariadb:latest"
-      end
-  end
-end
-if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
-  step_for("activerecord", "trilogy:test", service: "mysqldb") do |x|
-    x["label"] += " [mariadb]"
-    x["env"]["MYSQL_IMAGE"] = "mariadb:latest"
-  end
-end
-steps_for("actioncable", "test:integration", service: "default") do |x|
-  if RAILS_VERSION < Gem::Version.new("6.x")
-    x["soft_fail"] = true
-  else
-    x["retry"] = { "automatic" => { "limit" => 3 } }
-  end
-end
-if REPO_ROOT.join("actionview/Rakefile").read.include?("task :ujs")
-  step_for("actionview", "test:ujs", service: "actionview") do |x|
-    x["retry"] = { "automatic" => { "limit" => 3 } }
-  end
-end
-steps_for("activejob", "test:integration", service: "activejob") do |x|
-  # Enable soft_fail until the problem in queue_classic is solved.
-  # https://github.com/rails/rails/pull/37517#issuecomment-545370408
-  x["soft_fail"] = true # if RAILS_VERSION < Gem::Version.new("5.x")
-end
-steps_for("railties", "test", service: "railties") do |x|
-  x["parallelism"] = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
-end
-
-step_for("actionpack", "test", service: "default", pre_steps: ["bundle install"]) do |x|
-  x["label"] += " [rack-2]"
-  x["env"]["RACK"] = "~> 2.0"
-end
-
-step_for("railties", "test", service: "railties", pre_steps: ["bundle install"]) do |x|
-  x["parallelism"] = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
-  x["label"] += " [rack-2]"
-  x["env"]["RACK"] = "~> 2.0"
-end
-
-step_for("actionpack", "test", service: "default", pre_steps: ["rm Gemfile.lock", "bundle install"]) do |x|
-  x["label"] += " [rack-head]"
-  x["env"]["RACK"] = "head"
-  x["soft_fail"] = true
-end
-
-step_for("railties", "test", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"]) do |x|
-  x["parallelism"] = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
-  x["label"] += " [rack-head]"
-  x["env"]["RACK"] = "head"
-  x["soft_fail"] = true
-end
-
 # Ugly hacks to just get the build passing for now
 STEPS.find { |s| s["label"] == "activestorage (2.2)" }&.tap do |s|
   s["soft_fail"] = true
@@ -385,81 +258,144 @@ groups = STEPS.group_by { |s| s.delete("group") }.map do |group, steps|
 end
 
 Buildkite::Builder.pipeline do
+  use Buildkite::Builder::DockerBuild
+  use Buildkite::Builder::DockerCompose
+
   group do
     label "build"
     (RUBIES - [YJIT_RUBY]).map do |ruby|
-      command do
-        label ":docker: #{ruby}"
-        key "docker-image-#{ruby.gsub(/\W/, "-")}"
-        plugin ARTIFACTS_PLUGIN, {
-          "download" => [".dockerignore", ".buildkite/*", ".buildkite/**/*"],
-        }
-
-        plugin DOCKER_COMPOSE_PLUGIN, {
-          "build" => "base",
-          "config" => ".buildkite/docker-compose.yml",
-          "env" => [
-            "PRE_STEPS",
-            "RACK"
-          ],
-          "image-name" => image_name_for(ruby, short: true),
-          "cache-from" => [
-            REBUILD_ID && "base:" + image_name_for(ruby, REBUILD_ID),
-            PULL_REQUEST && "base:" + image_name_for(ruby, "pr-#{PULL_REQUEST}"),
-            LOCAL_BRANCH && LOCAL_BRANCH !~ /:/ && "base:" + image_name_for(ruby, "br-#{LOCAL_BRANCH}"),
-            BASE_BRANCH && "base:" + image_name_for(ruby, "br-#{BASE_BRANCH}"),
-            "base:" + image_name_for(ruby, "br-main"),
-          ].grep(String).uniq,
-          "push" => [
-            LOCAL_BRANCH =~ /:/ ?
-            "base:" + image_name_for(ruby, "pr-#{PULL_REQUEST}") :
-            "base:" + image_name_for(ruby, "br-#{LOCAL_BRANCH}"),
-          ],
-          "image-repository" => IMAGE_BASE,
-        }
-
-        env({
-          RUBY_IMAGE: ruby_image(ruby),
-          encrypted_0fb9444d0374_key: nil,
-          encrypted_0fb9444d0374_iv: nil,
-        })
-
-        timeout_in_minutes 15
-        if SOFT_FAIL.include?(ruby)
-          soft_fail true
-        end
-        agents queue: BUILD_QUEUE
+      builder ruby: ruby do
       end
     end
   end
 
-  groups.map do |_group|
-    group do
-      label _group["group"]
+  RUBIES.each do |ruby|
+    # GROUP 1: Runs additional isolated tests for non-PR builds
+    %w(
+      actionpack      test                default
+      actionmailer    test                default
+      activemodel     test                default
+      activesupport   test                default
+      actionview      test                default
+      activejob       test                default
+      activerecord    mysql2:test         mysqldb
+      activerecord    trilogy:test        mysqldb
+      activerecord    postgresql:test     postgresdb
+      activerecord    sqlite3:test        default
+    ).each_slice(3) do |dir, task, service|
+      next if RAILS_VERSION < Gem::Version.new("7.1.0.alpha") && task == "trilogy:test"
 
-      _group["steps"].map do |_step|
-        command do
-          label _step["label"]
-          depends_on _step["depends_on"]
-          command _step["command"]
+      compose subdirectory: dir, rake_task: task, ruby: ruby, service: service
 
-          #plugin ARTIFACTS_PLUGIN, {
-          #  "download" => [".buildkite/*", ".buildkite/**/*"],
-          #},
+      next unless MAINLINE
 
-          plugins _step["plugins"]
-          env _step["env"]
-          timeout_in_minutes _step["timeout_in_minutes"]
-
-          if _step["soft_fail"]
-            soft_fail true
-          end
-
-          agents _step["agents"]
-          artifact_paths _step["artifact_paths"]
-          automatic_retry_on exit_status: -1, limit: 2
+      if dir == "activerecord"
+        compose subdirectory: dir, rake_task: task.sub(":test", ":isolated_test"), ruby: ruby, service: service do
+          parallelism 5 if REPO_ROOT.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
         end
+      elsif dir == "actiontext"
+        # added during 7.1 development on main
+        if REPO_ROOT.join("actiontext/Rakefile").read.include?("task :isolated")
+          compose subdirectory: dir, rake_task: "#{task}:isolated", ruby: ruby, service: service
+        end
+      else
+        compose subdirectory: dir, rake_task: "#{task}:isolated", ruby: ruby, service: service
       end
+    end
+
+    # GROUP 2: No isolated tests, runs for each supported ruby
+    %w(
+      actioncable     test                postgresdb
+      activestorage   test                default
+      actionmailbox   test                default
+      guides          test                default
+    ).each_slice(3) do |dir, task, service|
+      compose subdirectory: dir, rake_task: task, ruby: ruby, service: service
+    end
+
+    # GROUP 3: Special cases
+
+    if RAILS_VERSION >= Gem::Version.new("5.1.x")
+      compose subdirectory: "activerecord", rake_task: "sqlite3_mem:test", ruby: ruby, service: "default"
+    end
+    if RAILS_VERSION >= Gem::Version.new("6.1.x")
+      compose subdirectory: "activerecord", rake_task: "mysql2:test", ruby: ruby, service: "mysqldb" do
+        label "#{attrs["label"]} [prepared_statements]"
+        env["MYSQL_PREPARED_STATEMENTS"] = "true"
+      end
+    end
+    compose subdirectory: "activerecord", rake_task: "mysql2:test", ruby: ruby, service: "mysqldb" do
+      label "#{attrs["label"]} [mysql_5_7]"
+      env["MYSQL_IMAGE"] = "mysql:5.7"
+    end
+    if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
+      compose subdirectory: "activerecord", rake_task: "trilogy:test", ruby: ruby, service: "mysqldb" do
+        label "#{attrs["label"]} [mysql_5_7]"
+        env["MYSQL_IMAGE"] = "mysql:5.7"
+      end
+    end
+    if RAILS_VERSION >= Gem::Version.new("5.x")
+      compose subdirectory: "activerecord", rake_task: "mysql2:test", ruby: ruby, service: "mysqldb" do
+        label "#{attrs["label"]} [mariadb]"
+        env["MYSQL_IMAGE"] =
+          if RAILS_VERSION < Gem::Version.new("6.x")
+            "mariadb:10.2"
+          else
+            "mariadb:latest"
+          end
+      end
+    end
+    if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
+      compose subdirectory: "activerecord", rake_task: "trilogy:test", ruby: ruby, service: "mysqldb" do
+        label "#{attrs["label"]} [mariadb]"
+        env["MYSQL_IMAGE"] = "mariadb:latest"
+      end
+    end
+    compose subdirectory: "actioncache", rake_task: "test:integration", ruby: ruby, service: "default" do
+      if RAILS_VERSION < Gem::Version.new("6.x")
+        soft_fail true
+      else
+        attrs["retry"] = nil
+        automatic_retry_on exit_status: -1, limit: 3
+      end
+    end
+    if REPO_ROOT.join("actionview/Rakefile").read.include?("task :ujs")
+      compose subdirectory: "actionview", rake_task: "test:ujs", ruby: ruby, service: "actionview" do
+        attrs["retry"] = nil
+        automatic_retry_on exit_status: -1, limit: 3
+      end
+    end
+    compose subdirectory: "activejob", rake_task: "test:integration", ruby: ruby, service: "activejob" do
+      # Enable soft_fail until the problem in queue_classic is solved.
+      # https://github.com/rails/rails/pull/37517#issuecomment-545370408
+      soft_fail true # if RAILS_VERSION < Gem::Version.new("5.x")
+    end
+    compose subdirectory: "railties", rake_task: "test", ruby: ruby, service: "railties" do
+      parallelism = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+    end
+
+    compose subdirectory: "actionpack", rake_task: "test", ruby: ruby, service: "default", pre_steps: ["bundle install"] do
+      label "#{attrs["label"]} [rack-2]"
+      env["RACK"] = "~> 2.0"
+    end
+
+    compose subdirectory: "railties", rake_task: "test", ruby: ruby, service: "railties", pre_steps: ["bundle install"] do
+      parallelism = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+      label "#{attrs["label"]} [rack-2]"
+      env["RACK"] = "~> 2.0"
+    end
+
+    compose subdirectory: "actionpack", rake_task: "test", ruby: ruby, service: "default", pre_steps: ["rm Gemfile.lock", "bundle install"] do
+      label "#{attrs["label"]} [rack-head]"
+      env["RACK"] = "head"
+      soft_fail true
+    end
+
+    compose subdirectory: "railties", rake_task: "test", ruby: ruby, service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"] do
+      parallelism = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+      label "#{attrs["label"]} [rack-head]"
+      env["RACK"] = "head"
+      soft_fail true
     end
   end
 end

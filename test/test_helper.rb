@@ -17,6 +17,15 @@ end
 class TestCase < Minitest::Test
   make_my_diffs_pretty!
 
+  def setup
+    @before_docker_image = ENV["DOCKER_IMAGE"]
+    ENV["DOCKER_IMAGE"] = "buildkite-config-base"
+  end
+
+  def teardown
+    ENV["DOCKER_IMAGE"] = @before_docker_image
+  end
+
   def build_pipeline(data)
     {
       steps: [
