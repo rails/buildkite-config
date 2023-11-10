@@ -29,7 +29,7 @@ module Buildkite::Config
 
         command do
           label ":docker: #{args[:ruby]}"
-          key "docker-image-#{args[:ruby].gsub(/\W/, "-")}}"
+          key "docker-image-#{args[:ruby].gsub(/\W/, "-")}"
           plugin _my_context.artifacts_plugin, {
             download: %w[.dockerignore .buildkite/* .buildkite/*/*]
           }

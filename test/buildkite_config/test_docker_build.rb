@@ -13,7 +13,7 @@ class TestDockerBuild < TestCase
 
     expected = {"steps"=>
       [{"label"=>":docker: 3.2",
-        "key"=>"docker-image-3-2}",
+        "key"=>"docker-image-3-2",
         "agents"=>{"queue"=>"builder"},
         "env"=>
          {"RUBY_IMAGE"=>"3.2",
