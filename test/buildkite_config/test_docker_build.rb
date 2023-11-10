@@ -22,7 +22,7 @@ class TestDockerBuild < TestCase
         "timeout_in_minutes"=>15,
         "plugins"=>
          [{"artifacts#v1.2.0"=>
-            {"download"=>[".dockerignore", ".buildkite/*", ".buildkite/*/*"]}},
+            {"download"=>[".dockerignore", ".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"build"=>"base",
             "config"=>".buildkite/docker-compose.yml",
