@@ -196,7 +196,7 @@ Buildkite::Builder.pipeline do
         end
       end
       rake "railties", "test", service: "railties" do
-        #parallelism 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+        parallelism 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
       end
 
       rake "actionpack", "test", pre_steps: ["bundle install"] do |attrs|
@@ -205,7 +205,7 @@ Buildkite::Builder.pipeline do
       end
 
       rake "railties", "test", pre_steps: ["bundle install"] do |attrs|
-        #parallelism 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+        parallelism 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
         label "#{attrs["label"]} [rack-2]"
         env["RACK"] = "~> 2.0"
       end
@@ -217,7 +217,7 @@ Buildkite::Builder.pipeline do
       end
 
       rake "railties", "test", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"] do |attrs|
-        #parallelism 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+        parallelism 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
         label "#{attrs["label"]} [rack-head]"
         env["RACK"] = "head"
         soft_fail true
