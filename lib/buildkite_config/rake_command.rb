@@ -1,7 +1,7 @@
 require "buildkite-builder"
 
 module Buildkite::Config
-  class DockerCompose < Buildkite::Builder::Extension
+  class RakeCommand < Buildkite::Builder::Extension
     attr_accessor :context
 
     def prepare
@@ -10,7 +10,7 @@ module Buildkite::Config
 
     dsl do
       def my_context
-        context.extensions.find(DockerCompose).context
+        context.extensions.find(RakeCommand).context
       end
 
       def ruby
@@ -18,7 +18,7 @@ module Buildkite::Config
           context.data.ruby[:version] || nil
       end
 
-      def compose(**args, &block)
+      def rake(**args, &block)
         _my_context = my_context
 
         _ruby_image = _my_context.ruby_image(ruby || _my_context.one_ruby).gsub(/\W/, "-")

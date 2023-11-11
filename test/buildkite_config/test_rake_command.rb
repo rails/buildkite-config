@@ -3,10 +3,10 @@
 require "test_helper"
 require "buildkite_config"
 
-class TestDockerCompose < TestCase
+class TestRakeCommand < TestCase
   def test_to_label
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
       group do
         label my_context.to_label(subdirectory: "test", rake_task: "test:all", ruby: "3.2")
@@ -19,7 +19,7 @@ class TestDockerCompose < TestCase
 
   def test_ruby_image
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
       group do
         depends_on my_context.ruby_image("3.2")
@@ -32,7 +32,7 @@ class TestDockerCompose < TestCase
 
   def test_depends_on_yjit
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
       group do
         depends_on my_context.ruby_image(my_context.yjit_ruby)
@@ -45,9 +45,9 @@ class TestDockerCompose < TestCase
 
   def test_command
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
-      compose subdirectory: "test", rake_task: "test:all"
+      rake subdirectory: "test", rake_task: "test:all"
     end
 
     expected = {"steps"=>
@@ -72,10 +72,10 @@ class TestDockerCompose < TestCase
 
   def test_multiple
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
-      compose subdirectory: "first", rake_task: "test:all"
-      compose subdirectory: "second", rake_task: "test:all"
+      rake subdirectory: "first", rake_task: "test:all"
+      rake subdirectory: "second", rake_task: "test:all"
     end
 
     expected = {"steps"=>
@@ -116,9 +116,9 @@ class TestDockerCompose < TestCase
 
   def test_docker_compose_plugin
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
-      compose service: "myservice", subdirectory: "subdirectory", rake_task: "test:isolated"
+      rake service: "myservice", subdirectory: "subdirectory", rake_task: "test:isolated"
     end
 
     expected = {"steps"=>
@@ -143,10 +143,10 @@ class TestDockerCompose < TestCase
 
   def test_env_yjit
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
       context.data.ruby = { version: my_context.yjit_ruby }
-      compose
+      rake
     end
 
     expected = {"steps"=>
@@ -172,9 +172,9 @@ class TestDockerCompose < TestCase
 
   def test_env_pre_steps
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
-      compose pre_steps: ["rm Gemfile.lock", "bundle install"]
+      rake pre_steps: ["rm Gemfile.lock", "bundle install"]
     end
 
     expected = {"steps"=>
@@ -199,9 +199,9 @@ class TestDockerCompose < TestCase
 
   def test_agents
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
-      compose do
+      rake do
         agents queue: "test_agents"
       end
     end
@@ -228,9 +228,9 @@ class TestDockerCompose < TestCase
 
   def test_artifact_paths
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
-      compose do
+      rake do
         artifact_paths ["test_artifact_paths"]
       end
     end
@@ -257,9 +257,9 @@ class TestDockerCompose < TestCase
 
   def test_automatic_retry_on
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
-      compose do |attrs|
+      rake do |attrs|
         # Reset "automatic_retry_on" from the default
         # Since this does a push, and we only want a single value, I think.
         attrs["retry"] = nil
@@ -289,9 +289,9 @@ class TestDockerCompose < TestCase
 
   def test_timeout_in_minutes
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
-      compose do
+      rake do
         timeout_in_minutes 10
       end
     end
@@ -318,9 +318,9 @@ class TestDockerCompose < TestCase
 
   def test_soft_fail
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
-      compose soft_fail: true
+      rake soft_fail: true
     end
 
     expected = {"steps"=>
@@ -346,9 +346,9 @@ class TestDockerCompose < TestCase
 
   def test_compose_with_block
     pipeline = PipelineFixture.new do
-      use Buildkite::Config::DockerCompose
+      use Buildkite::Config::RakeCommand
 
-      compose subdirectory: "test", rake_task: "compose" do |attrs|
+      rake subdirectory: "test", rake_task: "compose" do |attrs|
         label "#{attrs["label"]} with_block"
         env["MYSQL_IMAGE"] = "mariadb:latest"
       end
