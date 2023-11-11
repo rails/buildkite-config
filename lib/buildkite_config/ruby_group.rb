@@ -13,7 +13,7 @@ module Buildkite::Config
         group do
           label ruby
 
-          yield if block_given?
+          instance_eval(&block) if block_given?
         end
       end
     end

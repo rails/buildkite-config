@@ -135,9 +135,24 @@ Buildkite::Builder.pipeline do
         rake dir, task, service: service
       end
 
+      # ActionCable and ActiveJob integration tests
+      rake "actioncable", "test:integration" do |attrs|
+        if RAILS_VERSION < Gem::Version.new("6.x")
+          soft_fail true
+        else
+          attrs["retry"] = nil
+          automatic_retry_on exit_status: -1, limit: 3
+        end
+      end
+      rake "activejob", "test:integration", service: "activejob" do
+        # Enable soft_fail until the problem in queue_classic is solved.
+        # https://github.com/rails/rails/pull/37517#issuecomment-545370408
+        soft_fail true # if RAILS_VERSION < Gem::Version.new("5.x")
+      end
+    end
+
+    ruby_group RUBIES.last do
       # GROUP 3: Special cases
-      # TODO: these should all only run on the latest ruby (3.2)
-      # TODO: except actioncable and activejob (test:integration service: default/activejob)
       if RAILS_VERSION >= Gem::Version.new("5.1.x")
         rake "activerecord", "sqlite3_mem:test"
       end
@@ -174,24 +189,11 @@ Buildkite::Builder.pipeline do
           env["MYSQL_IMAGE"] = "mariadb:latest"
         end
       end
-      rake "actioncable", "test:integration" do |attrs|
-        if RAILS_VERSION < Gem::Version.new("6.x")
-          soft_fail true
-        else
-          attrs["retry"] = nil
-          automatic_retry_on exit_status: -1, limit: 3
-        end
-      end
       if REPO_ROOT.join("actionview/Rakefile").read.include?("task :ujs")
         rake "actionview", "test:ujs", service: "actionview" do |attrs|
           attrs["retry"] = nil
           automatic_retry_on exit_status: -1, limit: 3
         end
-      end
-      rake "activejob", "test:integration", service: "activejob" do
-        # Enable soft_fail until the problem in queue_classic is solved.
-        # https://github.com/rails/rails/pull/37517#issuecomment-545370408
-        soft_fail true # if RAILS_VERSION < Gem::Version.new("5.x")
       end
       rake "railties", "test", service: "railties" do
         #parallelism 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
@@ -224,8 +226,7 @@ Buildkite::Builder.pipeline do
   end
 
   # Isolated tests
-  # TODO: make sure isolated only use latest ruby (3.2)
-  group do
+  ruby_group RUBIES.last do
     label "isolated"
 
     %w(
