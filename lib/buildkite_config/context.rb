@@ -123,12 +123,12 @@ module Buildkite::Config
       end
     end
 
-    def to_label(**args)
-      str = +"#{args[:subdirectory]} #{(args[:rake_task] || "").sub(/[:_]test|test:/, "")}"
+    def to_label(ruby, dir, task = "")
+      str = +"#{dir} #{task.sub(/[:_]test|test:/, "")}"
       str.sub!(/ test/, "")
-      return str unless args[:ruby]
+      return str unless ruby
 
-      str << " (#{short_ruby(args[:ruby])})"
+      str << " (#{short_ruby(ruby)})"
     end
 
     private

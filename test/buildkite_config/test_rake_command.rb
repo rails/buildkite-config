@@ -9,7 +9,7 @@ class TestRakeCommand < TestCase
       use Buildkite::Config::RakeCommand
 
       group do
-        label my_context.to_label(subdirectory: "test", rake_task: "test:all", ruby: "3.2")
+        label my_context.to_label("3.2", "test", "test:all")
       end
     end
 
@@ -47,7 +47,7 @@ class TestRakeCommand < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
 
-      rake subdirectory: "test", rake_task: "test:all"
+      rake "test", "test:all"
     end
 
     expected = {"steps"=>
@@ -74,8 +74,8 @@ class TestRakeCommand < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
 
-      rake subdirectory: "first", rake_task: "test:all"
-      rake subdirectory: "second", rake_task: "test:all"
+      rake "first", "test:all"
+      rake "second", "test:all"
     end
 
     expected = {"steps"=>
@@ -118,7 +118,7 @@ class TestRakeCommand < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
 
-      rake service: "myservice", subdirectory: "subdirectory", rake_task: "test:isolated"
+      rake "subdirectory", "test:isolated", service: "myservice"
     end
 
     expected = {"steps"=>
@@ -165,7 +165,7 @@ class TestRakeCommand < TestCase
             "run"=>"default",
             "pull"=>"default",
             "config"=>".buildkite/docker-compose.yml",
-            "shell"=>["runner", nil]}}]}],
+            "shell"=>["runner", ""]}}]}],
         "ruby"=>{"version"=>"yjit:rubylang/ruby:master-nightly-jammy"}}
     assert_equal expected, pipeline.to_h
   end
@@ -193,7 +193,7 @@ class TestRakeCommand < TestCase
             "run"=>"default",
             "pull"=>"default",
             "config"=>".buildkite/docker-compose.yml",
-            "shell"=>["runner", nil]}}]}]}
+            "shell"=>["runner", ""]}}]}]}
     assert_equal expected, pipeline.to_h
   end
 
@@ -222,7 +222,7 @@ class TestRakeCommand < TestCase
             "run"=>"default",
             "pull"=>"default",
             "config"=>".buildkite/docker-compose.yml",
-            "shell"=>["runner", nil]}}]}]}
+            "shell"=>["runner", ""]}}]}]}
     assert_equal expected, pipeline.to_h
   end
 
@@ -251,7 +251,7 @@ class TestRakeCommand < TestCase
             "run"=>"default",
             "pull"=>"default",
             "config"=>".buildkite/docker-compose.yml",
-            "shell"=>["runner", nil]}}]}]}
+            "shell"=>["runner", ""]}}]}]}
     assert_equal expected, pipeline.to_h
   end
 
@@ -283,7 +283,7 @@ class TestRakeCommand < TestCase
             "run"=>"default",
             "pull"=>"default",
             "config"=>".buildkite/docker-compose.yml",
-            "shell"=>["runner", nil]}}]}]}
+            "shell"=>["runner", ""]}}]}]}
     assert_equal expected, pipeline.to_h
   end
 
@@ -312,7 +312,7 @@ class TestRakeCommand < TestCase
             "run"=>"default",
             "pull"=>"default",
             "config"=>".buildkite/docker-compose.yml",
-            "shell"=>["runner", nil]}}]}]}
+            "shell"=>["runner", ""]}}]}]}
     assert_equal expected, pipeline.to_h
   end
 
@@ -320,7 +320,9 @@ class TestRakeCommand < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
 
-      rake soft_fail: true
+      rake do
+        soft_fail true
+      end
     end
 
     expected = {"steps"=>
@@ -340,23 +342,23 @@ class TestRakeCommand < TestCase
             "run"=>"default",
             "pull"=>"default",
             "config"=>".buildkite/docker-compose.yml",
-            "shell"=>["runner", nil]}}]}]}
+            "shell"=>["runner", ""]}}]}]}
     assert_equal expected, pipeline.to_h
   end
 
-  def test_compose_with_block
+  def test_rake_with_block
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
 
-      rake subdirectory: "test", rake_task: "compose" do |attrs|
+      rake "test", "all" do |attrs|
         label "#{attrs["label"]} with_block"
         env["MYSQL_IMAGE"] = "mariadb:latest"
       end
     end
 
     expected = {"steps"=>
-      [{"label"=>"test compose with_block",
-        "command"=>["rake compose"],
+      [{"label"=>"test all with_block",
+        "command"=>["rake all"],
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},

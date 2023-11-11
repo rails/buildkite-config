@@ -18,12 +18,10 @@ module Buildkite::Config
           context.data.ruby[:version] || nil
       end
 
-      def rake(**args, &block)
+      def rake(dir = "", task = "", service: "default", pre_steps:[], &block)
         _my_context = my_context
 
         _ruby_image = _my_context.ruby_image(ruby || _my_context.one_ruby).gsub(/\W/, "-")
-        _service = args[:service] || "default"
-        _pre_steps = args[:pre_steps] || []
 
         ## Setup ENV
         _env = {
@@ -34,18 +32,18 @@ module Buildkite::Config
           _env["RUBY_YJIT_ENABLE"] = "1"
         end
 
-        if !(_pre_steps).empty?
-          _env["PRE_STEPS"] = _pre_steps.join(" && ")
+        if !(pre_steps).empty?
+          _env["PRE_STEPS"] = pre_steps.join(" && ")
         end
 
-        _label = _my_context.to_label(ruby: ruby, **args)
+        _label = _my_context.to_label(ruby, dir, task)
 
         #_my_context.my_var = "override"
 
         command do
           label _label
           depends_on "docker-image-#{_ruby_image}"
-          command "rake #{args[:rake_task]}"
+          command "rake #{task}"
 
           plugin _my_context.artifacts_plugin, {
             download: %w[.buildkite/* .buildkite/*/*]
@@ -56,10 +54,10 @@ module Buildkite::Config
               "PRE_STEPS",
               "RACK"
             ],
-            "run" => _service,
-            "pull" => _service,
+            "run" => service,
+            "pull" => service,
             "config" => ".buildkite/docker-compose.yml",
-            "shell" => ["runner", args[:subdirectory]],
+            "shell" => ["runner", dir],
           }
 
           env _env
@@ -68,7 +66,6 @@ module Buildkite::Config
           artifact_paths _my_context.artifact_paths
           automatic_retry_on(**_my_context.automatic_retry_on)
           timeout_in_minutes _my_context.timeout_in_minutes
-          soft_fail args[:soft_fail] if args.key?(:soft_fail)
 
           instance_exec(@attributes, &block) if block_given?
         end
