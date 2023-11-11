@@ -136,7 +136,8 @@ Buildkite::Builder.pipeline do
       end
 
       # GROUP 3: Special cases
-
+      # TODO: these should all only run on the latest ruby (3.2)
+      # TODO: except actioncable and activejob (test:integration service: default/activejob)
       if RAILS_VERSION >= Gem::Version.new("5.1.x")
         rake "activerecord", "sqlite3_mem:test"
       end
@@ -173,7 +174,7 @@ Buildkite::Builder.pipeline do
           env["MYSQL_IMAGE"] = "mariadb:latest"
         end
       end
-      rake "actioncache", "test:integration" do |attrs|
+      rake "actioncable", "test:integration" do |attrs|
         if RAILS_VERSION < Gem::Version.new("6.x")
           soft_fail true
         else
@@ -223,6 +224,7 @@ Buildkite::Builder.pipeline do
   end
 
   # Isolated tests
+  # TODO: make sure isolated only use latest ruby (3.2)
   group do
     label "isolated"
 
