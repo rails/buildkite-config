@@ -220,31 +220,31 @@ Buildkite::Builder.pipeline do
         soft_fail true
       end
     end
+  end
 
-    # Isolated tests
-    group do
-      label "isolated"
+  # Isolated tests
+  group do
+    label "isolated"
 
-      %w(
-        actionpack      test:isolated
-        actionmailer    test:isolated
-        actionview      test:isolated
-        activejob       test:isolated
-        activemodel     test:isolated
-        activesupport   test:isolated
-      ).each_slice(2) do |dir, task|
-        rake dir, task
-      end
+    %w(
+      actionpack      test:isolated
+      actionmailer    test:isolated
+      actionview      test:isolated
+      activejob       test:isolated
+      activemodel     test:isolated
+      activesupport   test:isolated
+    ).each_slice(2) do |dir, task|
+      rake dir, task
+    end
 
-      %w(
-        activerecord    mysql2:isolated_test       mysqldb
-        activerecord    trilogy:isolated_test      mysqldb
-        activerecord    postgresql:isolated_test   postgresdb
-        activerecord    sqlite3:isolated_test      default
-      ).each_slice(3) do |dir, task, service|
-        rake dir, task, service: service do
-          parallelism 5 if REPO_ROOT.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
-        end
+    %w(
+      activerecord    mysql2:isolated_test       mysqldb
+      activerecord    trilogy:isolated_test      mysqldb
+      activerecord    postgresql:isolated_test   postgresdb
+      activerecord    sqlite3:isolated_test      default
+    ).each_slice(3) do |dir, task, service|
+      rake dir, task, service: service do
+        parallelism 5 if REPO_ROOT.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
       end
     end
   end
