@@ -124,7 +124,7 @@ Buildkite::Builder.pipeline do
         next unless MAINLINE
 
         if dir == "activerecord"
-          rake dir, task.sub(":test", ":isolated_test"), service do
+          rake dir, task.sub(":test", ":isolated_test"), service: service do
             parallelism 5 if REPO_ROOT.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
           end
         elsif dir == "actiontext"
