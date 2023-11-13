@@ -20,11 +20,15 @@ module Buildkite::Config
       end
     end
 
-    attr_reader :image_base, :version, :yjit
-    def initialize(version: RubyConfig.one_ruby, image_base: nil)
+    attr_accessor :image_base, :version, :yjit, :soft_fail
+    def initialize(version: RubyConfig.one_ruby, soft_fail:nil, image_base:nil)
       @image_base = image_base
       @version = version
       @yjit = @version == RubyConfig.yjit_ruby
+
+      if soft_fail
+        @soft_fail = soft_fail
+      end
     end
 
     def image_name
@@ -58,6 +62,10 @@ module Buildkite::Config
       else
         @version.sub(/^ruby:|:latest$/, "")
       end
+    end
+
+    def soft_fail?
+      @soft_fail
     end
 
     def yjit_enabled?

@@ -15,10 +15,6 @@ module Buildkite::Config
       end
     end
 
-    def soft_fail
-      @soft_fail ||= []
-    end
-
     # DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
     def docker_compose_plugin
       @docker_compose_plugin ||= "docker-compose#v3.7.0"

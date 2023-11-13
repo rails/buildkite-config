@@ -104,7 +104,7 @@ Buildkite::Builder.pipeline do
   end
 
   RUBIES.each do |ruby|
-    ruby_group ruby do
+    ruby_group version: ruby do
       # GROUP 1: Runs additional isolated tests for non-PR builds
       %w(
         actionpack      test                default
@@ -152,7 +152,7 @@ Buildkite::Builder.pipeline do
       end
     end
 
-    ruby_group RUBIES.last do
+    ruby_group version: RUBIES.last do
       # GROUP 3: Special cases
       if RAILS_VERSION >= Gem::Version.new("5.1.x")
         rake "activerecord", "sqlite3_mem:test"
@@ -227,7 +227,7 @@ Buildkite::Builder.pipeline do
   end
 
   # Isolated tests
-  ruby_group RUBIES.last do
+  ruby_group version: RUBIES.last do
     label "isolated"
 
     %w(

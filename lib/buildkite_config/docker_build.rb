@@ -42,7 +42,7 @@ module Buildkite::Config
 
           timeout_in_minutes 15
 
-          if build_context.soft_fail.include?(args[:ruby])
+          if build_context.ruby.soft_fail?
             soft_fail true
           end
           agents queue: build_context.build_queue

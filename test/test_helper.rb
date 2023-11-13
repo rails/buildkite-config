@@ -15,7 +15,7 @@ class PipelineFixture < Buildkite::Builder::Pipeline
   end
 end
 
-class TestCase < Minitest::Test
+class TestCase < ActiveSupport::TestCase
   make_my_diffs_pretty!
 
   def setup

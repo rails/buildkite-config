@@ -2,17 +2,13 @@ require "buildkite-builder"
 
 module Buildkite::Config
   class RubyGroup < Buildkite::Builder::Extension
-    def prepare
-      context.data.ruby = {}
-    end
-
     dsl do
-      def ruby_group(ruby, &block)
-        context.data.ruby[:version] = ruby
+      def ruby_group(**args, &block)
+        build_context = context.extensions.find(BuildContext)
+        build_context.ruby = RubyConfig.new(**args)
 
         group do
-          label ruby
-
+          label args[:version]
           instance_eval(&block) if block_given?
         end
       end
