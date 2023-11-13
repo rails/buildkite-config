@@ -76,7 +76,7 @@ module Buildkite::Config
     end
 
     def artifact_paths
-      @artifact_paths ||= ["test-results/*/*.xml"]
+      @artifact_paths ||= ["test-reports/*/*.xml"]
     end
 
     def automatic_retry_on

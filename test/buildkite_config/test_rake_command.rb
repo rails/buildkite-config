@@ -59,7 +59,7 @@ class TestRakeCommand < TestCase
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "artifact_paths"=>["test-results/*/*.xml"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
@@ -87,7 +87,7 @@ class TestRakeCommand < TestCase
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "artifact_paths"=>["test-results/*/*.xml"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
@@ -103,7 +103,7 @@ class TestRakeCommand < TestCase
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "artifact_paths"=>["test-results/*/*.xml"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
@@ -130,7 +130,7 @@ class TestRakeCommand < TestCase
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "artifact_paths"=>["test-results/*/*.xml"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
@@ -159,7 +159,7 @@ class TestRakeCommand < TestCase
         "depends_on"=>["docker-image-yjit-rubylang-ruby-master-nightly-jammy"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "artifact_paths"=>["test-results/*/*.xml"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:rubylang-ruby-master-nightly-jammy-local", "RUBY_YJIT_ENABLE"=>"1"},
         "timeout_in_minutes"=>30,
         "plugins"=>
@@ -188,7 +188,7 @@ class TestRakeCommand < TestCase
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "artifact_paths"=>["test-results/*/*.xml"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local", "PRE_STEPS"=>"rm Gemfile.lock && bundle install"},
         "timeout_in_minutes"=>30,
         "plugins"=>
@@ -218,7 +218,7 @@ class TestRakeCommand < TestCase
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"test_agents"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "artifact_paths"=>["test-results/*/*.xml"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
@@ -281,7 +281,7 @@ class TestRakeCommand < TestCase
         "depends_on"=>["docker-image-3-2"],
         "retry"=>{"automatic"=>[{"limit"=>1, "exit_status"=>127}]},
         "agents"=>{"queue"=>"default"},
-        "artifact_paths"=>["test-results/*/*.xml"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
@@ -311,7 +311,7 @@ class TestRakeCommand < TestCase
         "depends_on"=>["docker-image-3-2"],
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
         "agents"=>{"queue"=>"default"},
-        "artifact_paths"=>["test-results/*/*.xml"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "timeout_in_minutes"=>10,
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "plugins"=>
@@ -341,7 +341,7 @@ class TestRakeCommand < TestCase
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "artifact_paths"=>["test-results/*/*.xml"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "soft_fail"=>true,
@@ -372,7 +372,7 @@ class TestRakeCommand < TestCase
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "artifact_paths"=>["test-results/*/*.xml"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local", "MYSQL_IMAGE"=>"mariadb:latest"},
         "timeout_in_minutes"=>30,
         "plugins"=>
