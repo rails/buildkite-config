@@ -2,54 +2,43 @@ require "buildkite-builder"
 
 module Buildkite::Config
   class RakeCommand < Buildkite::Builder::Extension
-    attr_accessor :context
-
-    def prepare
-      @context = Context.new(**options)
-    end
-
     dsl do
-      def my_context
-        context.extensions.find(RakeCommand).context
-      end
+      def to_label(ruby, dir, task = "")
+        str = +"#{dir} #{task.sub(/[:_]test|test:/, "")}"
+        str.sub!(/ test/, "")
+        return str unless ruby.version
 
-      def ruby
-        context.data.respond_to?(:ruby) &&
-          context.data.ruby[:version] || nil
+        str << " (#{ruby.short_ruby})"
       end
 
       def rake(dir = "", task = "", service: "default", pre_steps:[], &block)
-        _my_context = my_context
-
-        _ruby_image = _my_context.ruby_image(ruby || _my_context.one_ruby).gsub(/\W/, "-")
+        build_context = context.extensions.find(BuildContext)
 
         ## Setup ENV
         _env = {
-          "IMAGE_NAME" => _my_context.image_name_for(ruby || _my_context.one_ruby)
+          IMAGE_NAME: build_context.ruby.image_name_for(build_context.build_id)
         }
 
-        if ruby == _my_context.yjit_ruby
-          _env["RUBY_YJIT_ENABLE"] = "1"
+        if build_context.ruby.yjit_enabled?
+          _env[:RUBY_YJIT_ENABLE] = "1"
         end
 
         if !(pre_steps).empty?
-          _env["PRE_STEPS"] = pre_steps.join(" && ")
+          _env[:PRE_STEPS] = pre_steps.join(" && ")
         end
 
-        _label = _my_context.to_label(ruby, dir, task)
-
-        #_my_context.my_var = "override"
+        _label = to_label(build_context.ruby, dir, task)
 
         command do
           label _label
-          depends_on "docker-image-#{_ruby_image}"
+          depends_on "docker-image-#{build_context.ruby.image_name}"
           command "rake #{task}"
 
-          plugin _my_context.artifacts_plugin, {
+          plugin build_context.artifacts_plugin, {
             download: %w[.buildkite/* .buildkite/*/*]
           }
 
-          plugin _my_context.docker_compose_plugin,{
+          plugin build_context.docker_compose_plugin,{
             "env" => [
               "PRE_STEPS",
               "RACK"
@@ -61,11 +50,10 @@ module Buildkite::Config
           }
 
           env _env
-          #env["my_var"] = _my_context.my_var
-          agents queue: _my_context.run_queue
-          artifact_paths _my_context.artifact_paths
-          automatic_retry_on(**_my_context.automatic_retry_on)
-          timeout_in_minutes _my_context.timeout_in_minutes
+          agents queue: build_context.run_queue
+          artifact_paths build_context.artifact_paths
+          automatic_retry_on(**build_context.automatic_retry_on)
+          timeout_in_minutes build_context.timeout_in_minutes
 
           instance_exec(@attributes, &block) if block_given?
         end

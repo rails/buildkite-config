@@ -1,28 +1,18 @@
 require "buildkite-builder"
 
 module Buildkite::Config
-  class Context
-    attr_reader :options
-    def initialize(**options)
-      @options = options
+  class BuildContext < Buildkite::Builder::Extension
+    attr_accessor :ruby
+
+    def prepare
+      @ruby = RubyConfig.new(image_base: image_base)##(version: context.data.ruby[:version])
+      #context.data.ruby = RubyConfig.new
     end
 
-    # ONE_RUBY = "3.2"#RUBIES.last || SOFT_FAIL.last
-    def one_ruby
-      @one_ruby ||= "3.2"
-    end
-
-    # MASTER_RUBY = "rubylang/ruby:master-nightly-jammy"
-    def master_ruby
-      @master_ruby ||= "rubylang/ruby:master-nightly-jammy"
-    end
-
-    # Adds yjit: onto the master ruby image string so we
-    # know when to turn on YJIT via the environment variable.
-    # Same as master ruby, we want this to soft fail.
-    # YJIT_RUBY = "yjit:#{MASTER_RUBY}"
-    def yjit_ruby
-      @yjit_ruby ||= "yjit:#{master_ruby}"
+    dsl do
+      def build_context
+        context.extensions.find(BuildContext)
+      end
     end
 
     def soft_fail
@@ -100,51 +90,5 @@ module Buildkite::Config
     def timeout_in_minutes
       @timeout_in_minutes ||= 30
     end
-
-    ## Helpers
-
-    def image_name_for(ruby, suffix = build_id, short: false)
-      ruby = ruby_image(ruby)
-
-      tag = "#{mangle_name(ruby)}-#{suffix}"
-
-      if short
-        tag
-      else
-        "#{image_base}:#{tag}"
-      end
-    end
-
-    def ruby_image(ruby)
-      if ruby == yjit_ruby
-        ruby.sub("yjit:", "")
-      else
-        ruby
-      end
-    end
-
-    def to_label(ruby, dir, task = "")
-      str = +"#{dir} #{task.sub(/[:_]test|test:/, "")}"
-      str.sub!(/ test/, "")
-      return str unless ruby
-
-      str << " (#{short_ruby(ruby)})"
-    end
-
-    private
-      def mangle_name(name)
-        name.tr("^A-Za-z0-9", "-")
-      end
-
-      # A shortened version of the name for the Buildkite label.
-      def short_ruby(ruby)
-        if ruby == master_ruby
-          "master"
-        elsif ruby == yjit_ruby
-          "yjit"
-        else
-          ruby.sub(/^ruby:|:latest$/, "")
-        end
-      end
   end
 end

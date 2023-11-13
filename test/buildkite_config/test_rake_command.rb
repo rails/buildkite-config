@@ -7,9 +7,10 @@ class TestRakeCommand < TestCase
   def test_to_label
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
+      ruby = Buildkite::Config::RubyConfig.new(version: "3.2")
 
       group do
-        label my_context.to_label("3.2", "test", "test:all")
+        label to_label(ruby, "test", "test:all")
       end
     end
 
@@ -17,12 +18,13 @@ class TestRakeCommand < TestCase
     assert_equal expected, pipeline.to_h
   end
 
-  def test_ruby_image
+  def test_ruby_image_name
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: "3.2")
 
       group do
-        depends_on my_context.ruby_image("3.2")
+        depends_on build_context.ruby.ruby_image
       end
     end
 
@@ -33,9 +35,10 @@ class TestRakeCommand < TestCase
   def test_depends_on_yjit
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
 
       group do
-        depends_on my_context.ruby_image(my_context.yjit_ruby)
+        depends_on build_context.ruby.ruby_image
       end
     end
 
@@ -51,7 +54,7 @@ class TestRakeCommand < TestCase
     end
 
     expected = {"steps"=>
-      [{"label"=>"test all",
+      [{"label"=>"test all (3.2)",
         "command"=>["rake test:all"],
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
@@ -79,7 +82,7 @@ class TestRakeCommand < TestCase
     end
 
     expected = {"steps"=>
-      [{"label"=>"first all",
+      [{"label"=>"first all (3.2)",
         "command"=>["rake test:all"],
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
@@ -95,7 +98,7 @@ class TestRakeCommand < TestCase
             "pull"=>"default",
             "config"=>".buildkite/docker-compose.yml",
             "shell"=>["runner", "first"]}}]},
-      {"label"=>"second all",
+      {"label"=>"second all (3.2)",
         "command"=>["rake test:all"],
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
@@ -122,7 +125,7 @@ class TestRakeCommand < TestCase
     end
 
     expected = {"steps"=>
-      [{"label"=>"subdirectory isolated",
+      [{"label"=>"subdirectory isolated (3.2)",
         "command"=>["rake test:isolated"],
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
@@ -145,14 +148,15 @@ class TestRakeCommand < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
 
-      context.data.ruby = { version: my_context.yjit_ruby }
+      build_context.ruby = Buildkite::Config::RubyConfig.new(
+        version: Buildkite::Config::RubyConfig.yjit_ruby, image_base: build_context.image_base)
       rake
     end
 
     expected = {"steps"=>
       [{"label"=>"  (yjit)",
         "command"=>["rake "],
-        "depends_on"=>["docker-image-rubylang-ruby-master-nightly-jammy"],
+        "depends_on"=>["docker-image-yjit-rubylang-ruby-master-nightly-jammy"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
         "artifact_paths"=>["test-results/*/*.xml"],
@@ -165,8 +169,7 @@ class TestRakeCommand < TestCase
             "run"=>"default",
             "pull"=>"default",
             "config"=>".buildkite/docker-compose.yml",
-            "shell"=>["runner", ""]}}]}],
-        "ruby"=>{"version"=>"yjit:rubylang/ruby:master-nightly-jammy"}}
+            "shell"=>["runner", ""]}}]}]}
     assert_equal expected, pipeline.to_h
   end
 
@@ -174,11 +177,13 @@ class TestRakeCommand < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
 
-      rake pre_steps: ["rm Gemfile.lock", "bundle install"]
+      rake pre_steps: ["rm Gemfile.lock", "bundle install"] do
+        label "test_env_pre_steps"
+      end
     end
 
     expected = {"steps"=>
-      [{"label"=>" ",
+      [{"label"=>"test_env_pre_steps",
         "command"=>["rake "],
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
@@ -202,12 +207,13 @@ class TestRakeCommand < TestCase
       use Buildkite::Config::RakeCommand
 
       rake do
+        label "test_agents"
         agents queue: "test_agents"
       end
     end
 
     expected = {"steps"=>
-      [{"label"=>" ",
+      [{"label"=>"test_agents",
         "command"=>["rake "],
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"test_agents"},
@@ -231,12 +237,13 @@ class TestRakeCommand < TestCase
       use Buildkite::Config::RakeCommand
 
       rake do
+        label "test_artifact_paths"
         artifact_paths ["test_artifact_paths"]
       end
     end
 
     expected = {"steps"=>
-      [{"label"=>" ",
+      [{"label"=>"test_artifact_paths",
         "command"=>["rake "],
         "depends_on"=>["docker-image-3-2"],
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
@@ -260,6 +267,7 @@ class TestRakeCommand < TestCase
       use Buildkite::Config::RakeCommand
 
       rake do |attrs|
+        label "test_automatic_retry_on"
         # Reset "automatic_retry_on" from the default
         # Since this does a push, and we only want a single value, I think.
         attrs["retry"] = nil
@@ -268,7 +276,7 @@ class TestRakeCommand < TestCase
     end
 
     expected = {"steps"=>
-      [{"label"=>" ",
+      [{"label"=>"test_automatic_retry_on",
         "command"=>["rake "],
         "depends_on"=>["docker-image-3-2"],
         "retry"=>{"automatic"=>[{"limit"=>1, "exit_status"=>127}]},
@@ -292,12 +300,13 @@ class TestRakeCommand < TestCase
       use Buildkite::Config::RakeCommand
 
       rake do
+        label "test_timeout_in_minutes"
         timeout_in_minutes 10
       end
     end
 
     expected = {"steps"=>
-      [{"label"=>" ",
+      [{"label"=>"test_timeout_in_minutes",
         "command"=>["rake "],
         "depends_on"=>["docker-image-3-2"],
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
@@ -321,12 +330,13 @@ class TestRakeCommand < TestCase
       use Buildkite::Config::RakeCommand
 
       rake do
+        label "soft_fail"
         soft_fail true
       end
     end
 
     expected = {"steps"=>
-      [{"label"=>" ",
+      [{"label"=>"soft_fail",
         "command"=>["rake "],
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},
@@ -357,7 +367,7 @@ class TestRakeCommand < TestCase
     end
 
     expected = {"steps"=>
-      [{"label"=>"test all with_block",
+      [{"label"=>"test all (3.2) with_block",
         "command"=>["rake all"],
         "depends_on"=>["docker-image-3-2"],
         "agents"=>{"queue"=>"default"},

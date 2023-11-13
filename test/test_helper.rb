@@ -11,6 +11,7 @@ class PipelineFixture < Buildkite::Builder::Pipeline
   def initialize(root = BUILDKITE_CONFIG_ROOT, logger: nil, &block)
     @pipeline_definition = Proc.new(&block)
     super(root, logger: logger)
+    use(Buildkite::Config::BuildContext)
   end
 end
 

@@ -88,6 +88,7 @@ Buildkite::Builder.root(start_path: BUILDKITE_ROOT_DIR)
 Buildkite::Builder.pipeline do
   require_relative "../../lib/buildkite_config"
 
+  use Buildkite::Config::BuildContext
   use Buildkite::Config::DockerBuild
   use Buildkite::Config::RakeCommand
   use Buildkite::Config::RubyGroup
