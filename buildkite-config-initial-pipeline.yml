@@ -36,7 +36,7 @@ steps:
       else
         echo "annotate.diff is not empty"
         cat tmp/annotate.diff
-        printf '%b\n' "$(cat tmp/annotate.diff)" | buildkite-agent annotate --style warning
+        printf '%b\n' "$(cat tmp/annotate.diff)" | buildkite-agent annotate --style info
       fi
     label: ":writing_hand: buildkite-config: annotate diff"
     env:
