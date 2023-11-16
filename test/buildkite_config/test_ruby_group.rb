@@ -8,7 +8,7 @@ class TestRubyGroup < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RubyGroup
 
-      ruby_group version: Gem::Version.new("3.2") do
+      ruby_group config: Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2")) do
         build_context = context.extensions.find(Buildkite::Config::BuildContext)
 
         command do
@@ -29,7 +29,7 @@ class TestRubyGroup < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RubyGroup
 
-      ruby_group version: Gem::Version.new("3.3"), soft_fail: true do
+      ruby_group config: Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"), soft_fail: true) do
         build_context = context.extensions.find(Buildkite::Config::BuildContext)
 
         command do
