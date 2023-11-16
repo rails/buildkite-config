@@ -63,7 +63,7 @@ class TestRakeCommand < TestCase
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"default",
@@ -91,7 +91,7 @@ class TestRakeCommand < TestCase
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"default",
@@ -107,7 +107,7 @@ class TestRakeCommand < TestCase
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"default",
@@ -134,7 +134,7 @@ class TestRakeCommand < TestCase
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"myservice",
@@ -163,7 +163,7 @@ class TestRakeCommand < TestCase
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:rubylang-ruby-master-nightly-jammy-local", "RUBY_YJIT_ENABLE"=>"1"},
         "timeout_in_minutes"=>30,
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"default",
@@ -192,7 +192,7 @@ class TestRakeCommand < TestCase
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local", "PRE_STEPS"=>"rm Gemfile.lock && bundle install"},
         "timeout_in_minutes"=>30,
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"default",
@@ -222,7 +222,7 @@ class TestRakeCommand < TestCase
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"default",
@@ -252,7 +252,7 @@ class TestRakeCommand < TestCase
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"default",
@@ -285,7 +285,7 @@ class TestRakeCommand < TestCase
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"default",
@@ -315,7 +315,7 @@ class TestRakeCommand < TestCase
         "timeout_in_minutes"=>10,
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"default",
@@ -346,7 +346,7 @@ class TestRakeCommand < TestCase
         "timeout_in_minutes"=>30,
         "soft_fail"=>true,
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"default",
@@ -376,7 +376,7 @@ class TestRakeCommand < TestCase
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local", "MYSQL_IMAGE"=>"mariadb:latest"},
         "timeout_in_minutes"=>30,
         "plugins"=>
-        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/*/*"]}},
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
           {"docker-compose#v3.7.0"=>
             {"env"=>["PRE_STEPS", "RACK"],
             "run"=>"default",
