@@ -22,6 +22,10 @@ steps:
     plugins:
       - docker#v5.8.0:
           image: "ruby:latest"
+          environment:
+            - CI
+            - BUILDKITE
+            - BUILDKITE_PIPELINE_NAME
   - command: |
       git clone --depth=1 https://github.com/rails/buildkite-config tmp/buildkite-config
       git clone --depth=1 https://github.com/rails/rails tmp/rails

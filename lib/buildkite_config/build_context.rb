@@ -140,7 +140,6 @@ module Buildkite::Config
 
     def ci?
       @ci ||= ENV.has_key?("BUILDKITE") || ENV.has_key?("CI")
-      raise @ci.inspect
     end
 
     def pipeline_name
