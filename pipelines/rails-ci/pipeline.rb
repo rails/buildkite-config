@@ -27,7 +27,7 @@ Buildkite::Builder.pipeline do
   end
 
   build_context.rubies.each do |ruby|
-    ruby_group version: ruby do
+    ruby_group config: ruby do
       # GROUP 1: Runs additional isolated tests for non-PR builds
       %w(
         actionpack      test                default

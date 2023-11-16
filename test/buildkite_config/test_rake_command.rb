@@ -7,7 +7,7 @@ class TestRakeCommand < TestCase
   def test_to_label
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
-      ruby = Buildkite::Config::RubyConfig.new(version: "3.2")
+      ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
 
       group do
         label to_label(ruby, "test", "test:all")
