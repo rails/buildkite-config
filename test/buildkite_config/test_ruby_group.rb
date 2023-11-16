@@ -51,8 +51,6 @@ class TestRubyGroup < TestCase
       use Buildkite::Config::RubyGroup
 
       ruby_group config: Buildkite::Config::RubyConfig.new(version: Gem::Version.new("1.8.7")) do
-        build_context = context.extensions.find(Buildkite::Config::BuildContext)
-
         command do
           label "test"
           command "rake test"
