@@ -9,7 +9,7 @@ class TestDockerBuild < TestCase
       build_context.rails_version = Gem::Version.new("7.1")
       use Buildkite::Config::DockerBuild
 
-      builder ruby: Buildkite::Config::RubyConfig.new(version: "3.2")
+      builder ruby: Buildkite::Config::RubyConfig.new(prefix: "builder", version: "3.2")
     end
 
     expected = {"steps"=>
@@ -19,7 +19,7 @@ class TestDockerBuild < TestCase
         "env"=>
          {"BUNDLER"=>nil,
           "RUBYGEMS"=>nil,
-          "RUBY_IMAGE"=>"3.2",
+          "RUBY_IMAGE"=>"builder:3.2",
           "encrypted_0fb9444d0374_key"=>nil,
           "encrypted_0fb9444d0374_iv"=>nil},
         "timeout_in_minutes"=>15,
@@ -30,9 +30,9 @@ class TestDockerBuild < TestCase
             {"build"=>"base",
             "config"=>".buildkite/docker-compose.yml",
             "env"=>["PRE_STEPS", "RACK"],
-            "image-name"=>"3-2-local",
-            "cache-from"=>["base:buildkite-config-base:3-2-br-main"],
-            "push"=>["base:buildkite-config-base:3-2-br-"],
+            "image-name"=>"builder-3-2-local",
+            "cache-from"=>["base:buildkite-config-base:builder-3-2-br-main"],
+            "push"=>["base:buildkite-config-base:builder-3-2-br-"],
             "image-repository"=>"buildkite-config-base"}}]}]}
     assert_equal expected, pipeline.to_h
   end
@@ -42,7 +42,7 @@ class TestDockerBuild < TestCase
       build_context.rails_version = Gem::Version.new("7.1")
       use Buildkite::Config::DockerBuild
 
-      builder ruby: Buildkite::Config::RubyConfig.new(version: Gem::Version.new("1.9.3"))
+      builder ruby: Buildkite::Config::RubyConfig.new(prefix: "ruby", version: Gem::Version.new("1.9.3"))
     end
 
     expected = {"steps"=>
@@ -52,7 +52,7 @@ class TestDockerBuild < TestCase
         "env"=>
          {"BUNDLER"=>nil,
           "RUBYGEMS"=>nil,
-          "RUBY_IMAGE"=>"1.9.3",
+          "RUBY_IMAGE"=>"ruby:1.9.3",
           "encrypted_0fb9444d0374_key"=>nil,
           "encrypted_0fb9444d0374_iv"=>nil},
         "timeout_in_minutes"=>15,
@@ -63,9 +63,9 @@ class TestDockerBuild < TestCase
             {"build"=>"base",
             "config"=>".buildkite/docker-compose.yml",
             "env"=>["PRE_STEPS", "RACK"],
-            "image-name"=>"1-9-3-local",
-            "cache-from"=>["base:buildkite-config-base:1-9-3-br-main"],
-            "push"=>["base:buildkite-config-base:1-9-3-br-"],
+            "image-name"=>"ruby-1-9-3-local",
+            "cache-from"=>["base:buildkite-config-base:ruby-1-9-3-br-main"],
+            "push"=>["base:buildkite-config-base:ruby-1-9-3-br-"],
             "image-repository"=>"buildkite-config-base"}}]}]}
     assert_equal expected, pipeline.to_h
   end

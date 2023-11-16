@@ -21,8 +21,9 @@ module Buildkite::Config
     end
 
     attr_accessor :image_base, :version, :yjit, :soft_fail
-    def initialize(version: Gem::Version.new(RubyConfig.one_ruby), soft_fail:nil, image_base:nil, build:true)
+    def initialize(version: Gem::Version.new(RubyConfig.one_ruby), soft_fail:nil, prefix: nil, image_base:nil, build:true)
       @image_base = image_base
+      @prefix = prefix
       @version = version
       @yjit = @version == RubyConfig.yjit_ruby
       @build = build
@@ -50,7 +51,7 @@ module Buildkite::Config
       if @version == RubyConfig.yjit_ruby
         @version.sub("yjit:", "")
       else
-        @version.to_s
+        "#{@prefix}:#{@version.to_s}"
       end
     end
 
