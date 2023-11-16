@@ -9,7 +9,7 @@ class TestDockerBuild < TestCase
       build_context.rails_version = Gem::Version.new("7.1")
       use Buildkite::Config::DockerBuild
 
-      builder ruby: Buildkite::Config::RubyConfig.new(prefix: "builder", version: "3.2")
+      builder ruby: Buildkite::Config::RubyConfig.new(prefix: "builder:", version: "3.2")
     end
 
     expected = {"steps"=>
@@ -42,7 +42,7 @@ class TestDockerBuild < TestCase
       build_context.rails_version = Gem::Version.new("7.1")
       use Buildkite::Config::DockerBuild
 
-      builder ruby: Buildkite::Config::RubyConfig.new(prefix: "ruby", version: Gem::Version.new("1.9.3"))
+      builder ruby: Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("1.9.3"))
     end
 
     expected = {"steps"=>

@@ -26,22 +26,22 @@ class TestRubyConfig < TestCase
 
   def test_image_name_for_default_suffix
     sub = Buildkite::Config::RubyConfig.new
-    assert_equal ":-3-2-build_id", sub.image_name_for
+    assert_equal ":3-2-build_id", sub.image_name_for
   end
 
   def test_image_name_for_image_base
     sub = Buildkite::Config::RubyConfig.new(image_base: "base")
-    assert_equal "base:-3-2-suffix", sub.image_name_for("suffix")
+    assert_equal "base:3-2-suffix", sub.image_name_for("suffix")
   end
 
   def test_image_name_for_prefix
-    sub = Buildkite::Config::RubyConfig.new(prefix: "my-prefix")
+    sub = Buildkite::Config::RubyConfig.new(prefix: "my-prefix:")
     assert_equal ":my-prefix-3-2-build_id", sub.image_name_for
   end
 
   def test_image_name_for_short
     sub = Buildkite::Config::RubyConfig.new
-    assert_equal "-3-2-build_id", sub.image_name_for(short: true)
+    assert_equal "3-2-build_id", sub.image_name_for(short: true)
   end
 
   def test_image_name_for_yjit
@@ -58,7 +58,7 @@ class TestRubyConfig < TestCase
 
   def test_ruby_image_default
     sub = Buildkite::Config::RubyConfig.new
-    assert_equal ":3.2", sub.ruby_image
+    assert_equal "3.2", sub.ruby_image
   end
 
   def test_ruby_image_yjit
@@ -67,7 +67,7 @@ class TestRubyConfig < TestCase
   end
 
   def test_ruby_image_prefix
-    sub = Buildkite::Config::RubyConfig.new(prefix: "my-prefix")
+    sub = Buildkite::Config::RubyConfig.new(prefix: "my-prefix:")
     assert_equal "my-prefix:3.2", sub.ruby_image
   end
 

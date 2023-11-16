@@ -51,7 +51,7 @@ module Buildkite::Config
       if @version == RubyConfig.yjit_ruby
         @version.sub("yjit:", "")
       else
-        "#{@prefix}:#{@version.to_s}"
+        "#{@prefix}#{@version.to_s}"
       end
     end
 
