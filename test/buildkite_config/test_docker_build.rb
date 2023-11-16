@@ -6,6 +6,7 @@ require "buildkite_config"
 class TestDockerBuild < TestCase
   def test_builder
     pipeline = PipelineFixture.new do
+      build_context.rails_version = Gem::Version.new("7.1")
       use Buildkite::Config::DockerBuild
 
       builder ruby: Buildkite::Config::RubyConfig.new(version: "3.2")
@@ -38,6 +39,7 @@ class TestDockerBuild < TestCase
 
   def test_builder_gem_version
     pipeline = PipelineFixture.new do
+      build_context.rails_version = Gem::Version.new("7.1")
       use Buildkite::Config::DockerBuild
 
       builder ruby: Buildkite::Config::RubyConfig.new(version: Gem::Version.new("1.9.3"))

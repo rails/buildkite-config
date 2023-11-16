@@ -3,6 +3,7 @@ require "buildkite-builder"
 module Buildkite::Config
   class BuildContext < Buildkite::Builder::Extension
     attr_accessor :ruby
+    attr_writer :rails_version
 
     def prepare
       @ruby = RubyConfig.new(image_base: image_base)
@@ -15,7 +16,7 @@ module Buildkite::Config
     end
 
     def rails_root
-      if ci? && %w[rails-ci config-sandbox rails-sandbox zzak/rails].include?(pipeline_name)
+      if ci? && %w[rails-ci rails-sandbox zzak/rails].include?(pipeline_name)
         Pathname.new(Dir.pwd)
       else
         Pathname.new(Dir.pwd) + "tmp/rails"
@@ -26,12 +27,8 @@ module Buildkite::Config
       rails_root.join("rails.gemspec").read
     end
 
-    def rails_version_file
-      rails_root.join("RAILS_VERSION").read
-    end
-
     def rails_version
-      Gem::Version.new(rails_version_file)
+      @rails_version ||= Gem::Version.new(rails_version_file)
     end
 
     def min_ruby
@@ -182,5 +179,10 @@ module Buildkite::Config
     def timeout_in_minutes
       @timeout_in_minutes ||= 30
     end
+
+    private
+      def rails_version_file
+        rails_root.join("RAILS_VERSION").read
+      end
   end
 end
