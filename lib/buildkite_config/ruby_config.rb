@@ -15,7 +15,8 @@ module Buildkite::Config
       end
     end
 
-    attr_accessor :image_base, :version, :yjit, :soft_fail
+    attr_reader :image_base, :version, :yjit, :prefix, :soft_fail
+    attr_writer :image_base
     def initialize(version:, soft_fail:nil, prefix: nil, image_base:nil, build:true)
       @image_base = image_base
       @prefix = prefix
@@ -29,7 +30,7 @@ module Buildkite::Config
     end
 
     def image_name
-      @version.to_s.gsub(/\W/, "-")
+      "#{@prefix}#{@version}".gsub(/\W/, "-")
     end
 
     def image_name_for(suffix = "build_id", short: false)
@@ -46,7 +47,7 @@ module Buildkite::Config
       if @version == RubyConfig.yjit_ruby
         @version.sub("yjit:", "")
       else
-        "#{@prefix}#{@version.to_s}"
+        "#{@prefix}#{@version}"
       end
     end
 

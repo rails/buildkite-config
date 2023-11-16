@@ -8,8 +8,8 @@ module Buildkite::Config
         build_context.ruby = ruby.tap { |r| r.image_base = build_context.image_base }
 
         command do
-          label ":docker: #{build_context.ruby.version}"
-          key "docker-image-#{build_context.ruby.version.to_s.gsub(/\W/, "-")}"
+          label ":docker: #{build_context.ruby.prefix}#{build_context.ruby.version}"
+          key "docker-image-#{build_context.ruby.image_name}"
           plugin build_context.artifacts_plugin, {
             download: %w[.dockerignore .buildkite/* .buildkite/**/*]
           }

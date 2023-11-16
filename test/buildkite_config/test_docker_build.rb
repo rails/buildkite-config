@@ -13,8 +13,8 @@ class TestDockerBuild < TestCase
     end
 
     expected = {"steps"=>
-      [{"label"=>":docker: 3.2",
-        "key"=>"docker-image-3-2",
+      [{"label"=>":docker: builder:3.2",
+        "key"=>"docker-image-builder-3-2",
         "agents"=>{"queue"=>"builder"},
         "env"=>
          {"BUNDLER"=>nil,
@@ -46,8 +46,8 @@ class TestDockerBuild < TestCase
     end
 
     expected = {"steps"=>
-      [{"label"=>":docker: 1.9.3",
-        "key"=>"docker-image-1-9-3",
+      [{"label"=>":docker: ruby:1.9.3",
+        "key"=>"docker-image-ruby-1-9-3",
         "agents"=>{"queue"=>"builder"},
         "env"=>
          {"BUNDLER"=>nil,

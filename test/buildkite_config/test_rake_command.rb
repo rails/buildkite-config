@@ -48,7 +48,7 @@ class TestRakeCommand < TestCase
 
   def test_command
     pipeline = PipelineFixture.new do
-      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
+      build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
       rake "test", "test:all"
@@ -57,11 +57,11 @@ class TestRakeCommand < TestCase
     expected = {"steps"=>
       [{"label"=>"test all (3.2)",
         "command"=>["rake test:all"],
-        "depends_on"=>["docker-image-3-2"],
+        "depends_on"=>["docker-image-ruby-3-2"],
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "env"=>{"IMAGE_NAME"=>":3-2-local"},
+        "env"=>{"IMAGE_NAME"=>":ruby-3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
