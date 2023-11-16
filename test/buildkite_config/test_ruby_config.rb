@@ -5,42 +5,41 @@ require "buildkite_config"
 
 class TestRubyConfig < TestCase
   def test_class_methods
-    assert_equal "3.2", Buildkite::Config::RubyConfig.one_ruby
     assert_equal "rubylang/ruby:master-nightly-jammy", Buildkite::Config::RubyConfig.master_ruby
     assert_equal "yjit:#{Buildkite::Config::RubyConfig.master_ruby}", Buildkite::Config::RubyConfig.yjit_ruby
   end
 
   def test_constructor_defaults
-    sub = Buildkite::Config::RubyConfig.new
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
 
-    assert_equal Gem::Version.new(Buildkite::Config::RubyConfig.one_ruby), sub.version
+    assert_equal Gem::Version.new("3.2"), sub.version
     assert_not sub.yjit
     assert_nil sub.soft_fail
     assert_nil sub.image_base
   end
 
   def test_image_name
-    sub = Buildkite::Config::RubyConfig.new
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
     assert_equal "3-2", sub.image_name
   end
 
   def test_image_name_for_default_suffix
-    sub = Buildkite::Config::RubyConfig.new
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
     assert_equal ":3-2-build_id", sub.image_name_for
   end
 
   def test_image_name_for_image_base
-    sub = Buildkite::Config::RubyConfig.new(image_base: "base")
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"), image_base: "base")
     assert_equal "base:3-2-suffix", sub.image_name_for("suffix")
   end
 
   def test_image_name_for_prefix
-    sub = Buildkite::Config::RubyConfig.new(prefix: "my-prefix:")
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"), prefix: "my-prefix:")
     assert_equal ":my-prefix-3-2-build_id", sub.image_name_for
   end
 
   def test_image_name_for_short
-    sub = Buildkite::Config::RubyConfig.new
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
     assert_equal "3-2-build_id", sub.image_name_for(short: true)
   end
 
@@ -57,7 +56,7 @@ class TestRubyConfig < TestCase
   end
 
   def test_ruby_image_default
-    sub = Buildkite::Config::RubyConfig.new
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
     assert_equal "3.2", sub.ruby_image
   end
 
@@ -67,12 +66,12 @@ class TestRubyConfig < TestCase
   end
 
   def test_ruby_image_prefix
-    sub = Buildkite::Config::RubyConfig.new(prefix: "my-prefix:")
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"), prefix: "my-prefix:")
     assert_equal "my-prefix:3.2", sub.ruby_image
   end
 
   def test_short_ruby_default
-    sub = Buildkite::Config::RubyConfig.new
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
     assert_equal "3.2", sub.short_ruby
   end
 
@@ -97,12 +96,12 @@ class TestRubyConfig < TestCase
   end
 
   def test_soft_fail
-    sub = Buildkite::Config::RubyConfig.new(soft_fail: true)
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"), soft_fail: true)
     assert sub.soft_fail?
   end
 
   def test_soft_fail_default
-    sub = Buildkite::Config::RubyConfig.new
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
     refute sub.soft_fail?
   end
 
@@ -112,12 +111,12 @@ class TestRubyConfig < TestCase
   end
 
   def test_yjit_enabled_default
-    sub = Buildkite::Config::RubyConfig.new
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
     refute sub.yjit_enabled?
   end
 
   def test_mangle_name
-    sub = Buildkite::Config::RubyConfig.new
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
     assert_equal "3-2", sub.send(:mangle_name, "3.2")
   end
 end

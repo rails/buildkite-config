@@ -1,11 +1,6 @@
 module Buildkite::Config
   class RubyConfig
     class << self
-      # ONE_RUBY = "3.2"#RUBIES.last || SOFT_FAIL.last
-      def one_ruby
-        "3.2"
-      end
-
       # MASTER_RUBY = "rubylang/ruby:master-nightly-jammy"
       def master_ruby
         "rubylang/ruby:master-nightly-jammy"
@@ -21,7 +16,7 @@ module Buildkite::Config
     end
 
     attr_accessor :image_base, :version, :yjit, :soft_fail
-    def initialize(version: Gem::Version.new(RubyConfig.one_ruby), soft_fail:nil, prefix: nil, image_base:nil, build:true)
+    def initialize(version:, soft_fail:nil, prefix: nil, image_base:nil, build:true)
       @image_base = image_base
       @prefix = prefix
       @version = version

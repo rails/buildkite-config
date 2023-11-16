@@ -5,10 +5,6 @@ module Buildkite::Config
     attr_accessor :ruby
     attr_writer :rails_version
 
-    def prepare
-      @ruby = RubyConfig.new(image_base: image_base)
-    end
-
     dsl do
       def build_context
         context.extensions.find(BuildContext)
@@ -40,6 +36,10 @@ module Buildkite::Config
       #   #=> Gem::Version.new("2.7")
       rails_gemspec =~ /required_ruby_version[^0-9]+([0-9]+\.[0-9]+)/
       Gem::Version.new($1 || "2.0")
+    end
+
+    def one_ruby
+      rubies.select { |r| !r.soft_fail? }.first
     end
 
     def ruby_minors

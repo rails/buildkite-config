@@ -48,6 +48,7 @@ class TestRakeCommand < TestCase
 
   def test_command
     pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
       rake "test", "test:all"
@@ -60,7 +61,7 @@ class TestRakeCommand < TestCase
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "env"=>{"IMAGE_NAME"=>":3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
@@ -75,6 +76,7 @@ class TestRakeCommand < TestCase
 
   def test_multiple
     pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
       rake "first", "test:all"
@@ -88,7 +90,7 @@ class TestRakeCommand < TestCase
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "env"=>{"IMAGE_NAME"=>":3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
@@ -104,7 +106,7 @@ class TestRakeCommand < TestCase
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "env"=>{"IMAGE_NAME"=>":3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
@@ -119,6 +121,7 @@ class TestRakeCommand < TestCase
 
   def test_docker_compose_plugin
     pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(image_base: "buildkite-config-base", version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
       rake "subdirectory", "test:isolated", service: "myservice"
@@ -175,6 +178,7 @@ class TestRakeCommand < TestCase
 
   def test_env_pre_steps
     pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(image_base: "buildkite-config-base", version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
       rake pre_steps: ["rm Gemfile.lock", "bundle install"] do
@@ -204,6 +208,7 @@ class TestRakeCommand < TestCase
 
   def test_agents
     pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
       rake do
@@ -219,7 +224,7 @@ class TestRakeCommand < TestCase
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"test_agents"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "env"=>{"IMAGE_NAME"=>":3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
@@ -234,6 +239,7 @@ class TestRakeCommand < TestCase
 
   def test_artifact_paths
     pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
       rake do
@@ -249,7 +255,7 @@ class TestRakeCommand < TestCase
         "artifact_paths"=>["test_artifact_paths"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "env"=>{"IMAGE_NAME"=>":3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
@@ -264,6 +270,7 @@ class TestRakeCommand < TestCase
 
   def test_automatic_retry_on
     pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
       rake do |attrs, _|
@@ -282,7 +289,7 @@ class TestRakeCommand < TestCase
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>1, "exit_status"=>127}]},
-        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "env"=>{"IMAGE_NAME"=>":3-2-local"},
         "timeout_in_minutes"=>30,
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
@@ -297,6 +304,7 @@ class TestRakeCommand < TestCase
 
   def test_timeout_in_minutes
     pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
       rake do
@@ -312,7 +320,7 @@ class TestRakeCommand < TestCase
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "env"=>{"IMAGE_NAME"=>":3-2-local"},
         "timeout_in_minutes"=>10,
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
@@ -327,6 +335,7 @@ class TestRakeCommand < TestCase
 
   def test_soft_fail
     pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
       rake do
@@ -342,7 +351,7 @@ class TestRakeCommand < TestCase
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local"},
+        "env"=>{"IMAGE_NAME"=>":3-2-local"},
         "timeout_in_minutes"=>30,
         "soft_fail"=>true,
         "plugins"=>
@@ -358,6 +367,7 @@ class TestRakeCommand < TestCase
 
   def test_rake_with_block
     pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
       rake "test", "all" do |attrs, _|
@@ -373,7 +383,7 @@ class TestRakeCommand < TestCase
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "env"=>{"IMAGE_NAME"=>"buildkite-config-base:3-2-local", "MYSQL_IMAGE"=>"mariadb:latest"},
+        "env"=>{"IMAGE_NAME"=>":3-2-local", "MYSQL_IMAGE"=>"mariadb:latest"},
         "timeout_in_minutes"=>30,
         "plugins"=>
         [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},

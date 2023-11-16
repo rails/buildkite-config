@@ -75,7 +75,7 @@ Buildkite::Builder.pipeline do
       end
     end
 
-    ruby_group config: build_context.rubies.last do
+    ruby_group config: build_context.one_ruby do
       # GROUP 3: Special cases
       if build_context.rails_version >= Gem::Version.new("5.1.x")
         rake "activerecord", "sqlite3_mem:test"
@@ -150,7 +150,7 @@ Buildkite::Builder.pipeline do
   end
 
   # Isolated tests
-  ruby_group config: build_context.rubies.last do
+  ruby_group config: build_context.one_ruby do
     label "isolated"
 
     %w(

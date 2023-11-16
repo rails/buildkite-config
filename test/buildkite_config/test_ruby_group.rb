@@ -8,7 +8,7 @@ class TestRubyGroup < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RubyGroup
 
-      ruby_group do
+      ruby_group version: Gem::Version.new("3.2") do
         build_context = context.extensions.find(Buildkite::Config::BuildContext)
 
         command do
@@ -29,7 +29,7 @@ class TestRubyGroup < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RubyGroup
 
-      ruby_group soft_fail: true do
+      ruby_group version: Gem::Version.new("3.3"), soft_fail: true do
         build_context = context.extensions.find(Buildkite::Config::BuildContext)
 
         command do
@@ -40,7 +40,7 @@ class TestRubyGroup < TestCase
     end
 
     expected = {"steps"=>
-      [{"label"=>"3.2",
+      [{"label"=>"3.3",
         "group"=>nil,
         "steps"=>[{"label"=>"test [soft_fail]]}]", "command"=>["rake test"]}]}]}
     assert_equal expected, pipeline.to_h
