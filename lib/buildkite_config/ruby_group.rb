@@ -10,6 +10,7 @@ module Buildkite::Config
         else
           build_context.ruby = config
         end
+        build_context.ruby.image_base = build_context.image_base
 
         group do
           label build_context.ruby.version.to_s

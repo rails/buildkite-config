@@ -116,7 +116,7 @@ module Buildkite::Config
     end
 
     def build_id
-      @local ||= ENV["BUILDKITE_BUILD_ID"] || ENV["BUILD_ID"]
+      @local ||= ENV["BUILDKITE_BUILD_ID"] || ENV["BUILD_ID"] || "build_id"
     end
 
     def rebuild_id

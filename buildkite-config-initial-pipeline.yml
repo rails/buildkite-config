@@ -25,6 +25,7 @@ steps:
           environment:
             - CI
             - BUILDKITE
+            - BUILDKITE_BUILD_ID
             - BUILDKITE_PIPELINE_NAME
   - command: |
       git clone --depth=1 https://github.com/rails/buildkite-config tmp/buildkite-config
