@@ -266,7 +266,7 @@ class TestRakeCommand < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
 
-      rake do |attrs|
+      rake do |attrs, _|
         label "test_automatic_retry_on"
         # Reset "automatic_retry_on" from the default
         # Since this does a push, and we only want a single value, I think.
@@ -360,7 +360,7 @@ class TestRakeCommand < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
 
-      rake "test", "all" do |attrs|
+      rake "test", "all" do |attrs, _|
         label "#{attrs["label"]} with_block"
         env["MYSQL_IMAGE"] = "mariadb:latest"
       end

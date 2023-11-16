@@ -13,7 +13,7 @@ class TestRubyConfig < TestCase
   def test_constructor_defaults
     sub = Buildkite::Config::RubyConfig.new
 
-    assert_equal Buildkite::Config::RubyConfig.one_ruby, sub.version
+    assert_equal Gem::Version.new(Buildkite::Config::RubyConfig.one_ruby), sub.version
     assert_not sub.yjit
     assert_nil sub.soft_fail
     assert_nil sub.image_base

@@ -21,10 +21,11 @@ module Buildkite::Config
     end
 
     attr_accessor :image_base, :version, :yjit, :soft_fail
-    def initialize(version: RubyConfig.one_ruby, soft_fail:nil, image_base:nil)
+    def initialize(version: Gem::Version.new(RubyConfig.one_ruby), soft_fail:nil, image_base:nil, build:true)
       @image_base = image_base
       @version = version
       @yjit = @version == RubyConfig.yjit_ruby
+      @build = build
 
       if soft_fail
         @soft_fail = soft_fail
@@ -32,7 +33,7 @@ module Buildkite::Config
     end
 
     def image_name
-      @version.gsub(/\W/, "-")
+      @version.to_s.gsub(/\W/, "-")
     end
 
     def image_name_for(suffix = "build_id", short: false)
@@ -49,7 +50,7 @@ module Buildkite::Config
       if @version == RubyConfig.yjit_ruby
         @version.sub("yjit:", "")
       else
-        @version
+        @version.to_s
       end
     end
 
@@ -60,8 +61,12 @@ module Buildkite::Config
       elsif @version == RubyConfig.yjit_ruby
         "yjit"
       else
-        @version.sub(/^ruby:|:latest$/, "")
+        @version.to_s.sub(/^ruby:|:latest$/, "")
       end
+    end
+
+    def build?
+      @build
     end
 
     def soft_fail?
@@ -74,7 +79,7 @@ module Buildkite::Config
 
     private
       def mangle_name(name)
-        name.tr("^A-Za-z0-9", "-")
+        name.to_s.tr("^A-Za-z0-9", "-")
       end
   end
 end

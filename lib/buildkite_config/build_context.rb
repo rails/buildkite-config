@@ -5,13 +5,97 @@ module Buildkite::Config
     attr_accessor :ruby
 
     def prepare
-      @ruby = RubyConfig.new(image_base: image_base)##(version: context.data.ruby[:version])
-      #context.data.ruby = RubyConfig.new
+      @ruby = RubyConfig.new(image_base: image_base)
     end
 
     dsl do
       def build_context
         context.extensions.find(BuildContext)
+      end
+    end
+
+    def rails_root
+      if ci? && %w[rails-ci rails-sandbox zzak/rails].include?(pipeline_name)
+        Pathname.new(Dir.pwd)
+      else
+        Pathname.new(Dir.pwd) + "tmp/rails"
+      end
+    end
+
+    def rails_gemspec
+      rails_root.join("rails.gemspec").read
+    end
+
+    def rails_version_file
+      rails_root.join("RAILS_VERSION").read
+    end
+
+    def rails_version
+      Gem::Version.new(rails_version_file)
+    end
+
+    def min_ruby
+      # Sets $1 below for MIN_RUBY
+      # e.g.:
+      #   >> rails_root.join("rails.gemspec").read =~ /required_ruby_version[^0-9]+([0-9]+\.[0-9]+)/
+      #   #=> 486
+      #   >> Gem::Version.new($1)
+      #   #=> Gem::Version.new("2.7")
+      rails_gemspec =~ /required_ruby_version[^0-9]+([0-9]+\.[0-9]+)/
+      Gem::Version.new($1 || "2.0")
+    end
+
+    def ruby_minors
+      %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2).map { |v| Gem::Version.new(v) }
+    end
+
+    def rubies
+      @rubies ||= ruby_minors.select { |v| v >= min_ruby }.map do |v|
+        rc = RubyConfig.new(version: v)
+
+        if max_ruby && v > max_ruby && !(max_ruby.approximate_recommendation === v)
+          rc.soft_fail = true
+        end
+
+        rc
+      end.tap do |rubies|
+        rubies.reverse!
+
+        rubies << RubyConfig.new(version: RubyConfig.yjit_ruby, soft_fail: true, build: false)
+        rubies << RubyConfig.new(version: RubyConfig.master_ruby, soft_fail: true)
+
+        rubies.sort_by { |r| [r.version.to_s, r.soft_fail] }
+      end
+    end
+
+    def bundler
+      case rails_version
+      when Gem::Requirement.new("< 5.0")
+        "< 2"
+      when Gem::Requirement.new("< 6.1")
+        "< 2.2.10"
+      end
+    end
+
+    def rubygems
+      case rails_version
+      when Gem::Requirement.new("< 5.0")
+        "2.6.13"
+      when Gem::Requirement.new("< 6.1")
+        "3.2.9"
+      end
+    end
+
+    def max_ruby
+      case rails_version
+      when Gem::Requirement.new("< 5.1")
+        Gem::Version.new("2.4")
+      when Gem::Requirement.new("< 5.2")
+        Gem::Version.new("2.5")
+      when Gem::Requirement.new("< 6.0")
+        Gem::Version.new("2.6")
+      when Gem::Requirement.new("< 6.1")
+        Gem::Version.new("2.7")
       end
     end
 
@@ -35,7 +119,7 @@ module Buildkite::Config
     end
 
     def build_id
-      @local ||= ENV["BUILD_ID"]
+      @local ||= ENV["BUILDKITE_BUILD_ID"] || ENV["BUILD_ID"]
     end
 
     def rebuild_id
@@ -48,6 +132,18 @@ module Buildkite::Config
 
     def local_branch
       @local_branch ||= ([ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
+    end
+
+    def mainline
+      local_branch == "main" || local_branch =~ /\A[0-9-]+(?:-stable)?\z/
+    end
+
+    def ci?
+      @ci ||= ENV.has_key?("BUILDKITE") || ENV.has_key?("CI")
+    end
+
+    def pipeline_name
+      @pipeline_name ||= ENV["BUILDKITE_PIPELINE_NAME"] || "rails-ci"
     end
 
     def pull_request

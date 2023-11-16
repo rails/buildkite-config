@@ -3,13 +3,13 @@ require "buildkite-builder"
 module Buildkite::Config
   class DockerBuild < Buildkite::Builder::Extension
     dsl do
-      def builder(**args, &block)
+      def builder(ruby:, &block)
         build_context = context.extensions.find(BuildContext)
-        build_context.ruby = RubyConfig.new(version: args[:ruby], image_base: build_context.image_base)
+        build_context.ruby = ruby.tap { |r| r.image_base = build_context.image_base }
 
         command do
-          label ":docker: #{args[:ruby]}"
-          key "docker-image-#{args[:ruby].gsub(/\W/, "-")}"
+          label ":docker: #{build_context.ruby.version}"
+          key "docker-image-#{build_context.ruby.version.to_s.gsub(/\W/, "-")}"
           plugin build_context.artifacts_plugin, {
             download: %w[.dockerignore .buildkite/* .buildkite/**/*]
           }
@@ -35,6 +35,8 @@ module Buildkite::Config
           }
 
           env({
+            BUNDLER: build_context.bundler,
+            RUBYGEMS: build_context.rubygems,
             RUBY_IMAGE: build_context.ruby.ruby_image,
             encrypted_0fb9444d0374_key: nil,
             encrypted_0fb9444d0374_iv: nil

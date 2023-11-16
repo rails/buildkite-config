@@ -35,7 +35,7 @@ module Buildkite::Config
           command "rake #{task}"
 
           plugin build_context.artifacts_plugin, {
-            download: %w[.buildkite/* .buildkite/*/*]
+            download: %w[.buildkite/* .buildkite/**/*]
           }
 
           plugin build_context.docker_compose_plugin,{
@@ -55,7 +55,7 @@ module Buildkite::Config
           automatic_retry_on(**build_context.automatic_retry_on)
           timeout_in_minutes build_context.timeout_in_minutes
 
-          instance_exec(@attributes, &block) if block_given?
+          instance_exec([@attributes, build_context], &block) if block_given?
         end
       end
     end
