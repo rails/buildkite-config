@@ -115,6 +115,16 @@ class TestRubyConfig < TestCase
     refute sub.yjit_enabled?
   end
 
+  def test_build
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"), build: false)
+    refute sub.build?
+  end
+
+  def test_build_default
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"))
+    assert sub.build?
+  end
+
   def test_mangle_name
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
     assert_equal "3-2", sub.send(:mangle_name, "3.2")
