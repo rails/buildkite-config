@@ -11,22 +11,6 @@ AllCops:
   SuggestExtensions: false
   Exclude:
     - '**/tmp/**/*'
-    - '**/templates/**/*'
-    - '**/vendor/**/*'
-    - 'actionpack/lib/action_dispatch/journey/parser.rb'
-    - 'actionmailbox/test/dummy/**/*'
-    - 'activestorage/test/dummy/**/*'
-    - 'actiontext/test/dummy/**/*'
-    - 'tools/rail_inspector/test/fixtures/*'
-    - guides/source/debugging_rails_applications.md
-    - guides/source/active_support_instrumentation.md
-    - '**/node_modules/**/*'
-    - '**/CHANGELOG.md'
-    - '**/2_*_release_notes.md'
-    - '**/3_*_release_notes.md'
-    - '**/4_*_release_notes.md'
-    - '**/5_*_release_notes.md'
-    - '**/6_*_release_notes.md'
 
 
 # Prefer assert_not over assert !
@@ -107,8 +91,6 @@ Style/HashSyntax:
 Layout/IndentationConsistency:
   Enabled: true
   EnforcedStyle: indented_internal_methods
-  Exclude:
-    - '**/*.md'
 
 # Two spaces, no tabs (for indentation).
 Layout/IndentationWidth:
@@ -157,16 +139,6 @@ Style/ExplicitBlockArgument:
 Style/FrozenStringLiteralComment:
   Enabled: true
   EnforcedStyle: always
-  Exclude:
-    - 'actionview/test/**/*.builder'
-    - 'actionview/test/**/*.ruby'
-    - 'actionpack/test/**/*.builder'
-    - 'actionpack/test/**/*.ruby'
-    - 'activestorage/db/migrate/**/*.rb'
-    - 'activestorage/db/update_migrate/**/*.rb'
-    - 'actionmailbox/db/migrate/**/*.rb'
-    - 'actiontext/db/migrate/**/*.rb'
-    - '**/*.md'
 
 Style/MapToHash:
   Enabled: true
