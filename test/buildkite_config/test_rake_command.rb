@@ -74,6 +74,34 @@ class TestRakeCommand < TestCase
     assert_equal expected, pipeline.to_h
   end
 
+  def test_default_task
+    pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
+      use Buildkite::Config::RakeCommand
+
+      rake "activerecord"
+    end
+
+    expected = {"steps"=>
+      [{"label"=>"activerecord (3.2)",
+        "command"=>["rake test"],
+        "depends_on"=>["docker-image-ruby-3-2"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
+        "agents"=>{"queue"=>"default"},
+        "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
+        "env"=>{"IMAGE_NAME"=>":ruby-3-2-local"},
+        "timeout_in_minutes"=>30,
+        "plugins"=>
+        [{"artifacts#v1.2.0"=>{"download"=>[".buildkite/*", ".buildkite/**/*"]}},
+          {"docker-compose#v3.7.0"=>
+            {"env"=>["PRE_STEPS", "RACK"],
+            "run"=>"default",
+            "pull"=>"default",
+            "config"=>".buildkite/docker-compose.yml",
+            "shell"=>["runner", "activerecord"]}}]}]}
+    assert_equal expected, pipeline.to_h
+  end
+
   def test_multiple
     pipeline = PipelineFixture.new do
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
@@ -157,12 +185,12 @@ class TestRakeCommand < TestCase
     end
 
     expected = {"steps"=>
-      [{"label"=>"  (yjit)",
-        "command"=>["rake "],
+      [{"label"=>" (yjit)",
+        "command"=>["rake test"],
         "depends_on"=>["docker-image-yjit-rubylang-ruby-master-nightly-jammy"],
+        "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
         "retry"=>{"automatic"=>[{"limit"=>2, "exit_status"=>-1}]},
-        "artifact_paths"=>["test-reports/*/*.xml"],
         "env"=>{"IMAGE_NAME"=>"buildkite-config-base:rubylang-ruby-master-nightly-jammy-local", "RUBY_YJIT_ENABLE"=>"1"},
         "timeout_in_minutes"=>30,
         "plugins"=>
@@ -188,7 +216,7 @@ class TestRakeCommand < TestCase
 
     expected = {"steps"=>
       [{"label"=>"test_env_pre_steps",
-        "command"=>["rake "],
+        "command"=>["rake test"],
         "depends_on"=>["docker-image-3-2"],
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
@@ -219,7 +247,7 @@ class TestRakeCommand < TestCase
 
     expected = {"steps"=>
       [{"label"=>"test_agents",
-        "command"=>["rake "],
+        "command"=>["rake test"],
         "depends_on"=>["docker-image-3-2"],
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"test_agents"},
@@ -250,7 +278,7 @@ class TestRakeCommand < TestCase
 
     expected = {"steps"=>
       [{"label"=>"test_artifact_paths",
-        "command"=>["rake "],
+        "command"=>["rake test"],
         "depends_on"=>["docker-image-3-2"],
         "artifact_paths"=>["test_artifact_paths"],
         "agents"=>{"queue"=>"default"},
@@ -284,7 +312,7 @@ class TestRakeCommand < TestCase
 
     expected = {"steps"=>
       [{"label"=>"test_automatic_retry_on",
-        "command"=>["rake "],
+        "command"=>["rake test"],
         "depends_on"=>["docker-image-3-2"],
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
@@ -315,7 +343,7 @@ class TestRakeCommand < TestCase
 
     expected = {"steps"=>
       [{"label"=>"test_timeout_in_minutes",
-        "command"=>["rake "],
+        "command"=>["rake test"],
         "depends_on"=>["docker-image-3-2"],
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},
@@ -346,7 +374,7 @@ class TestRakeCommand < TestCase
 
     expected = {"steps"=>
       [{"label"=>"soft_fail",
-        "command"=>["rake "],
+        "command"=>["rake test"],
         "depends_on"=>["docker-image-3-2"],
         "artifact_paths"=>["test-reports/*/*.xml"],
         "agents"=>{"queue"=>"default"},

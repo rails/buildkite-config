@@ -3,7 +3,7 @@ require "buildkite-builder"
 module Buildkite::Config
   class RakeCommand < Buildkite::Builder::Extension
     dsl do
-      def to_label(ruby, dir, task = "")
+      def to_label(ruby, dir, task)
         str = +"#{dir} #{task.sub(/[:_]test|test:/, "")}"
         str.sub!(/ test/, "")
         return str unless ruby.version
@@ -11,7 +11,7 @@ module Buildkite::Config
         str << " (#{ruby.short_ruby})"
       end
 
-      def rake(dir = "", task = "", service: "default", pre_steps:[], &block)
+      def rake(dir = "", task = "test", service: "default", pre_steps:[], &block)
         build_context = context.extensions.find(BuildContext)
 
         ## Setup ENV
