@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 require "pathname"
 require "yaml"
@@ -8,7 +9,7 @@ else
   Pathname.new(File.expand_path("../../.buildkite", __dir__))
 end
 
-#Buildkite::Builder.root(start_path: BUILDKITE_ROOT_DIR)
+# Buildkite::Builder.root(start_path: BUILDKITE_ROOT_DIR)
 Buildkite::Builder.pipeline do
   require_relative "../../lib/buildkite_config"
 

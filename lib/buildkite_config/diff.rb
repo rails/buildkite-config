@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "diffy"
 
 module Buildkite::Config
@@ -20,4 +22,3 @@ module Buildkite::Config
     end
   end
 end
-

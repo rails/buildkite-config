@@ -97,32 +97,32 @@ class TestRubyConfig < TestCase
 
   def test_soft_fail
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"), soft_fail: true)
-    assert sub.soft_fail?
+    assert_predicate sub, :soft_fail?
   end
 
   def test_soft_fail_default
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
-    refute sub.soft_fail?
+    assert_not sub.soft_fail?
   end
 
   def test_yjit_enabled
     sub = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
-    assert sub.yjit_enabled?
+    assert_predicate sub, :yjit_enabled?
   end
 
   def test_yjit_enabled_default
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
-    refute sub.yjit_enabled?
+    assert_not sub.yjit_enabled?
   end
 
   def test_build
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"), build: false)
-    refute sub.build?
+    assert_not sub.build?
   end
 
   def test_build_default
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"))
-    assert sub.build?
+    assert_predicate sub, :build?
   end
 
   def test_mangle_name

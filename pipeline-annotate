@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-def run(cmd, value=false)
+def run(cmd, value = false)
   io = IO.popen(cmd)
   output = io.read
   io.close
 
   raise output unless $?.success?
 
-  return output if value
+  output if value
 end
 
 run "bundle install"

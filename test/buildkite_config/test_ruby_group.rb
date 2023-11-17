@@ -18,10 +18,10 @@ class TestRubyGroup < TestCase
       end
     end
 
-    expected = {"steps"=>
-      [{"label"=>"3.2",
-        "group"=>nil,
-        "steps"=>[{"label"=>"test [3.2]]}]", "command"=>["rake test"]}]}]}
+    expected = { "steps" =>
+      [{ "label" => "3.2",
+        "group" => nil,
+        "steps" => [{ "label" => "test [3.2]]}]", "command" => ["rake test"] }] }] }
     assert_equal expected, pipeline.to_h
   end
 
@@ -39,10 +39,10 @@ class TestRubyGroup < TestCase
       end
     end
 
-    expected = {"steps"=>
-      [{"label"=>"3.3",
-        "group"=>nil,
-        "steps"=>[{"label"=>"test [soft_fail]]}]", "command"=>["rake test"]}]}]}
+    expected = { "steps" =>
+      [{ "label" => "3.3",
+        "group" => nil,
+        "steps" => [{ "label" => "test [soft_fail]]}]", "command" => ["rake test"] }] }] }
     assert_equal expected, pipeline.to_h
   end
 
@@ -58,10 +58,10 @@ class TestRubyGroup < TestCase
       end
     end
 
-    expected = {"steps"=>
-      [{"label"=>"1.8.7",
-        "group"=>nil,
-        "steps"=>[{"label"=>"test", "command"=>["rake test"]}]}]}
+    expected = { "steps" =>
+      [{ "label" => "1.8.7",
+        "group" => nil,
+        "steps" => [{ "label" => "test", "command" => ["rake test"] }] }] }
     assert_equal expected, pipeline.to_h
   end
 
@@ -81,12 +81,12 @@ class TestRubyGroup < TestCase
       end
     end
 
-    expected = {"steps"=>
-      [{"label"=>"2.0",
-        "group"=>nil,
-        "steps"=>
-         [{"label"=>"test [test_ruby_group_sets_image_base]",
-           "command"=>["rake test"]}]}]}
+    expected = { "steps" =>
+      [{ "label" => "2.0",
+        "group" => nil,
+        "steps" =>
+         [{ "label" => "test [test_ruby_group_sets_image_base]",
+           "command" => ["rake test"] }] }] }
     assert_equal expected, pipeline.to_h
   end
 end

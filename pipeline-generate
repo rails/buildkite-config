@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-def run(cmd, env={}, value=false)
+def run(cmd, env = {}, value = false)
   io = IO.popen(env, cmd)
   output = io.read
   io.close
 
   raise output unless $?.success?
 
-  return output if value
+  output if value
 end
 
 env = {}

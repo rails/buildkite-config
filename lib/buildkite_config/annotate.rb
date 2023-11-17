@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Buildkite::Config
   class Annotate
     def initialize(diff)

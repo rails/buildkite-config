@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "buildkite-builder"
 
 module Buildkite::Config
@@ -14,7 +16,7 @@ module Buildkite::Config
             download: %w[.dockerignore .buildkite/* .buildkite/**/*]
           }
 
-          plugin build_context.docker_compose_plugin,{
+          plugin build_context.docker_compose_plugin, {
             build: "base",
             config: ".buildkite/docker-compose.yml",
             env: %w[PRE_STEPS RACK],

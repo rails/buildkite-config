@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Buildkite::Config
   class RubyConfig
     class << self
@@ -17,7 +19,7 @@ module Buildkite::Config
 
     attr_reader :image_base, :version, :yjit, :prefix, :soft_fail
     attr_writer :image_base
-    def initialize(version:, soft_fail:nil, prefix: nil, image_base:nil, build:true)
+    def initialize(version:, soft_fail: nil, prefix: nil, image_base: nil, build: true)
       @image_base = image_base
       @prefix = prefix
       @version = version

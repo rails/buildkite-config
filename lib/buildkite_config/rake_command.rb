@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "buildkite-builder"
 
 module Buildkite::Config
@@ -11,7 +13,7 @@ module Buildkite::Config
         str << " (#{ruby.short_ruby})"
       end
 
-      def rake(dir = "", task = "test", service: "default", pre_steps:[], &block)
+      def rake(dir = "", task = "test", service: "default", pre_steps: [], &block)
         build_context = context.extensions.find(BuildContext)
 
         ## Setup ENV
@@ -38,7 +40,7 @@ module Buildkite::Config
             download: %w[.buildkite/* .buildkite/**/*]
           }
 
-          plugin build_context.docker_compose_plugin,{
+          plugin build_context.docker_compose_plugin, {
             "env" => [
               "PRE_STEPS",
               "RACK"

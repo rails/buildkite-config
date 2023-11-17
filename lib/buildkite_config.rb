@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Buildkite
   module Config
     autoload :Annotate, File.expand_path("buildkite_config/annotate", __dir__)
