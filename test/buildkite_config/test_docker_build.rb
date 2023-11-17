@@ -72,6 +72,7 @@ class TestDockerBuild < TestCase
 
   def test_builder_sets_image_base
     pipeline = PipelineFixture.new do
+      build_context.rails_version = Gem::Version.new("7.1")
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("2.0"))
       build_context.instance_variable_set(:@image_base, "test_builder_sets_image_base")
       use Buildkite::Config::DockerBuild
