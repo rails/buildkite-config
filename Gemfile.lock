@@ -38,13 +38,7 @@ GEM
       rdoc
       reline (>= 0.3.8)
     minitest (5.19.0)
-    minitest-autotest (1.1.1)
-      minitest-server (~> 1.0)
-      path_expander (~> 1.0)
-    minitest-server (1.0.7)
-      minitest (~> 5.16)
     mutex_m (0.1.2)
-    path_expander (1.1.1)
     psych (5.1.1.1)
       stringio
     public_suffix (5.0.1)
@@ -73,7 +67,6 @@ DEPENDENCIES
   buildkite-builder
   debug
   diffy
-  minitest-autotest
   rake
 
 BUNDLED WITH
