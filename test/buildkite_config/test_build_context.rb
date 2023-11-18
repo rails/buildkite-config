@@ -213,6 +213,166 @@ class TestBuildContext < TestCase
     ENV["BUILDKITE_BUILD_ID"] = @before_buildkite_build_id
   end
 
+  def test_rebuild_id
+    @before_buildkite_rebuilt_from_build_id = ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]
+    ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"] = nil
+
+    sub = create_build_context
+    assert_nil sub.rebuild_id
+  ensure
+    ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"] = @before_buildkite_rebuilt_from_build_id
+  end
+
+  def test_rebuild_id_blank
+    @before_buildkite_rebuilt_from_build_id = ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]
+    ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"] = ""
+
+    sub = create_build_context
+    assert_nil sub.rebuild_id
+  ensure
+    ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"] = @before_buildkite_rebuilt_from_build_id
+  end
+
+  def test_rebuild_id_with_env
+    @before_buildkite_rebuilt_from_build_id = ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]
+    ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"] = "test_rebuild_id_with_env"
+
+    sub = create_build_context
+    assert_equal "test_rebuild_id_with_env", sub.rebuild_id
+  ensure
+    ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"] = @before_buildkite_rebuilt_from_build_id
+  end
+
+  def test_base_branch_blank
+    @before_buildkite_pull_request_base_branch = ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"]
+    @before_buildkite_branch = ENV["BUILDKITE_BRANCH"]
+    ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"] = ""
+    ENV["BUILDKITE_BRANCH"] = ""
+
+    sub = create_build_context
+    assert_equal "main", sub.base_branch
+  ensure
+    ENV["BUILDKITE_BRANCH"] = @before_buildkite_branch
+    ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"] = @before_buildkite_pull_request_base_branch
+  end
+
+  def test_base_branch_nil
+    @before_buildkite_pull_request_base_branch = ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"]
+    @before_buildkite_branch = ENV["BUILDKITE_BRANCH"]
+    ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"] = nil
+    ENV["BUILDKITE_BRANCH"] = nil
+
+    sub = create_build_context
+    assert_nil sub.base_branch
+  ensure
+    ENV["BUILDKITE_BRANCH"] = @before_buildkite_branch
+    ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"] = @before_buildkite_pull_request_base_branch
+  end
+
+  def test_base_branch_with_env_buildkite_pull_request_base_branch
+    @before_buildkite_pull_request_base_branch = ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"]
+    ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"] = "test_base_branch_with_env_buildkite_pull_request_base_branch"
+
+    sub = create_build_context
+    assert_equal "test_base_branch_with_env_buildkite_pull_request_base_branch", sub.base_branch
+  ensure
+    ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"] = @before_buildkite_pull_request_base_branch
+  end
+
+  def test_base_branch_with_env_buildkite_branch
+    @before_buildkite_pull_request_base_branch = ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"]
+    @before_buildkite_branch = ENV["BUILDKITE_BRANCH"]
+    ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"] = ""
+    ENV["BUILDKITE_BRANCH"] = "test_base_branch_with_env_buildkite_branch"
+
+    sub = create_build_context
+    assert_equal "test_base_branch_with_env_buildkite_branch", sub.base_branch
+  ensure
+    ENV["BUILDKITE_BRANCH"] = @before_buildkite_branch
+    ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"] = @before_buildkite_pull_request_base_branch
+  end
+
+  def test_local_branch
+    @before_buildkite_branch = ENV["BUILDKITE_BRANCH"]
+    ENV["BUILDKITE_BRANCH"] = "test_local_branch"
+
+    sub = create_build_context
+    assert_equal "test_local_branch", sub.local_branch
+  ensure
+    ENV["BUILDKITE_BRANCH"] = @before_buildkite_branch
+  end
+
+  def test_local_branch_blank
+    @before_buildkite_branch = ENV["BUILDKITE_BRANCH"]
+    ENV["BUILDKITE_BRANCH"] = ""
+
+    sub = create_build_context
+    assert_equal "main", sub.local_branch
+  ensure
+    ENV["BUILDKITE_BRANCH"] = @before_buildkite_branch
+  end
+
+  def test_local_branch_nil
+    @before_buildkite_branch = ENV["BUILDKITE_BRANCH"]
+    ENV["BUILDKITE_BRANCH"] = nil
+
+    sub = create_build_context
+    assert_nil sub.local_branch
+  ensure
+    ENV["BUILDKITE_BRANCH"] = @before_buildkite_branch
+  end
+
+  def test_mainline
+    sub = create_build_context
+    sub.stub(:local_branch, "main") do
+      assert sub.mainline
+    end
+  end
+
+  def test_mainline_stable
+    sub = create_build_context
+    sub.stub(:local_branch, "7-0-stable") do
+      assert sub.mainline
+    end
+  end
+
+  def test_mainline_non_stable_branch
+    sub = create_build_context
+    sub.stub(:local_branch, "bump/trilogy") do
+      assert_not sub.mainline
+    end
+  end
+
+  def test_pull_request
+    @before_buildkite_pull_request = ENV["BUILDKITE_PULL_REQUEST"]
+    ENV["BUILDKITE_PULL_REQUEST"] = "42"
+
+    sub = create_build_context
+    assert_equal "42", sub.pull_request
+  ensure
+    ENV["BUILDKITE_PULL_REQUEST"] = @before_buildkite_pull_request
+  end
+
+  def test_not_a_pull_request
+    @before_buildkite_pull_request = ENV["BUILDKITE_PULL_REQUEST"]
+    ENV["BUILDKITE_PULL_REQUEST"] = "false"
+
+    sub = create_build_context
+    assert_nil sub.pull_request
+  ensure
+    ENV["BUILDKITE_PULL_REQUEST"] = @before_buildkite_pull_request
+  end
+
+  def test_not_a_pull_request_nil
+    @before_buildkite_pull_request = ENV["BUILDKITE_PULL_REQUEST"]
+    ENV["BUILDKITE_PULL_REQUEST"] = nil
+
+    sub = create_build_context
+    assert_nil sub.pull_request
+  ensure
+    ENV["BUILDKITE_PULL_REQUEST"] = @before_buildkite_pull_request
+  end
+
   def test_queue
     @before_buildkite_agent_meta_data_queue = ENV["BUILDKITE_AGENT_META_DATA_QUEUE"]
     ENV["BUILDKITE_AGENT_META_DATA_QUEUE"] = "test_queue"
@@ -317,5 +477,20 @@ class TestBuildContext < TestCase
   ensure
     ENV["RUN_QUEUE"] = @before_run_queue
     ENV["BUILDKITE_AGENT_META_DATA_QUEUE"] = @before_buildkite_agent_meta_data_queue
+  end
+
+  def test_artifact_paths
+    sub = create_build_context
+    assert_equal ["test-reports/*/*.xml"], sub.artifact_paths
+  end
+
+  def test_automatic_retry_on
+    sub = create_build_context
+    assert_equal({ exit_status: -1, limit: 2 }, sub.automatic_retry_on)
+  end
+
+  def test_timeout_in_minutes
+    sub = create_build_context
+    assert_equal 30, sub.timeout_in_minutes
   end
 end
