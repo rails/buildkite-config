@@ -7,7 +7,7 @@ module Buildkite::Config
     dsl do
       def ruby_group(config:, &block)
         build_context = context.extensions.find(BuildContext)
-        build_context.ruby = config.tap { |r| r.image_base = build_context.image_base }
+        build_context.ruby = config
 
         group do
           label build_context.ruby.version.to_s

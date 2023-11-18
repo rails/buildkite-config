@@ -18,7 +18,7 @@ module Buildkite::Config
 
         ## Setup ENV
         _env = {
-          IMAGE_NAME: build_context.ruby.image_name_for(build_context.build_id)
+          IMAGE_NAME: build_context.image_base + ":" + build_context.ruby.image_name_for(build_context.build_id)
         }
 
         if build_context.ruby.yjit_enabled?
@@ -33,7 +33,7 @@ module Buildkite::Config
 
         command do
           label _label
-          depends_on "docker-image-#{build_context.ruby.image_name}"
+          depends_on "docker-image-#{build_context.ruby.image_key}"
           command "rake #{task}"
 
           plugin build_context.artifacts_plugin, {

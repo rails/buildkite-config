@@ -7,11 +7,11 @@ module Buildkite::Config
     dsl do
       def builder(ruby:, &block)
         build_context = context.extensions.find(BuildContext)
-        build_context.ruby = ruby.tap { |r| r.image_base = build_context.image_base }
+        build_context.ruby = ruby
 
         command do
           label ":docker: #{build_context.ruby.prefix}#{build_context.ruby.version}"
-          key "docker-image-#{build_context.ruby.image_name}"
+          key "docker-image-#{build_context.ruby.image_key}"
           plugin build_context.artifacts_plugin, {
             download: %w[.dockerignore .buildkite/* .buildkite/**/*]
           }
@@ -20,18 +20,18 @@ module Buildkite::Config
             build: "base",
             config: ".buildkite/docker-compose.yml",
             env: %w[PRE_STEPS RACK],
-            "image-name" => build_context.ruby.image_name_for(build_context.build_id, short: true),
+            "image-name" => build_context.ruby.image_name_for(build_context.build_id),
             "cache-from" => [
-              build_context.rebuild_id && "base:" + build_context.ruby.image_name_for(build_context.rebuild_id),
-              build_context.pull_request && "base:" + build_context.ruby.image_name_for("pr-#{build_context.pull_request}"),
-              build_context.local_branch && build_context.local_branch !~ /:/ && "base:" + build_context.ruby.image_name_for("br-#{build_context.local_branch}"),
-              build_context.base_branch && "base:" + build_context.ruby.image_name_for("br-#{build_context.base_branch}"),
-              "base:" + build_context.ruby.image_name_for("br-main"),
+              build_context.rebuild_id && "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for(build_context.rebuild_id),
+              build_context.pull_request && "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("pr-#{build_context.pull_request}"),
+              build_context.local_branch && build_context.local_branch !~ /:/ && "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("br-#{build_context.local_branch}"),
+              build_context.base_branch && "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("br-#{build_context.base_branch}"),
+              "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("br-main"),
             ].grep(String).uniq,
             push: [
               build_context.local_branch =~ /:/ ?
-                "base:" + build_context.ruby.image_name_for("pr-#{build_context.pull_request}") :
-                "base:" + build_context.ruby.image_name_for("br-#{build_context.local_branch}"),
+                "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("pr-#{build_context.pull_request}") :
+                "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("br-#{build_context.local_branch}"),
             ],
             "image-repository" => build_context.image_base,
           }

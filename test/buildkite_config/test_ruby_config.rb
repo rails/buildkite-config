@@ -15,27 +15,26 @@ class TestRubyConfig < TestCase
     assert_equal Gem::Version.new("3.2"), sub.version
     assert_not sub.yjit
     assert_nil sub.soft_fail
-    assert_nil sub.image_base
   end
 
-  def test_image_name
+  def test_image_key
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
-    assert_equal "3-2", sub.image_name
+    assert_equal "3-2", sub.image_key
   end
 
-  def test_image_name_for_default_suffix
+  def test_image_name_for_default
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
-    assert_equal ":3-2-build_id", sub.image_name_for
+    assert_equal "3-2-build_id", sub.image_name_for
   end
 
-  def test_image_name_for_image_base
-    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"), image_base: "base")
-    assert_equal "base:3-2-suffix", sub.image_name_for("suffix")
+  def test_image_name_for_suffix
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
+    assert_equal "3-2-suffix", sub.image_name_for("suffix")
   end
 
   def test_image_name_for_prefix
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"), prefix: "my-prefix:")
-    assert_equal ":my-prefix-3-2-build_id", sub.image_name_for
+    assert_equal "my-prefix-3-2-build_id", sub.image_name_for
   end
 
   def test_image_name_for_short
@@ -46,13 +45,7 @@ class TestRubyConfig < TestCase
   def test_image_name_for_yjit
     sub = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
     expected = Buildkite::Config::RubyConfig.master_ruby.gsub(/\W/, "-")
-    assert_equal ":#{expected}-build_id", sub.image_name_for
-  end
-
-  def test_image_name_for_yjit_short
-    sub = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
-    expected = Buildkite::Config::RubyConfig.master_ruby.gsub(/\W/, "-")
-    assert_equal "#{expected}-build_id", sub.image_name_for(short: true)
+    assert_equal "#{expected}-build_id", sub.image_name_for
   end
 
   def test_ruby_image_default

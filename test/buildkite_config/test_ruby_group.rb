@@ -64,29 +64,4 @@ class TestRubyGroup < TestCase
         "steps" => [{ "label" => "test", "command" => ["rake test"] }] }] }
     assert_equal expected, pipeline.to_h
   end
-
-  def test_ruby_group_sets_image_base
-    pipeline = PipelineFixture.new do
-      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("2.0"))
-      build_context.instance_variable_set(:@image_base, "test_ruby_group_sets_image_base")
-      use Buildkite::Config::RubyGroup
-
-      ruby_group config: build_context.ruby do
-        bc = context.extensions.find(Buildkite::Config::BuildContext)
-
-        command do
-          label "test [#{bc.ruby.image_base}]"
-          command "rake test"
-        end
-      end
-    end
-
-    expected = { "steps" =>
-      [{ "label" => "2.0",
-        "group" => nil,
-        "steps" =>
-         [{ "label" => "test [test_ruby_group_sets_image_base]",
-           "command" => ["rake test"] }] }] }
-    assert_equal expected, pipeline.to_h
-  end
 end
