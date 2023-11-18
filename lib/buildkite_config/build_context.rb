@@ -21,23 +21,8 @@ module Buildkite::Config
       end
     end
 
-    def rails_gemspec
-      rails_root.join("rails.gemspec").read
-    end
-
     def rails_version
       @rails_version ||= Gem::Version.new(rails_version_file)
-    end
-
-    def min_ruby
-      # Sets $1 below for MIN_RUBY
-      # e.g.:
-      #   >> rails_root.join("rails.gemspec").read =~ /required_ruby_version[^0-9]+([0-9]+\.[0-9]+)/
-      #   #=> 486
-      #   >> Gem::Version.new($1)
-      #   #=> Gem::Version.new("2.7")
-      rails_gemspec =~ /required_ruby_version[^0-9]+([0-9]+\.[0-9]+)/
-      Gem::Version.new($1 || "2.0")
     end
 
     def one_ruby
@@ -106,10 +91,6 @@ module Buildkite::Config
     # ARTIFACTS_PLUGIN = "artifacts#v1.2.0"
     def artifacts_plugin
       @artifacts_plugin ||= "artifacts#v1.2.0"
-    end
-
-    def remote_image_base
-      @remote_image_base ||= "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{build_queue}-" unless standard_queues.include?(build_queue)}builds"
     end
 
     # IMAGE_BASE = "buildkite-config-base"
@@ -185,6 +166,25 @@ module Buildkite::Config
     private
       def rails_version_file
         rails_root.join("RAILS_VERSION").read
+      end
+
+      def rails_gemspec
+        rails_root.join("rails.gemspec").read
+      end
+
+      def min_ruby
+        # Sets $1 below for MIN_RUBY
+        # e.g.:
+        #   >> rails_root.join("rails.gemspec").read =~ /required_ruby_version[^0-9]+([0-9]+\.[0-9]+)/
+        #   #=> 486
+        #   >> Gem::Version.new($1)
+        #   #=> Gem::Version.new("2.7")
+        rails_gemspec =~ /required_ruby_version[^0-9]+([0-9]+\.[0-9]+)/
+        Gem::Version.new($1 || "2.0")
+      end
+
+      def remote_image_base
+        @remote_image_base ||= "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{build_queue}-" unless standard_queues.include?(build_queue)}builds"
       end
   end
 end

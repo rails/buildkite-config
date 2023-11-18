@@ -156,14 +156,14 @@ class TestBuildContext < TestCase
 
   def test_remote_image_base
     sub = create_build_context
-    assert_equal "973266071021.dkr.ecr.us-east-1.amazonaws.com/builds", sub.remote_image_base
+    assert_equal "973266071021.dkr.ecr.us-east-1.amazonaws.com/builds", sub.send(:remote_image_base)
   end
 
   def test_remote_image_base_standard_queues
     sub = create_build_context
 
     sub.stub(:build_queue, "test_remote_image_base_standard_queues") do
-      assert_equal "973266071021.dkr.ecr.us-east-1.amazonaws.com/test_remote_image_base_standard_queues-builds", sub.remote_image_base
+      assert_equal "973266071021.dkr.ecr.us-east-1.amazonaws.com/test_remote_image_base_standard_queues-builds", sub.send(:remote_image_base)
     end
   end
 
@@ -177,7 +177,7 @@ class TestBuildContext < TestCase
     ENV["DOCKER_IMAGE"] = nil
 
     sub = create_build_context
-    assert_equal sub.remote_image_base, sub.image_base
+    assert_equal sub.send(:remote_image_base), sub.image_base
   ensure
     ENV["DOCKER_IMAGE"] = @before_docker_image
   end
