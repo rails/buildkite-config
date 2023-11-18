@@ -17,7 +17,8 @@ module Buildkite::Config
       end
     end
 
-    attr_reader :image_base, :version, :yjit, :prefix, :soft_fail
+    attr_accessor :soft_fail
+    attr_reader :image_base, :version, :yjit, :prefix
     attr_writer :image_base
     def initialize(version:, soft_fail: nil, prefix: nil, image_base: nil, build: true)
       @image_base = image_base
