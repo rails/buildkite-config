@@ -18,6 +18,8 @@ Buildkite::Builder.pipeline do
   use Buildkite::Config::RakeCommand
   use Buildkite::Config::RubyGroup
 
+  build_context.setup_rubies %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2)
+
   group do
     label "build"
     build_context.rubies.each do |ruby|

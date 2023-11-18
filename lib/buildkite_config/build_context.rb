@@ -5,6 +5,7 @@ require "buildkite-builder"
 module Buildkite::Config
   class BuildContext < Buildkite::Builder::Extension
     attr_accessor :ruby
+    attr_reader :rubies
     attr_writer :rails_version
 
     dsl do
@@ -29,12 +30,8 @@ module Buildkite::Config
       rubies.select { |r| !r.soft_fail? }.first
     end
 
-    def ruby_minors
-      %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2).map { |v| Gem::Version.new(v) }
-    end
-
-    def rubies
-      @rubies ||= ruby_minors.select { |v| v >= min_ruby }.map do |v|
+    def setup_rubies(ruby_minors)
+      @rubies = ruby_minors.map { |m| Gem::Version.new(m) }.select { |v| v >= min_ruby }.map do |v|
         rc = RubyConfig.new(version: v, prefix: "ruby:")
 
         if max_ruby && v > max_ruby && !(max_ruby.approximate_recommendation === v)
