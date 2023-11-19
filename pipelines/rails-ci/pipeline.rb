@@ -90,14 +90,16 @@ Buildkite::Builder.pipeline do
       if build_context.rails_version >= Gem::Version.new("7.1.0.alpha")
         rake "activerecord", "trilogy:test", service: "mysqldb"
 
-        rake "activerecord", "trilogy:test", service: "mariadb" do |attrs, _|
-          label "#{attrs["label"]} [mariadb]"
-          env["MYSQL_IMAGE"] = "mariadb:latest"
-        end
+        if ruby == build_context.one_ruby
+          rake "activerecord", "trilogy:test", service: "mariadb" do |attrs, _|
+            label "#{attrs["label"]} [mariadb]"
+            env["MYSQL_IMAGE"] = "mariadb:latest"
+          end
 
-        rake "activerecord", "trilogy:test", service: "mysqldb" do |attrs, _|
-          label "#{attrs["label"]} [mysql_5_7]"
-          env["MYSQL_IMAGE"] = "mysql:5.7"
+          rake "activerecord", "trilogy:test", service: "mysqldb" do |attrs, _|
+            label "#{attrs["label"]} [mysql_5_7]"
+            env["MYSQL_IMAGE"] = "mysql:5.7"
+          end
         end
       end
 
