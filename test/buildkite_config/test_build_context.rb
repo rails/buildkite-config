@@ -103,6 +103,22 @@ class TestBuildContext < TestCase
     assert_equal sub.rubies.first.prefix, expected.prefix
   end
 
+  def test_setup_rubies_one_ruby
+    sub = create_build_context
+
+    sub.stub(:min_ruby, Gem::Version.new("2.7")) do
+      sub.stub(:max_ruby, Gem::Version.new("3.2")) do
+        sub.setup_rubies %w(3.3 3.2 3.1)
+      end
+    end
+
+    expected = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.1"))
+
+    assert_equal sub.rubies.first.version, expected.version
+    assert_equal sub.rubies.first.prefix, expected.prefix
+    assert_equal expected.version, sub.one_ruby.version
+  end
+
   def test_setup_rubies_yjit
     sub = create_build_context
 
