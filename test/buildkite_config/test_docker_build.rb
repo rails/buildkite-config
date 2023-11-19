@@ -6,10 +6,11 @@ require "buildkite_config"
 class TestDockerBuild < TestCase
   def test_builder
     pipeline = PipelineFixture.new do
-      build_context.rails_version = Gem::Version.new("7.1")
       use Buildkite::Config::DockerBuild
 
-      builder ruby: Buildkite::Config::RubyConfig.new(prefix: "builder:", version: "3.2")
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        builder ruby: Buildkite::Config::RubyConfig.new(prefix: "builder:", version: "3.2")
+      end
     end
 
     expected = { "steps" =>
@@ -39,10 +40,11 @@ class TestDockerBuild < TestCase
 
   def test_builder_gem_version
     pipeline = PipelineFixture.new do
-      build_context.rails_version = Gem::Version.new("7.1")
       use Buildkite::Config::DockerBuild
 
-      builder ruby: Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("1.9.3"))
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        builder ruby: Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("1.9.3"))
+      end
     end
 
     expected = { "steps" =>

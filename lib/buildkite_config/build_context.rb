@@ -6,7 +6,6 @@ module Buildkite::Config
   class BuildContext < Buildkite::Builder::Extension
     attr_accessor :ruby
     attr_reader :rubies
-    attr_writer :rails_version
 
     dsl do
       def build_context
