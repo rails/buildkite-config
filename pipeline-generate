@@ -198,6 +198,7 @@ end
   activemodel     test                default
   activesupport   test                default
   actionview      test                default
+  actiontext      test                default
   activejob       test                default
   activerecord    mysql:test          mysqldb
   activerecord    mysql2:test         mysqldb
