@@ -97,10 +97,11 @@ class TestBuildContext < TestCase
       end
     end
 
-    expected = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.0"))
+    expected = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.3"))
 
     assert_equal sub.rubies.first.version, expected.version
     assert_equal sub.rubies.first.prefix, expected.prefix
+    assert_equal sub.one_ruby.version, Gem::Version.new("3.2")
   end
 
   def test_setup_rubies_one_ruby
@@ -112,11 +113,11 @@ class TestBuildContext < TestCase
       end
     end
 
-    expected = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.1"))
+    expected = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.3"))
 
     assert_equal sub.rubies.first.version, expected.version
     assert_equal sub.rubies.first.prefix, expected.prefix
-    assert_equal expected.version, sub.one_ruby.version
+    assert_equal Gem::Version.new("3.2"), sub.one_ruby.version
   end
 
   def test_setup_rubies_yjit
