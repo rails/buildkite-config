@@ -51,7 +51,9 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
-      rake "test", "test:all"
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake "test", "test:all"
+      end
     end
 
     expected = { "steps" =>
@@ -79,7 +81,9 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
-      rake "activerecord"
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake "activerecord"
+      end
     end
 
     expected = { "steps" =>
@@ -107,8 +111,10 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
-      rake "first", "test:all"
-      rake "second", "test:all"
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake "first", "test:all"
+        rake "second", "test:all"
+      end
     end
 
     expected = { "steps" =>
@@ -152,7 +158,9 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
-      rake "subdirectory", "test:isolated", service: "myservice"
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake "subdirectory", "test:isolated", service: "myservice"
+      end
     end
 
     expected = { "steps" =>
@@ -180,7 +188,9 @@ class TestRakeCommand < TestCase
       use Buildkite::Config::RakeCommand
 
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
-      rake
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake
+      end
     end
 
     expected = { "steps" =>
@@ -208,8 +218,10 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
-      rake pre_steps: ["rm Gemfile.lock", "bundle install"] do
-        label "test_env_pre_steps"
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake pre_steps: ["rm Gemfile.lock", "bundle install"] do
+          label "test_env_pre_steps"
+        end
       end
     end
 
@@ -238,9 +250,11 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
-      rake do
-        label "test_agents"
-        agents queue: "test_agents"
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake do
+          label "test_agents"
+          agents queue: "test_agents"
+        end
       end
     end
 
@@ -269,9 +283,11 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
-      rake do
-        label "test_artifact_paths"
-        artifact_paths ["test_artifact_paths"]
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake do
+          label "test_artifact_paths"
+          artifact_paths ["test_artifact_paths"]
+        end
       end
     end
 
@@ -300,12 +316,14 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
-      rake do |attrs, _|
-        label "test_automatic_retry_on"
-        # Reset "automatic_retry_on" from the default
-        # Since this does a push, and we only want a single value, I think.
-        attrs["retry"] = nil
-        automatic_retry_on limit: 1, exit_status: 127
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake do |attrs, _|
+          label "test_automatic_retry_on"
+          # Reset "automatic_retry_on" from the default
+          # Since this does a push, and we only want a single value, I think.
+          attrs["retry"] = nil
+          automatic_retry_on limit: 1, exit_status: 127
+        end
       end
     end
 
@@ -334,9 +352,11 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
-      rake do
-        label "test_timeout_in_minutes"
-        timeout_in_minutes 10
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake do
+          label "test_timeout_in_minutes"
+          timeout_in_minutes 10
+        end
       end
     end
 
@@ -365,9 +385,11 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
-      rake do
-        label "soft_fail"
-        soft_fail true
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake do
+          label "soft_fail"
+          soft_fail true
+        end
       end
     end
 
@@ -397,8 +419,10 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"), soft_fail: true)
       use Buildkite::Config::RakeCommand
 
-      rake do
-        label "test_soft_fail_ruby"
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake do
+          label "test_soft_fail_ruby"
+        end
       end
     end
 
@@ -428,9 +452,11 @@ class TestRakeCommand < TestCase
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
 
-      rake "test", "all" do |attrs, _|
-        label "#{attrs["label"]} with_block"
-        env["MYSQL_IMAGE"] = "mariadb:latest"
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake "test", "all" do |attrs, _|
+          label "#{attrs["label"]} with_block"
+          env["MYSQL_IMAGE"] = "mariadb:latest"
+        end
       end
     end
 
@@ -451,6 +477,132 @@ class TestRakeCommand < TestCase
             "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "test"] } }] }] }
+    assert_equal expected, pipeline.to_h
+  end
+
+  def test_rake_mysql_image_and_task_rails
+    pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
+      use Buildkite::Config::RakeCommand
+
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake "activerecord", "mysql2:test"
+      end
+    end
+
+    expected = { "steps" =>
+      [{ "label" => "activerecord mysql2 (3.2)",
+        "command" => ["rake db:mysql:rebuild mysql2:test"],
+        "depends_on" => ["docker-image-3-2"],
+        "artifact_paths" => ["test-reports/*/*.xml"],
+        "agents" => { "queue" => "default" },
+        "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
+        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local" },
+        "timeout_in_minutes" => 30,
+        "plugins" =>
+        [{ "artifacts#v1.2.0" => { "download" => [".buildkite/*", ".buildkite/**/*"] } },
+          { "docker-compose#v3.7.0" =>
+            { "env" => ["PRE_STEPS", "RACK"],
+            "run" => "default",
+            "pull" => "default",
+            "config" => ".buildkite/docker-compose.yml",
+            "shell" => ["runner", "activerecord"] } }] }] }
+    assert_equal expected, pipeline.to_h
+  end
+
+  def test_rake_mysql_image_and_task_rails_5_x
+    pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
+      use Buildkite::Config::RakeCommand
+
+      build_context.stub(:rails_version, Gem::Version.new("5.1")) do
+        rake "activerecord", "mysql2:test", service: "mysqldb"
+      end
+    end
+
+    expected = { "steps" =>
+      [{ "label" => "activerecord mysql2 (3.2)",
+        "command" => ["rake db:mysql:rebuild mysql2:test"],
+        "depends_on" => ["docker-image-3-2"],
+        "artifact_paths" => ["test-reports/*/*.xml"],
+        "agents" => { "queue" => "default" },
+        "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
+        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local",
+                   "MYSQL_IMAGE" => "mysql:5.7",
+                   "POSTGRES_IMAGE" => "postgres:9.6-alpine" },
+        "timeout_in_minutes" => 30,
+        "plugins" =>
+        [{ "artifacts#v1.2.0" => { "download" => [".buildkite/*", ".buildkite/**/*"] } },
+          { "docker-compose#v3.7.0" =>
+            { "env" => ["PRE_STEPS", "RACK"],
+            "run" => "mysqldb",
+            "pull" => "mysqldb",
+            "config" => ".buildkite/docker-compose.yml",
+            "shell" => ["runner", "activerecord"] } }] }] }
+    assert_equal expected, pipeline.to_h
+  end
+
+  def test_rake_mysql_image_and_task_rails_4_x
+    pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
+      use Buildkite::Config::RakeCommand
+
+      build_context.stub(:rails_version, Gem::Version.new("4.2")) do
+        rake "activerecord", "mysql2:test", service: "mysqldb"
+      end
+    end
+
+    expected = { "steps" =>
+      [{ "label" => "activerecord mysql2 (3.2)",
+        "command" => ["rake db:mysql:rebuild mysql2:test"],
+        "depends_on" => ["docker-image-3-2"],
+        "artifact_paths" => ["test-reports/*/*.xml"],
+        "agents" => { "queue" => "default" },
+        "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
+        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local",
+                   "MYSQL_IMAGE" => "mysql:5.6",
+                   "POSTGRES_IMAGE" => "postgres:9.6-alpine" },
+        "timeout_in_minutes" => 30,
+        "plugins" =>
+        [{ "artifacts#v1.2.0" => { "download" => [".buildkite/*", ".buildkite/**/*"] } },
+          { "docker-compose#v3.7.0" =>
+            { "env" => ["PRE_STEPS", "RACK"],
+            "run" => "mysqldb",
+            "pull" => "mysqldb",
+            "config" => ".buildkite/docker-compose.yml",
+            "shell" => ["runner", "activerecord"] } }] }] }
+    assert_equal expected, pipeline.to_h
+  end
+
+  def test_rake_postgres_image_and_task_rails_5_1
+    pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
+      use Buildkite::Config::RakeCommand
+
+      build_context.stub(:rails_version, Gem::Version.new("5.1")) do
+        rake "activerecord", "postgresql:test", service: "postgresdb"
+      end
+    end
+
+    expected = { "steps" =>
+      [{ "label" => "activerecord postgresql (3.2)",
+        "command" => ["rake db:postgresql:rebuild postgresql:test"],
+        "depends_on" => ["docker-image-3-2"],
+        "artifact_paths" => ["test-reports/*/*.xml"],
+        "agents" => { "queue" => "default" },
+        "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
+        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local",
+                   "MYSQL_IMAGE" => "mysql:5.7",
+                   "POSTGRES_IMAGE" => "postgres:9.6-alpine" },
+        "timeout_in_minutes" => 30,
+        "plugins" =>
+        [{ "artifacts#v1.2.0" => { "download" => [".buildkite/*", ".buildkite/**/*"] } },
+          { "docker-compose#v3.7.0" =>
+            { "env" => ["PRE_STEPS", "RACK"],
+            "run" => "postgresdb",
+            "pull" => "postgresdb",
+            "config" => ".buildkite/docker-compose.yml",
+            "shell" => ["runner", "activerecord"] } }] }] }
     assert_equal expected, pipeline.to_h
   end
 end

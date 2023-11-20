@@ -16,10 +16,28 @@ module Buildkite::Config
       def rake(dir = "", task = "test", service: "default", pre_steps: [], &block)
         build_context = context.extensions.find(BuildContext)
 
+        _label = to_label(build_context.ruby, dir, task)
+
         ## Setup ENV
         _env = {
           IMAGE_NAME: build_context.image_base + ":" + build_context.ruby.image_name_for(build_context.build_id)
         }
+
+        if task.start_with?("mysql2:") || (build_context.rails_version >= Gem::Version.new("7.1.0.alpha") && task.start_with?("trilogy:"))
+          task = "db:mysql:rebuild #{task}"
+        elsif task.start_with?("postgresql:")
+          task = "db:postgresql:rebuild #{task}"
+        end
+
+        if build_context.rails_version < Gem::Version.new("5.x")
+          _env["MYSQL_IMAGE"] = "mysql:5.6"
+        elsif build_context.rails_version < Gem::Version.new("6.x")
+          _env["MYSQL_IMAGE"] = "mysql:5.7"
+        end
+
+        if build_context.rails_version < Gem::Version.new("5.2.x")
+          _env["POSTGRES_IMAGE"] = "postgres:9.6-alpine"
+        end
 
         if build_context.ruby.yjit_enabled?
           _env[:RUBY_YJIT_ENABLE] = "1"
@@ -28,8 +46,6 @@ module Buildkite::Config
         if !(pre_steps).empty?
           _env[:PRE_STEPS] = pre_steps.join(" && ")
         end
-
-        _label = to_label(build_context.ruby, dir, task)
 
         command do
           label _label
