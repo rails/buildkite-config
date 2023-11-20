@@ -89,7 +89,7 @@ Buildkite::Builder.pipeline do
         rake "activerecord", "trilogy:test", service: "mysqldb"
 
         if ruby == build_context.one_ruby
-          rake "activerecord", "trilogy:test", service: "mariadb" do |attrs, _|
+          rake "activerecord", "trilogy:test", service: "mysqldb" do |attrs, _|
             label "#{attrs["label"]} [mariadb]"
             env["MYSQL_IMAGE"] = "mariadb:latest"
           end
@@ -110,7 +110,7 @@ Buildkite::Builder.pipeline do
       end
 
       if ruby == build_context.one_ruby
-        rake "railties", pre_steps: ["bundle install"] do |attrs, build_context|
+        rake "railties", service: "railties", pre_steps: ["bundle install"] do |attrs, build_context|
           parallelism 12 if build_context.rails_root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
           label "#{attrs["label"]} [rack-2]"
           env["RACK"] = "~> 2.0"
