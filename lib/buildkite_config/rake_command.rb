@@ -57,6 +57,10 @@ module Buildkite::Config
           automatic_retry_on(**build_context.automatic_retry_on)
           timeout_in_minutes build_context.timeout_in_minutes
 
+          if build_context.ruby.soft_fail?
+            soft_fail true
+          end
+
           instance_exec([@attributes, build_context], &block) if block_given?
         end
       end

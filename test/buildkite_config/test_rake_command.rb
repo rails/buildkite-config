@@ -392,6 +392,37 @@ class TestRakeCommand < TestCase
     assert_equal expected, pipeline.to_h
   end
 
+  def test_soft_fail_ruby
+    pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"), soft_fail: true)
+      use Buildkite::Config::RakeCommand
+
+      rake do
+        label "test_soft_fail_ruby"
+      end
+    end
+
+    expected = { "steps" =>
+      [{ "label" => "test_soft_fail_ruby",
+        "command" => ["rake test"],
+        "depends_on" => ["docker-image-3-3"],
+        "artifact_paths" => ["test-reports/*/*.xml"],
+        "agents" => { "queue" => "default" },
+        "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
+        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-3-local" },
+        "timeout_in_minutes" => 30,
+        "soft_fail" => true,
+        "plugins" =>
+        [{ "artifacts#v1.2.0" => { "download" => [".buildkite/*", ".buildkite/**/*"] } },
+          { "docker-compose#v3.7.0" =>
+            { "env" => ["PRE_STEPS", "RACK"],
+            "run" => "default",
+            "pull" => "default",
+            "config" => ".buildkite/docker-compose.yml",
+            "shell" => ["runner", ""] } }] }] }
+    assert_equal expected, pipeline.to_h
+  end
+
   def test_rake_with_block
     pipeline = PipelineFixture.new do
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))

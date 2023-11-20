@@ -143,10 +143,10 @@ Buildkite::Builder.pipeline do
         end
       end
 
-      rake "activejob", "test:integration", service: "activejob" do
+      rake "activejob", "test:integration", service: "activejob" do |attrs, build_context|
         # Enable soft_fail until the problem in queue_classic is solved.
         # https://github.com/rails/rails/pull/37517#issuecomment-545370408
-        soft_fail true # if RAILS_VERSION < Gem::Version.new("5.x")
+        soft_fail true if build_context.rails_version < Gem::Version.new("5.x")
       end
     end
   end
