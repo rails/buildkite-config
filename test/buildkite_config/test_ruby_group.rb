@@ -81,12 +81,12 @@ class TestRubyGroup < TestCase
       end
     end
 
-    assert_equal pipeline.to_h, { "steps" =>
+    assert_equal({ "steps" =>
       [{ "label" => "yjit:rubylang/ruby:master-nightly-jammy",
          "group" => nil,
          "steps" =>
          [{ "label" => "test [yjit]",
             "command" => ["rake test"],
-            "depends_on" => ["docker-image-rubylang-ruby-master-nightly-jammy"] }] }] }
+            "depends_on" => ["docker-image-rubylang-ruby-master-nightly-jammy"] }] }] }, pipeline.to_h)
   end
 end

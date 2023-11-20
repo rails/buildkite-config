@@ -28,7 +28,7 @@ class TestBuildContext < TestCase
     ENV["BUILDKITE"] = "true"
 
     sub = create_build_context
-    assert sub.ci?
+    assert_predicate sub, :ci?
   ensure
     ENV["BUILDKITE"] = @before_env_buildkite
   end
@@ -38,7 +38,7 @@ class TestBuildContext < TestCase
     ENV["CI"] = "true"
 
     sub = create_build_context
-    assert sub.ci?
+    assert_predicate sub, :ci?
   ensure
     ENV["CI"] = @before_env_ci
   end
@@ -151,34 +151,34 @@ class TestBuildContext < TestCase
 
     assert_equal sub.rubies[-1].version, Buildkite::Config::RubyConfig.master_ruby
     assert sub.rubies[-1].soft_fail
-    assert sub.rubies[-1].build?
+    assert_predicate sub.rubies[-1], :build?
   end
 
   def test_bundler_1_x
     sub = create_build_context
     sub.stub(:rails_version, Gem::Version.new("4.2")) do
-      assert_equal sub.bundler, "< 2"
+      assert_equal("< 2", sub.bundler)
     end
   end
 
   def test_bundler_2_2
     sub = create_build_context
     sub.stub(:rails_version, Gem::Version.new("5.1.4")) do
-      assert_equal sub.bundler, "< 2.2.10"
+      assert_equal("< 2.2.10", sub.bundler)
     end
   end
 
   def test_rubygems_2_6
     sub = create_build_context
     sub.stub(:rails_version, Gem::Version.new("4.2")) do
-      assert_equal sub.rubygems, "2.6.13"
+      assert_equal("2.6.13", sub.rubygems)
     end
   end
 
   def test_rubygems_3_2
     sub = create_build_context
     sub.stub(:rails_version, Gem::Version.new("5.1.4")) do
-      assert_equal sub.rubygems, "3.2.9"
+      assert_equal("3.2.9", sub.rubygems)
     end
   end
 
@@ -212,12 +212,12 @@ class TestBuildContext < TestCase
 
   def test_docker_compose_plugin
     sub = create_build_context
-    assert_equal sub.docker_compose_plugin, "docker-compose#v3.7.0"
+    assert_equal("docker-compose#v3.7.0", sub.docker_compose_plugin)
   end
 
   def test_artifacts_plugin
     sub = create_build_context
-    assert_equal sub.artifacts_plugin, "artifacts#v1.2.0"
+    assert_equal("artifacts#v1.2.0", sub.artifacts_plugin)
   end
 
   def test_remote_image_base
