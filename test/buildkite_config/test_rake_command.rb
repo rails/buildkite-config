@@ -186,7 +186,7 @@ class TestRakeCommand < TestCase
     expected = { "steps" =>
       [{ "label" => " (yjit)",
         "command" => ["rake test"],
-        "depends_on" => ["docker-image-yjit-rubylang-ruby-master-nightly-jammy"],
+        "depends_on" => ["docker-image-rubylang-ruby-master-nightly-jammy"],
         "artifact_paths" => ["test-reports/*/*.xml"],
         "agents" => { "queue" => "default" },
         "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },

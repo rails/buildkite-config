@@ -23,8 +23,6 @@ Buildkite::Builder.pipeline do
   group do
     label "build"
     build_context.rubies.each do |ruby|
-      next unless ruby.build?
-
       builder ruby: ruby
     end
   end

@@ -8,6 +8,7 @@ module Buildkite::Config
       def builder(ruby:, &block)
         build_context = context.extensions.find(BuildContext)
         build_context.ruby = ruby
+        return unless build_context.ruby.build?
 
         command do
           label ":docker: #{build_context.ruby.prefix}#{build_context.ruby.version}"

@@ -38,6 +38,54 @@ class TestDockerBuild < TestCase
     assert_equal expected, pipeline.to_h
   end
 
+  def test_builder_skip
+    pipeline = PipelineFixture.new do
+      use Buildkite::Config::DockerBuild
+      yjit = Buildkite::Config::RubyConfig.new(build: false, version: Buildkite::Config::RubyConfig.yjit_ruby)
+
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        builder ruby: yjit
+      end
+    end
+
+    assert_equal({}, pipeline.to_h)
+  end
+
+  def test_builder_yjit
+    pipeline = PipelineFixture.new do
+      use Buildkite::Config::DockerBuild
+      yjit = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
+
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        builder ruby: yjit
+      end
+    end
+
+    expected = { "steps" =>
+      [{ "label" => ":docker: yjit:rubylang/ruby:master-nightly-jammy",
+        "key" => "docker-image-rubylang-ruby-master-nightly-jammy",
+        "agents" => { "queue" => "builder" },
+        "env" =>
+         { "BUNDLER" => nil,
+          "RUBYGEMS" => nil,
+          "RUBY_IMAGE" => "rubylang/ruby:master-nightly-jammy",
+          "encrypted_0fb9444d0374_key" => nil,
+          "encrypted_0fb9444d0374_iv" => nil },
+        "timeout_in_minutes" => 15,
+        "plugins" =>
+         [{ "artifacts#v1.2.0" =>
+            { "download" => [".dockerignore", ".buildkite/*", ".buildkite/**/*"] } },
+          { "docker-compose#v3.7.0" =>
+            { "build" => "base",
+            "config" => ".buildkite/docker-compose.yml",
+            "env" => ["PRE_STEPS", "RACK"],
+            "image-name" => "rubylang-ruby-master-nightly-jammy-local",
+            "cache-from" => ["base:buildkite-config-base:rubylang-ruby-master-nightly-jammy-br-main"],
+            "push" => ["base:buildkite-config-base:rubylang-ruby-master-nightly-jammy-br-"],
+            "image-repository" => "buildkite-config-base" } }] }] }
+    assert_equal expected, pipeline.to_h
+  end
+
   def test_builder_gem_version
     pipeline = PipelineFixture.new do
       use Buildkite::Config::DockerBuild

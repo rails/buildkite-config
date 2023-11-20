@@ -31,7 +31,7 @@ module Buildkite::Config
     end
 
     def image_key
-      "#{@prefix}#{@version}".gsub(/\W/, "-")
+      ruby_image.gsub(/\W/, "-")
     end
 
     def image_name_for(suffix = "build_id", short: false)
@@ -39,7 +39,7 @@ module Buildkite::Config
     end
 
     def ruby_image
-      if @version == RubyConfig.yjit_ruby
+      if yjit_enabled?
         @version.sub("yjit:", "")
       else
         "#{@prefix}#{@version}"
@@ -50,7 +50,7 @@ module Buildkite::Config
     def short_ruby
       if @version == RubyConfig.master_ruby
         "master"
-      elsif @version == RubyConfig.yjit_ruby
+      elsif yjit_enabled?
         "yjit"
       else
         @version.to_s.sub(/^ruby:|:latest$/, "")
