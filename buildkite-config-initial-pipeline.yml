@@ -16,8 +16,18 @@ steps:
   - command: |
       git config --global --add safe.directory /workdir
       bundle install
+      bundle exec rubocop
+    label: ":nail_care: buildkite-config: lint"
+    key: lint
+    plugins:
+      - docker#v5.8.0:
+          image: "ruby:latest"
+  - command: |
+      git config --global --add safe.directory /workdir
+      bundle install
       bundle exec rake test
     label: ":test_tube: buildkite-config: rake test"
+    depends_on: lint
     key: self-test
     plugins:
       - docker#v5.8.0:
