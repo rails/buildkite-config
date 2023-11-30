@@ -265,7 +265,6 @@ end
 
 # GROUP 2: No isolated tests, runs for each supported ruby
 %w(
-  actioncable     test                postgresdb
   activestorage   test                default
   actionmailbox   test                default
   guides          test                default
@@ -274,6 +273,8 @@ end
 end
 
 # GROUP 3: Special cases
+
+steps_for("actioncable", "test", service: "postgresdb", pre_steps: ["cd ./activerecord", "bundle exec rake db:postgresql:rebuild", "cd -"])
 
 if RAILS_VERSION >= Gem::Version.new("5.1.x")
   step_for("activerecord", "sqlite3_mem:test", service: "default")
