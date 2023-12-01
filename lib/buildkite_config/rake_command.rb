@@ -52,15 +52,12 @@ module Buildkite::Config
           depends_on "docker-image-#{build_context.ruby.image_key}"
           command "rake #{task}"
 
-          plugin build_context.artifacts_plugin, {
+          plugin :artifacts, {
             download: %w[.buildkite/* .buildkite/**/*]
           }
 
-          plugin build_context.docker_compose_plugin, {
-            "env" => [
-              "PRE_STEPS",
-              "RACK"
-            ],
+          plugin :docker_compose, {
+            "env" => %w[PRE_STEPS RACK],
             "run" => service,
             "pull" => service,
             "config" => ".buildkite/docker-compose.yml",

@@ -210,16 +210,6 @@ class TestBuildContext < TestCase
     end
   end
 
-  def test_docker_compose_plugin
-    sub = create_build_context
-    assert_equal("docker-compose#v3.7.0", sub.docker_compose_plugin)
-  end
-
-  def test_artifacts_plugin
-    sub = create_build_context
-    assert_equal("artifacts#v1.2.0", sub.artifacts_plugin)
-  end
-
   def test_remote_image_base
     sub = create_build_context
     assert_equal "973266071021.dkr.ecr.us-east-1.amazonaws.com/builds", sub.send(:remote_image_base)

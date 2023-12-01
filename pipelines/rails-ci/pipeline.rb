@@ -17,6 +17,9 @@ Buildkite::Builder.pipeline do
   use Buildkite::Config::RakeCommand
   use Buildkite::Config::RubyGroup
 
+  plugin :docker_compose, "docker-compose#v3.7.0"
+  plugin :artifacts, "artifacts#v1.2.0"
+
   build_context.setup_rubies %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2)
 
   group do

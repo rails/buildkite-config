@@ -79,16 +79,6 @@ module Buildkite::Config
       end
     end
 
-    # DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
-    def docker_compose_plugin
-      "docker-compose#v3.7.0"
-    end
-
-    # ARTIFACTS_PLUGIN = "artifacts#v1.2.0"
-    def artifacts_plugin
-      "artifacts#v1.2.0"
-    end
-
     # IMAGE_BASE = "buildkite-config-base"
     def image_base
       ENV["DOCKER_IMAGE"] || remote_image_base

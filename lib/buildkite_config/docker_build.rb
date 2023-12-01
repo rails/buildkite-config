@@ -13,11 +13,11 @@ module Buildkite::Config
         command do
           label ":docker: #{build_context.ruby.prefix}#{build_context.ruby.version}"
           key "docker-image-#{build_context.ruby.image_key}"
-          plugin build_context.artifacts_plugin, {
+          plugin :artifacts, {
             download: %w[.dockerignore .buildkite/* .buildkite/**/*]
           }
 
-          plugin build_context.docker_compose_plugin, {
+          plugin :docker_compose, {
             build: "base",
             config: ".buildkite/docker-compose.yml",
             env: %w[PRE_STEPS RACK],

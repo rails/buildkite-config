@@ -12,6 +12,10 @@ class PipelineFixture < Buildkite::Builder::Pipeline
     @pipeline_definition = Proc.new(&block)
     super(root, logger: logger)
     use(Buildkite::Config::BuildContext)
+
+    plugins = extensions.find(Buildkite::Builder::Extensions::Plugins)
+    plugins.manager.add :docker_compose, "docker-compose#v1.0"
+    plugins.manager.add :artifacts, "artifacts#v1.0"
   end
 end
 
