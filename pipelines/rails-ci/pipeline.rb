@@ -3,8 +3,14 @@
 require "pathname"
 require "yaml"
 
+BUILDKITE_ROOT_DIR = if ENV["CI"]
+  Buildkite::Builder.root.join(".buildkite")
+else
+  Buildkite::Builder.root
+end
+
 Buildkite::Builder.pipeline do
-  require_relative "#{Buildkite::Builder.root}/lib/buildkite_config"
+  require_relative "#{BUILDKITE_ROOT_DIR}/lib/buildkite_config"
 
   use Buildkite::Config::BuildContext
   use Buildkite::Config::DockerBuild
