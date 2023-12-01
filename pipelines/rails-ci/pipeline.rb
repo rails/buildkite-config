@@ -28,7 +28,7 @@ Buildkite::Builder.pipeline do
 
   build_context.rubies.each do |ruby|
     ruby_group config: ruby do
-      rake "actioncable", "db:postgresql:rebuild test", service: "postgresdb"
+      rake "actioncable", service: "postgresdb", pre_steps: ["bundle exec rake -f activerecord/Rakefile db:postgresql:rebuild"]
       rake "actionmailbox"
       rake "actionmailer"
       rake "actionpack"
