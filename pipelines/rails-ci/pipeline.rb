@@ -46,6 +46,7 @@ Buildkite::Builder.pipeline do
         end
       end
 
+      rake "actiontext"
       rake "actionview"
       rake "activejob"
       rake "activemodel"
