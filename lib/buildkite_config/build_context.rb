@@ -15,9 +15,9 @@ module Buildkite::Config
 
     def rails_root
       if ci? && %w[rails-ci rails-sandbox zzak/rails].include?(pipeline_name)
-        Pathname.new(Dir.pwd)
+        Pathname.pwd
       else
-        Pathname.new(Dir.pwd) + "tmp/rails"
+        Pathname.pwd.join("tmp/rails")
       end
     end
 
