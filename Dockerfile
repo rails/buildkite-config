@@ -24,12 +24,6 @@ RUN echo "--- :ruby: Updating RubyGems and Bundler" \
     # Postgres apt sources
     && curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
     && echo "deb http://apt.postgresql.org/pub/repos/apt/ ${codename}-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
-    # Node apt sources
-    && curl -sS https://deb.nodesource.com/gpgkey/nodesource.gpg.key | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
-    && echo "deb http://deb.nodesource.com/node_18.x ${codename} main" > /etc/apt/sources.list.d/nodesource.list \
-    # Yarn apt sources
-    && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
-    && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list \
     # Install all the things
     && apt-get update \
     #  buildpack-deps
@@ -87,8 +81,9 @@ RUN echo "--- :ruby: Updating RubyGems and Bundler" \
     #  specific dependencies for the rails build
     && apt-get install -y --no-install-recommends \
         postgresql-client default-mysql-client sqlite3 \
-        git nodejs yarn lsof \
+        git nodejs npm yarnpkg lsof \
         ffmpeg mupdf mupdf-tools poppler-utils \
+    && ln -s /usr/bin/yarnpkg /usr/bin/yarn \
     # await (for waiting on dependent services)
     && curl -fLsS -o /tmp/await-linux-amd64 https://github.com/betalo-sweden/await/releases/download/v0.4.0/await-linux-amd64 \
     && install /tmp/await-linux-amd64 /usr/local/bin/await \
