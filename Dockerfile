@@ -7,8 +7,8 @@ RUN echo "--- :ruby: Updating RubyGems and Bundler" \
     && (gem update --system ${RUBYGEMS:-} || gem update --system 3.3.3) \
     && (gem install bundler -v "${BUNDLER:->= 0}" || gem install bundler -v "< 2") \
     && ruby --version && gem --version && bundle --version \
-    && echo "--- :package: Installing system deps" \
     && codename="$(. /etc/os-release; x="${VERSION_CODENAME-${VERSION#*(}}"; echo "${x%%[ )]*}")" \
+    && echo "--- :package: Installing system deps for debian '$codename'" \
     && if [ "$codename" = jessie ]; then \
         # jessie-updates is gone
         sed -i -e '/jessie-updates/d' /etc/apt/sources.list \
