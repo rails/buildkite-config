@@ -366,9 +366,9 @@ end
 STEPS.select { |s| s["label"] =~ /^guides/  }.each do |s|
   s["soft_fail"] = true
 end
-if RAILS_VERSION < Gem::Version.new("7.x") && RAILS_VERSION >= Gem::Version.new("6.1")
-  STEPS.delete_if { |s| s["label"] == "guides (2.7)" || s["label"] == "guides (3.0)" }
-end
+# Now that main requires Ruby 3.1, any bug report template referencing main
+# fails on Ruby < 3.1
+STEPS.delete_if { |s| s["label"] == "guides (2.7)" || s["label"] == "guides (3.0)" }
 STEPS.delete_if { |s| s["label"] =~ /^guides/ } if RAILS_VERSION < Gem::Version.new("7.0")
 
 ###
