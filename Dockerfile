@@ -140,7 +140,9 @@ ADD . ./
 RUN mv -f tmp/Gemfile.lock.updated Gemfile.lock \
     && if [ -f package.json ]; then \
         echo "--- :javascript: Building JavaScript package" \
-        && (cd actionview && yarn build) \
+        && if [ -f actionview/package.json ]; then \
+            (cd actionview && yarn build); \
+        fi \
         && if [ -f railties/test/isolation/assets/package.json ]; then \
             (cd railties/test/isolation/assets && yarn install); \
         fi \
