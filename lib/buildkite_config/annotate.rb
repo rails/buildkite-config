@@ -1,13 +1,16 @@
 module Buildkite::Config
   class Annotate
-    def initialize(diff)
+    def initialize(diff, nightly: false)
       @diff = diff
+      @nightly = nightly
     end
 
     def perform
       return if @diff.to_s.empty?
 
-      io = IO.popen("buildkite-agent annotate --style warning '#{plan}'")
+      context = "config#{"-nightly" if @nightly}"
+
+      io = IO.popen("buildkite-agent annotate --style warning --context #{context} '#{plan}'")
       output = io.read
       io.close
 
@@ -19,7 +22,7 @@ module Buildkite::Config
     private
       def plan
         <<~PLAN
-          ### :writing_hand: buildkite-config/plan
+          ### :writing_hand: buildkite-config#{"-nightly" if @nightly}/plan
 
           <details>
           <summary>Show Output</summary>

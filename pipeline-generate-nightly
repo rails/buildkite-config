@@ -34,8 +34,6 @@ ARTIFACTS_PLUGIN = "artifacts#v1.2.0"
 REPO_ROOT = Pathname.new(ARGV.shift || File.expand_path("../..", __FILE__))
 
 REPO_ROOT.join("rails.gemspec").read =~ /required_ruby_version[^0-9]+([0-9]+\.[0-9]+)/
-RUBY_MINORS = %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2 3.3).map { |v| Gem::Version.new(v) }
-MIN_RUBY = Gem::Version.new($1 || "2.0")
 
 RAILS_VERSION = Gem::Version.new(File.read(REPO_ROOT.join("RAILS_VERSION")))
 BUNDLER =
@@ -53,40 +51,25 @@ RUBYGEMS =
     "3.2.9"
   end
 
-MAX_RUBY =
-  case RAILS_VERSION
-  when Gem::Requirement.new("< 5.1")
-    Gem::Version.new("2.4")
-  when Gem::Requirement.new("< 5.2")
-    Gem::Version.new("2.5")
-  when Gem::Requirement.new("< 6.0")
-    Gem::Version.new("2.6")
-  when Gem::Requirement.new("< 6.1")
-    Gem::Version.new("2.7")
-  end
-
-
 RUBIES = []
 SOFT_FAIL = []
 
-RUBY_MINORS.select { |v| v >= MIN_RUBY }.each do |v|
-  image = "ruby:#{v}"
+MASTER_RUBY = "rubylang/ruby:master-nightly-jammy"
+SOFT_FAIL << MASTER_RUBY
 
-  if MAX_RUBY && v > MAX_RUBY && !(MAX_RUBY.approximate_recommendation === v)
-    SOFT_FAIL << image
-  else
-    RUBIES << image
-  end
-end
-
-ONE_RUBY = RUBIES.last || SOFT_FAIL.last
+# Adds yjit: onto the master ruby image string so we
+# know when to turn on YJIT via the environment variable.
+# Same as master ruby, we want this to soft fail.
+YJIT_RUBY = "yjit:#{MASTER_RUBY}"
+SOFT_FAIL << YJIT_RUBY
 
 # Run steps for newer Rubies first.
-RUBIES.reverse!
 SOFT_FAIL.reverse!
 
 # Run soft-failing Ruby steps last.
 RUBIES.concat SOFT_FAIL
+
+ONE_RUBY = RUBIES.last
 
 STEPS = []
 
@@ -110,12 +93,22 @@ end
 # via an ENV var. This needs to remove the `yjit:` added onto the
 # front because otherwise it's not a valid image.
 def ruby_image(ruby)
-  ruby
+  if ruby == YJIT_RUBY
+    ruby.sub("yjit:", "")
+  else
+    ruby
+  end
 end
 
 # A shortened version of the name for the Buildkite label.
 def short_ruby(ruby)
-  ruby.sub(/^ruby:|:latest$/, "")
+  if ruby == MASTER_RUBY
+    "master"
+  elsif ruby == YJIT_RUBY
+    "yjit"
+  else
+    ruby.sub(/^ruby:|:latest$/, "")
+  end
 end
 
 def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: [])
@@ -136,6 +129,12 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
   env = {
     "IMAGE_NAME" => image_name_for(ruby || ONE_RUBY),
   }
+
+  # If we have YJIT_RUBY set the environment variable
+  # to turn it on.
+  if ruby == YJIT_RUBY
+    env["RUBY_YJIT_ENABLE"] = "1"
+  end
 
   if !pre_steps.empty?
     env["PRE_STEPS"] = pre_steps.join(" && ")
@@ -365,7 +364,7 @@ puts YAML.dump("steps" => [
   {
     "group" => "build",
     "steps" => [
-      *(RUBIES).map do |ruby|
+      *(RUBIES - [YJIT_RUBY]).map do |ruby|
         {
           "label" => ":docker: #{ruby}",
           "key" => "docker-image-#{ruby.gsub(/\W/, "-")}",
