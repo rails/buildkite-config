@@ -11,7 +11,6 @@ STANDARD_QUEUES = [nil, "default", "builder"]
 
 config = Buildkite::Config::Generate.new
 
-BASE_BRANCH = ([ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"], ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
 LOCAL_BRANCH = ([ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
 PULL_REQUEST = ([ENV["BUILDKITE_PULL_REQUEST"]] - ["false"]).first
 
@@ -380,7 +379,7 @@ puts YAML.dump("steps" => [
                   REBUILD_ID && "base:" + image_name_for(config, ruby, REBUILD_ID),
                   PULL_REQUEST && "base:" + image_name_for(config, ruby, "pr-#{PULL_REQUEST}"),
                   LOCAL_BRANCH && LOCAL_BRANCH !~ /:/ && "base:" + image_name_for(config, ruby, "br-#{LOCAL_BRANCH}"),
-                  BASE_BRANCH && "base:" + image_name_for(config, ruby, "br-#{BASE_BRANCH}"),
+                  config.base_branch && "base:" + image_name_for(config, ruby, "br-#{config.base_branch}"),
                   "base:" + image_name_for(config, ruby, "br-main"),
                 ].grep(String).uniq,
                 "push" => [

@@ -5,6 +5,7 @@ module Buildkite::Config
     attr_reader :build_queue
     attr_reader :run_queue
     attr_reader :image_base
+    attr_reader :base_branch
 
     def initialize
       setup_queue
@@ -12,6 +13,7 @@ module Buildkite::Config
       @build_queue = ENV["BUILD_QUEUE"] || ENV["QUEUE"] || "builder"
       @run_queue = ENV["RUN_QUEUE"] || ENV["QUEUE"] || "default"
       @image_base = ENV["DOCKER_IMAGE"] || "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{build_queue}-" unless STANDARD_QUEUES.include?(build_queue)}builds"
+      @base_branch = ([ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"], ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
     end
 
     private
