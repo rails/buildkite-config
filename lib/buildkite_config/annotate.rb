@@ -1,7 +1,8 @@
 module Buildkite::Config
   class Annotate
-    def initialize(diff)
+    def initialize(diff, nightly: false)
       @diff = diff
+      @nightly = nightly
     end
 
     def perform
@@ -19,7 +20,7 @@ module Buildkite::Config
     private
       def plan
         <<~PLAN
-          ### :writing_hand: buildkite-config/plan
+          ### :writing_hand: buildkite-config#{"-nightly" if @nightly}/plan
 
           <details>
           <summary>Show Output</summary>

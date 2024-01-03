@@ -69,6 +69,8 @@ SOFT_FAIL.reverse!
 # Run soft-failing Ruby steps last.
 RUBIES.concat SOFT_FAIL
 
+ONE_RUBY = RUBIES.last
+
 STEPS = []
 
 def image_name_for(ruby, suffix = BUILD_ID, short: false)
@@ -125,7 +127,7 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
   end
 
   env = {
-    "IMAGE_NAME" => image_name_for(ruby),
+    "IMAGE_NAME" => image_name_for(ruby || ONE_RUBY),
   }
 
   # If we have YJIT_RUBY set the environment variable
@@ -145,7 +147,7 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
     if rake_task.include?("isolated")
       "isolated"
     else
-      ruby
+      ruby || ONE_RUBY
     end
 
   if RAILS_VERSION < Gem::Version.new("5.x")
@@ -160,7 +162,7 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
 
   hash = {
     "label" => label,
-    "depends_on" => "docker-image-#{ruby_image(ruby).gsub(/\W/, "-")}",
+    "depends_on" => "docker-image-#{ruby_image(ruby || ONE_RUBY).gsub(/\W/, "-")}",
     "command" => command,
     "group" => group,
     "plugins" => [

@@ -6,16 +6,19 @@ require "minitest/test_task"
 Minitest::TestTask.create
 task default: [:test]
 
-task :print_diff => [:buildkite_config, :rails] do
-  diff = Buildkite::Config::Diff.compare
-  puts diff.to_s()
+task :print_diff, [:nightly] => [:buildkite_config, :rails] do |_, args|
+  args.with_defaults(nightly: false)
+  diff = Buildkite::Config::Diff.compare(nightly: args[:nightly])
+  puts diff.to_s(:color)
 end
 
-task :diff => [:buildkite_config, :rails] do
-  diff = Buildkite::Config::Diff.compare
+task :diff, [:nightly] => [:buildkite_config, :rails] do |_, args|
+  args.with_defaults(nightly: false)
+
+  diff = Buildkite::Config::Diff.compare(nightly: args[:nightly])
   puts diff.to_s(:color)
 
-  annotate = Buildkite::Config::Annotate.new(diff)
+  annotate = Buildkite::Config::Annotate.new(diff, nightly: args[:nightly])
   annotate.perform
 end
 
