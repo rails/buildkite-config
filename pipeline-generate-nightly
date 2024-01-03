@@ -11,8 +11,6 @@ STANDARD_QUEUES = [nil, "default", "builder"]
 
 config = Buildkite::Config::Generate.new
 
-IMAGE_BASE = ENV["DOCKER_IMAGE"] || "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{config.build_queue}-" unless STANDARD_QUEUES.include?(config.build_queue)}builds"
-
 BASE_BRANCH = ([ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"], ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
 LOCAL_BRANCH = ([ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
 PULL_REQUEST = ([ENV["BUILDKITE_PULL_REQUEST"]] - ["false"]).first
@@ -67,7 +65,7 @@ ONE_RUBY = RUBIES.last
 
 STEPS = []
 
-def image_name_for(ruby, suffix = BUILD_ID, short: false)
+def image_name_for(config, ruby, suffix = BUILD_ID, short: false)
   ruby = ruby_image(ruby)
 
   tag = "#{mangle_name(ruby)}-#{suffix}"
@@ -75,7 +73,7 @@ def image_name_for(ruby, suffix = BUILD_ID, short: false)
   if short
     tag
   else
-    "#{IMAGE_BASE}:#{tag}"
+    "#{config.image_base}:#{tag}"
   end
 end
 
@@ -121,7 +119,7 @@ def step_for(config, subdirectory, rake_task, ruby: nil, service: "default", pre
   end
 
   env = {
-    "IMAGE_NAME" => image_name_for(ruby || ONE_RUBY),
+    "IMAGE_NAME" => image_name_for(config, ruby || ONE_RUBY),
   }
 
   # If we have YJIT_RUBY set the environment variable
@@ -376,20 +374,20 @@ puts YAML.dump("steps" => [
                   "PRE_STEPS",
                   "RACK"
                 ],
-                "image-name" => image_name_for(ruby, short: true),
+                "image-name" => image_name_for(config, ruby, short: true),
                 "cache-from" => [
-                  REBUILD_ID && "base:" + image_name_for(ruby, REBUILD_ID),
-                  PULL_REQUEST && "base:" + image_name_for(ruby, "pr-#{PULL_REQUEST}"),
-                  LOCAL_BRANCH && LOCAL_BRANCH !~ /:/ && "base:" + image_name_for(ruby, "br-#{LOCAL_BRANCH}"),
-                  BASE_BRANCH && "base:" + image_name_for(ruby, "br-#{BASE_BRANCH}"),
-                  "base:" + image_name_for(ruby, "br-main"),
+                  REBUILD_ID && "base:" + image_name_for(config, ruby, REBUILD_ID),
+                  PULL_REQUEST && "base:" + image_name_for(config, ruby, "pr-#{PULL_REQUEST}"),
+                  LOCAL_BRANCH && LOCAL_BRANCH !~ /:/ && "base:" + image_name_for(config, ruby, "br-#{LOCAL_BRANCH}"),
+                  BASE_BRANCH && "base:" + image_name_for(config, ruby, "br-#{BASE_BRANCH}"),
+                  "base:" + image_name_for(config, ruby, "br-main"),
                 ].grep(String).uniq,
                 "push" => [
                   LOCAL_BRANCH =~ /:/ ?
-                  "base:" + image_name_for(ruby, "pr-#{PULL_REQUEST}") :
-                  "base:" + image_name_for(ruby, "br-#{LOCAL_BRANCH}"),
+                  "base:" + image_name_for(config, ruby, "pr-#{PULL_REQUEST}") :
+                  "base:" + image_name_for(config, ruby, "br-#{LOCAL_BRANCH}"),
                 ],
-                "image-repository" => IMAGE_BASE,
+                "image-repository" => config.image_base,
               },
             },
           ],
