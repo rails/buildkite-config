@@ -5,19 +5,13 @@ require "json"
 require "net/http"
 require "pathname"
 require "yaml"
+require_relative "lib/buildkite_config"
 
 STANDARD_QUEUES = [nil, "default", "builder"]
 
-# If the pipeline is running in a non-standard queue, default to
-# running everything in that queue.
-unless STANDARD_QUEUES.include?(ENV["BUILDKITE_AGENT_META_DATA_QUEUE"])
-  ENV["QUEUE"] ||= ENV["BUILDKITE_AGENT_META_DATA_QUEUE"]
-end
+config = Buildkite::Config::Generate.new
 
-BUILD_QUEUE = ENV["BUILD_QUEUE"] || ENV["QUEUE"] || "builder"
-RUN_QUEUE = ENV["RUN_QUEUE"] || ENV["QUEUE"] || "default"
-
-IMAGE_BASE = ENV["DOCKER_IMAGE"] || "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{BUILD_QUEUE}-" unless STANDARD_QUEUES.include?(BUILD_QUEUE)}builds"
+IMAGE_BASE = ENV["DOCKER_IMAGE"] || "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{config.build_queue}-" unless STANDARD_QUEUES.include?(config.build_queue)}builds"
 
 BASE_BRANCH = ([ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"], ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
 LOCAL_BRANCH = ([ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
@@ -111,7 +105,7 @@ def short_ruby(ruby)
   end
 end
 
-def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: [])
+def step_for(config, subdirectory, rake_task, ruby: nil, service: "default", pre_steps: [])
   return unless REPO_ROOT.join(subdirectory).exist?
 
   label = +"#{subdirectory} #{rake_task.sub(/[:_]test|test:/, "")}"
@@ -187,7 +181,7 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
     "env" => env,
     "timeout_in_minutes" => timeout,
     "soft_fail" => SOFT_FAIL.include?(ruby),
-    "agents" => { "queue" => RUN_QUEUE },
+    "agents" => { "queue" => config.run_queue },
     "artifact_paths" => ["test-reports/*/*.xml"],
     "retry" => { "automatic" => { "exit_status" => -1, "limit" => 2 } },
   }
@@ -197,9 +191,9 @@ def step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: 
   STEPS << hash
 end
 
-def steps_for(subdirectory, rake_task, service: "default", pre_steps: [], &block)
+def steps_for(config, subdirectory, rake_task, service: "default", pre_steps: [], &block)
   RUBIES.each do |ruby|
-    step_for(subdirectory, rake_task, ruby: ruby, service: service, pre_steps: pre_steps, &block)
+    step_for(config, subdirectory, rake_task, ruby: ruby, service: service, pre_steps: pre_steps, &block)
   end
 end
 
@@ -219,21 +213,21 @@ end
 ).each_slice(3) do |dir, task, service|
   next if RAILS_VERSION < Gem::Version.new("7.1.0.alpha") && task == "trilogy:test"
 
-  steps_for(dir, task, service: service)
+  steps_for(config, dir, task, service: service)
 
   next unless MAINLINE
 
   if dir == "activerecord"
-    step_for(dir, task.sub(":test", ":isolated_test"), service: service) do |x|
+    step_for(config, dir, task.sub(":test", ":isolated_test"), service: service) do |x|
       x["parallelism"] = 5 if REPO_ROOT.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
     end
   elsif dir == "actiontext"
     # added during 7.1 development on main
     if REPO_ROOT.join("actiontext/Rakefile").read.include?("task :isolated")
-      step_for(dir, "#{task}:isolated", service: service)
+      step_for(config, dir, "#{task}:isolated", service: service)
     end
   else
-    step_for(dir, "#{task}:isolated", service: service)
+    step_for(config, dir, "#{task}:isolated", service: service)
   end
 end
 
@@ -243,34 +237,34 @@ end
   actionmailbox   test                default
   guides          test                default
 ).each_slice(3) do |dir, task, service|
-  steps_for(dir, task, service: service)
+  steps_for(config, dir, task, service: service)
 end
 
 # GROUP 3: Special cases
 
-steps_for("actioncable", "test", service: "postgresdb", pre_steps: ["cd ./activerecord", "bundle exec rake db:postgresql:rebuild", "cd -"])
+steps_for(config, "actioncable", "test", service: "postgresdb", pre_steps: ["cd ./activerecord", "bundle exec rake db:postgresql:rebuild", "cd -"])
 
 if RAILS_VERSION >= Gem::Version.new("5.1.x")
-  step_for("activerecord", "sqlite3_mem:test", service: "default")
+  step_for(config, "activerecord", "sqlite3_mem:test", service: "default")
 end
 if RAILS_VERSION >= Gem::Version.new("6.1.x")
-  step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
+  step_for(config, "activerecord", "mysql2:test", service: "mysqldb") do |x|
     x["label"] += " [prepared_statements]"
     x["env"]["MYSQL_PREPARED_STATEMENTS"] = "true"
   end
 end
-step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
+step_for(config, "activerecord", "mysql2:test", service: "mysqldb") do |x|
   x["label"] += " [mysql_5_7]"
   x["env"]["MYSQL_IMAGE"] = "mysql:5.7"
 end
 if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
-  step_for("activerecord", "trilogy:test", service: "mysqldb") do |x|
+  step_for(config, "activerecord", "trilogy:test", service: "mysqldb") do |x|
     x["label"] += " [mysql_5_7]"
     x["env"]["MYSQL_IMAGE"] = "mysql:5.7"
   end
 end
 if RAILS_VERSION >= Gem::Version.new("5.x")
-  step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
+  step_for(config, "activerecord", "mysql2:test", service: "mysqldb") do |x|
     x["label"] += " [mariadb]"
     x["env"]["MYSQL_IMAGE"] =
       if RAILS_VERSION < Gem::Version.new("6.x")
@@ -281,12 +275,12 @@ if RAILS_VERSION >= Gem::Version.new("5.x")
   end
 end
 if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
-  step_for("activerecord", "trilogy:test", service: "mysqldb") do |x|
+  step_for(config, "activerecord", "trilogy:test", service: "mysqldb") do |x|
     x["label"] += " [mariadb]"
     x["env"]["MYSQL_IMAGE"] = "mariadb:latest"
   end
 end
-steps_for("actioncable", "test:integration", service: "default") do |x|
+steps_for(config, "actioncable", "test:integration", service: "default") do |x|
   if RAILS_VERSION < Gem::Version.new("6.x")
     x["soft_fail"] = true
   else
@@ -294,37 +288,37 @@ steps_for("actioncable", "test:integration", service: "default") do |x|
   end
 end
 if REPO_ROOT.join("actionview/Rakefile").read.include?("task :ujs")
-  step_for("actionview", "test:ujs", service: "actionview") do |x|
+  step_for(config, "actionview", "test:ujs", service: "actionview") do |x|
     x["retry"] = { "automatic" => { "limit" => 3 } }
   end
 end
-steps_for("activejob", "test:integration", service: "activejob") do |x|
+steps_for(config, "activejob", "test:integration", service: "activejob") do |x|
   # Enable soft_fail until the problem in queue_classic is solved.
   # https://github.com/rails/rails/pull/37517#issuecomment-545370408
   x["soft_fail"] = true # if RAILS_VERSION < Gem::Version.new("5.x")
 end
-steps_for("railties", "test", service: "railties") do |x|
+steps_for(config, "railties", "test", service: "railties") do |x|
   x["parallelism"] = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
 end
 
-step_for("actionpack", "test", service: "default", pre_steps: ["bundle install"]) do |x|
+step_for(config, "actionpack", "test", service: "default", pre_steps: ["bundle install"]) do |x|
   x["label"] += " [rack-2]"
   x["env"]["RACK"] = "~> 2.0"
 end
 
-step_for("railties", "test", service: "railties", pre_steps: ["bundle install"]) do |x|
+step_for(config, "railties", "test", service: "railties", pre_steps: ["bundle install"]) do |x|
   x["parallelism"] = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
   x["label"] += " [rack-2]"
   x["env"]["RACK"] = "~> 2.0"
 end
 
-step_for("actionpack", "test", service: "default", pre_steps: ["rm Gemfile.lock", "bundle install"]) do |x|
+step_for(config, "actionpack", "test", service: "default", pre_steps: ["rm Gemfile.lock", "bundle install"]) do |x|
   x["label"] += " [rack-head]"
   x["env"]["RACK"] = "head"
   x["soft_fail"] = true
 end
 
-step_for("railties", "test", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"]) do |x|
+step_for(config, "railties", "test", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"]) do |x|
   x["parallelism"] = 12 if REPO_ROOT.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
   x["label"] += " [rack-head]"
   x["env"]["RACK"] = "head"
@@ -408,7 +402,7 @@ puts YAML.dump("steps" => [
           },
           "timeout_in_minutes" => 15,
           "soft_fail" => SOFT_FAIL.include?(ruby),
-          "agents" => { "queue" => BUILD_QUEUE },
+          "agents" => { "queue" => config.build_queue },
         }
       end,
     ],
