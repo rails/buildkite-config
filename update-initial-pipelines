@@ -25,9 +25,23 @@ update_pipeline("rails", rails_init)
 
 puts "\n" * 2; puts "#####"; puts "\n" * 2
 
+# Update rails/rails-nightly
+puts "Updating rails/rails-nightly..."
+rails_nightly_init = File.read("rails-nightly-initial-pipeline.yml")
+update_pipeline("rails-nightly", rails_nightly_init)
+
+puts "\n" * 2; puts "#####"; puts "\n" * 2
+
 # Update rails/rails-ci
 puts "Updating rails/rails-ci..."
 update_pipeline("rails-ci", rails_init)
+
+puts "\n" * 2; puts "#####"; puts "\n" * 2
+
+# Update rails/rails-ci-nightly
+puts "Updating rails/rails-ci-nightly..."
+rails_nightly_init = File.read("rails-nightly-initial-pipeline.yml")
+update_pipeline("rails-ci-nightly", rails_nightly_init)
 
 puts "\n" * 2; puts "#####"; puts "\n" * 2
 

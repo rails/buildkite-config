@@ -8,7 +8,9 @@ module Buildkite::Config
     def perform
       return if @diff.to_s.empty?
 
-      io = IO.popen("buildkite-agent annotate --style warning '#{plan}'")
+      context = "config#{"-nightly" if @nightly}"
+
+      io = IO.popen("buildkite-agent annotate --style warning --context #{context} '#{plan}'")
       output = io.read
       io.close
 

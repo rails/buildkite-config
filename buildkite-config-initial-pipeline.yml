@@ -26,6 +26,7 @@ steps:
       git config --global --add safe.directory /workdir
       bundle install
       bundle exec rake diff
+      bundle exec rake diff[true]
     key: diff
     depends_on: self-test
     plugins:
@@ -47,6 +48,26 @@ steps:
         BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
   - trigger: "rails-ci"
     label: ":pipeline: Build Rails 6-1-stable with new config"
+    depends_on: diff
+    build:
+      message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
+      branch: "6-1-stable"
+      env:
+        CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
+        CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
+        BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
+  - trigger: "rails-ci-nightly"
+    label: ":pipeline: Build Rails main with new nightly config"
+    depends_on: diff
+    build:
+      message: "[${BUILDKITE_BRANCH}] ${BUILDKITE_MESSAGE}"
+      branch: "main"
+      env:
+        CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
+        CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
+        BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
+  - trigger: "rails-ci-nightly"
+    label: ":pipeline: Build Rails 6-1-stable with new nightly config"
     depends_on: diff
     build:
       message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
