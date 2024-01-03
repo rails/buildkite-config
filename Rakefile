@@ -6,6 +6,11 @@ require "minitest/test_task"
 Minitest::TestTask.create
 task default: [:test]
 
+task :print_diff => [:buildkite_config, :rails] do
+  diff = Buildkite::Config::Diff.compare
+  puts diff.to_s()
+end
+
 task :diff => [:buildkite_config, :rails] do
   diff = Buildkite::Config::Diff.compare
   puts diff.to_s(:color)
