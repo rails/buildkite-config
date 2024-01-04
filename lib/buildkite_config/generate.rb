@@ -72,5 +72,9 @@ module Buildkite::Config
         ENV["QUEUE"] ||= ENV["BUILDKITE_AGENT_META_DATA_QUEUE"]
       end
     end
+
+    def mangle_name(name)
+      name.tr("^A-Za-z0-9", "-")
+    end
   end
 end

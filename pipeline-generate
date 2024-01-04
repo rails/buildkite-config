@@ -53,10 +53,6 @@ RUBIES.concat SOFT_FAIL
 
 STEPS = []
 
-def mangle_name(name)
-  name.tr("^A-Za-z0-9", "-")
-end
-
 # YJIT uses the same image as ruby-trunk because it's turned on
 # via an ENV var. This needs to remove the `yjit:` added onto the
 # front because otherwise it's not a valid image.
