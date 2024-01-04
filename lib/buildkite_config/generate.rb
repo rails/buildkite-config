@@ -82,18 +82,6 @@ module Buildkite::Config
       end
     end
 
-    # A shortened version of the name for the Buildkite label.
-    # TODO: Make private
-    def short_ruby(ruby)
-      if ruby.match?(%r{^rubylang/ruby:master})
-        "master"
-      elsif yjit?(ruby)
-        "yjit"
-      else
-        ruby.sub(/^ruby:|:latest$/, "")
-      end
-    end
-
     def add_step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: [])
       return unless root.join(subdirectory).exist?
 
@@ -192,6 +180,17 @@ module Buildkite::Config
 
     def mangle_name(name)
       name.tr("^A-Za-z0-9", "-")
+    end
+
+    # A shortened version of the name for the Buildkite label.
+    def short_ruby(ruby)
+      if ruby.match?(%r{^rubylang/ruby:master})
+        "master"
+      elsif yjit?(ruby)
+        "yjit"
+      else
+        ruby.sub(/^ruby:|:latest$/, "")
+      end
     end
 
     def yjit?(ruby)
