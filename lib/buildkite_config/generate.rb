@@ -10,9 +10,12 @@ module Buildkite::Config
     attr_reader :pull_request
     attr_reader :build_id
     attr_reader :rebuild_id
+    attr_reader :root
 
-    def initialize
+    def initialize(root)
       setup_queue
+
+      @root = Pathname.new(root)
 
       @build_queue = ENV["BUILD_QUEUE"] || ENV["QUEUE"] || "builder"
       @run_queue = ENV["RUN_QUEUE"] || ENV["QUEUE"] || "default"
