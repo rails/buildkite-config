@@ -9,8 +9,6 @@ require_relative "lib/buildkite_config"
 
 config = Buildkite::Config::Generate.new
 
-REBUILD_ID = ([ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]] - [""]).first
-
 MAINLINE = config.local_branch == "main" || config.local_branch =~ /\A[0-9-]+(?:-stable)?\z/
 
 DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
@@ -370,7 +368,7 @@ puts YAML.dump("steps" => [
                 ],
                 "image-name" => image_name_for(config, ruby, short: true),
                 "cache-from" => [
-                  REBUILD_ID && "base:" + image_name_for(config, ruby, REBUILD_ID),
+                  config.rebuild_id && "base:" + image_name_for(config, ruby, config.rebuild_id),
                   config.pull_request && "base:" + image_name_for(config, ruby, "pr-#{config.pull_request}"),
                   config.local_branch && config.local_branch !~ /:/ && "base:" + image_name_for(config, ruby, "br-#{config.local_branch}"),
                   config.base_branch && "base:" + image_name_for(config, ruby, "br-#{config.base_branch}"),

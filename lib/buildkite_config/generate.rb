@@ -9,6 +9,7 @@ module Buildkite::Config
     attr_reader :local_branch
     attr_reader :pull_request
     attr_reader :build_id
+    attr_reader :rebuild_id
 
     def initialize
       setup_queue
@@ -20,6 +21,7 @@ module Buildkite::Config
       @local_branch = ([ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
       @pull_request = ([ENV["BUILDKITE_PULL_REQUEST"]] - ["false"]).first
       @build_id = ENV["BUILDKITE_BUILD_ID"]
+      @rebuild_id = ([ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]] - [""]).first
     end
 
     private
