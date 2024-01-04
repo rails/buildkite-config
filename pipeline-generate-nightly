@@ -34,17 +34,6 @@ ONE_RUBY = RUBIES.last
 
 STEPS = []
 
-# YJIT uses the same image as ruby-trunk because it's turned on
-# via an ENV var. This needs to remove the `yjit:` added onto the
-# front because otherwise it's not a valid image.
-def ruby_image(ruby)
-  if ruby == YJIT_RUBY
-    ruby.sub("yjit:", "")
-  else
-    ruby
-  end
-end
-
 # A shortened version of the name for the Buildkite label.
 def short_ruby(ruby)
   if ruby == MASTER_RUBY
@@ -107,7 +96,7 @@ def step_for(config, subdirectory, rake_task, ruby: nil, service: "default", pre
 
   hash = {
     "label" => label,
-    "depends_on" => "docker-image-#{ruby_image(ruby || ONE_RUBY).gsub(/\W/, "-")}",
+    "depends_on" => "docker-image-#{config.ruby_image(ruby || ONE_RUBY).gsub(/\W/, "-")}",
     "command" => command,
     "group" => group,
     "plugins" => [
@@ -347,7 +336,7 @@ puts YAML.dump("steps" => [
           "env" => {
             "BUNDLER" => config.bundler,
             "RUBYGEMS" => config.rubygems,
-            "RUBY_IMAGE" => ruby_image(ruby),
+            "RUBY_IMAGE" => config.ruby_image(ruby),
             "encrypted_0fb9444d0374_key" => nil,
             "encrypted_0fb9444d0374_iv" => nil,
           },

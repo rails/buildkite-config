@@ -63,6 +63,17 @@ module Buildkite::Config
       end
     end
 
+    def ruby_image(ruby)
+      # YJIT uses the same image as ruby-trunk because it's turned on
+      # via an ENV var. This needs to remove the `yjit:` added onto the
+      # front because otherwise it's not a valid image.
+      if ruby.start_with?("yjit:")
+        ruby.sub("yjit:", "")
+      else
+        ruby
+      end
+    end
+
     private
 
     def setup_queue
