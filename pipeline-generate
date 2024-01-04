@@ -16,13 +16,6 @@ config.root.join("rails.gemspec").read =~ /required_ruby_version[^0-9]+([0-9]+\.
 RUBY_MINORS = %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2 3.3).map { |v| Gem::Version.new(v) }
 MIN_RUBY = Gem::Version.new($1 || "2.0")
 
-BUNDLER =
-  case config.rails_version
-  when Gem::Requirement.new("< 5.0")
-    "< 2"
-  when Gem::Requirement.new("< 6.1")
-    "< 2.2.10"
-  end
 RUBYGEMS =
   case config.rails_version
   when Gem::Requirement.new("< 5.0")
@@ -379,7 +372,7 @@ puts YAML.dump("steps" => [
             },
           ],
           "env" => {
-            "BUNDLER" => BUNDLER,
+            "BUNDLER" => config.bundler,
             "RUBYGEMS" => RUBYGEMS,
             "RUBY_IMAGE" => ruby_image(ruby),
             "encrypted_0fb9444d0374_key" => nil,

@@ -33,6 +33,15 @@ module Buildkite::Config
       local_branch == "main" || local_branch =~ /\A[0-9-]+(?:-stable)?\z/
     end
 
+    def bundler
+      case rails_version
+      when Gem::Requirement.new("< 5.0")
+        "< 2"
+      when Gem::Requirement.new("< 6.1")
+        "< 2.2.10"
+      end
+    end
+
     private
 
     def setup_queue
