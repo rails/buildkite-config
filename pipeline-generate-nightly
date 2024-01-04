@@ -27,6 +27,5 @@ RUBIES.concat config.soft_fail
 
 config.default_ruby = RUBIES.last
 config.rubies = RUBIES
-config.ignored_rubies << YJIT_RUBY
 
 puts config.generate

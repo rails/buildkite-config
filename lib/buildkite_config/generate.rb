@@ -22,7 +22,6 @@ module Buildkite::Config
     attr_accessor :default_ruby
     attr_accessor :soft_fail
     attr_accessor :rubies
-    attr_reader :ignored_rubies
 
     def initialize(root)
       setup_queue
@@ -40,7 +39,6 @@ module Buildkite::Config
       @build_id = ENV["BUILDKITE_BUILD_ID"]
       @rebuild_id = ([ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]] - [""]).first
       @rails_version = Gem::Version.new(File.read(@root.join("RAILS_VERSION")))
-      @ignored_rubies = []
     end
 
     def generate
@@ -410,7 +408,7 @@ module Buildkite::Config
         {
           "group" => "build",
           "steps" => [
-            *(rubies - ignored_rubies).map do |ruby|
+            *rubies.filter { |ruby| !yjit?(ruby) }.map do |ruby|
               {
                 "label" => ":docker: #{ruby}",
                 "key" => "docker-image-#{ruby.gsub(/\W/, "-")}",
