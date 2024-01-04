@@ -34,24 +34,13 @@ ONE_RUBY = RUBIES.last
 
 STEPS = []
 
-# A shortened version of the name for the Buildkite label.
-def short_ruby(ruby)
-  if ruby == MASTER_RUBY
-    "master"
-  elsif ruby == YJIT_RUBY
-    "yjit"
-  else
-    ruby.sub(/^ruby:|:latest$/, "")
-  end
-end
-
 def step_for(config, subdirectory, rake_task, ruby: nil, service: "default", pre_steps: [])
   return unless config.root.join(subdirectory).exist?
 
   label = +"#{subdirectory} #{rake_task.sub(/[:_]test|test:/, "")}"
   label.sub!(/ test/, "")
   if ruby
-    label << " (#{short_ruby(ruby)})"
+    label << " (#{config.short_ruby(ruby)})"
   end
 
   if rake_task.start_with?("mysql2:") || (config.rails_version >= Gem::Version.new("7.1.0.alpha") && rake_task.start_with?("trilogy:"))

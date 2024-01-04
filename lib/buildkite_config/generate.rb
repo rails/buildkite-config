@@ -74,6 +74,17 @@ module Buildkite::Config
       end
     end
 
+    # A shortened version of the name for the Buildkite label.
+    def short_ruby(ruby)
+      if ruby.match?(%r{^rubylang/ruby:master})
+        "master"
+      elsif ruby.start_with?("yjit:")
+        "yjit"
+      else
+        ruby.sub(/^ruby:|:latest$/, "")
+      end
+    end
+
     private
 
     def setup_queue
