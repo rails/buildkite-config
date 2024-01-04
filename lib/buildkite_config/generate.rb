@@ -7,6 +7,7 @@ module Buildkite::Config
     attr_reader :image_base
     attr_reader :base_branch
     attr_reader :local_branch
+    attr_reader :pull_request
 
     def initialize
       setup_queue
@@ -16,6 +17,7 @@ module Buildkite::Config
       @image_base = ENV["DOCKER_IMAGE"] || "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{build_queue}-" unless STANDARD_QUEUES.include?(build_queue)}builds"
       @base_branch = ([ENV["BUILDKITE_PULL_REQUEST_BASE_BRANCH"], ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
       @local_branch = ([ENV["BUILDKITE_BRANCH"], "main"] - [""]).first
+      @pull_request = ([ENV["BUILDKITE_PULL_REQUEST"]] - ["false"]).first
     end
 
     private

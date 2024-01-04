@@ -11,8 +11,6 @@ STANDARD_QUEUES = [nil, "default", "builder"]
 
 config = Buildkite::Config::Generate.new
 
-PULL_REQUEST = ([ENV["BUILDKITE_PULL_REQUEST"]] - ["false"]).first
-
 BUILD_ID = ENV["BUILDKITE_BUILD_ID"]
 REBUILD_ID = ([ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]] - [""]).first
 
@@ -375,14 +373,14 @@ puts YAML.dump("steps" => [
                 "image-name" => image_name_for(config, ruby, short: true),
                 "cache-from" => [
                   REBUILD_ID && "base:" + image_name_for(config, ruby, REBUILD_ID),
-                  PULL_REQUEST && "base:" + image_name_for(config, ruby, "pr-#{PULL_REQUEST}"),
+                  config.pull_request && "base:" + image_name_for(config, ruby, "pr-#{config.pull_request}"),
                   config.local_branch && config.local_branch !~ /:/ && "base:" + image_name_for(config, ruby, "br-#{config.local_branch}"),
                   config.base_branch && "base:" + image_name_for(config, ruby, "br-#{config.base_branch}"),
                   "base:" + image_name_for(config, ruby, "br-main"),
                 ].grep(String).uniq,
                 "push" => [
                   config.local_branch =~ /:/ ?
-                  "base:" + image_name_for(config, ruby, "pr-#{PULL_REQUEST}") :
+                  "base:" + image_name_for(config, ruby, "pr-#{config.pull_request}") :
                   "base:" + image_name_for(config, ruby, "br-#{config.local_branch}"),
                 ],
                 "image-repository" => config.image_base,
