@@ -42,6 +42,15 @@ module Buildkite::Config
       end
     end
 
+    def rubygems
+      case rails_version
+      when Gem::Requirement.new("< 5.0")
+        "2.6.13"
+      when Gem::Requirement.new("< 6.1")
+        "3.2.9"
+      end
+    end
+
     private
 
     def setup_queue

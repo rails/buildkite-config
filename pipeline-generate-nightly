@@ -12,14 +12,6 @@ config = Buildkite::Config::Generate.new(ARGV.shift || File.expand_path("../..",
 DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
 ARTIFACTS_PLUGIN = "artifacts#v1.2.0"
 
-RUBYGEMS =
-  case config.rails_version
-  when Gem::Requirement.new("< 5.0")
-    "2.6.13"
-  when Gem::Requirement.new("< 6.1")
-    "3.2.9"
-  end
-
 RUBIES = []
 SOFT_FAIL = []
 
@@ -370,7 +362,7 @@ puts YAML.dump("steps" => [
           ],
           "env" => {
             "BUNDLER" => config.bundler,
-            "RUBYGEMS" => RUBYGEMS,
+            "RUBYGEMS" => config.rubygems,
             "RUBY_IMAGE" => ruby_image(ruby),
             "encrypted_0fb9444d0374_key" => nil,
             "encrypted_0fb9444d0374_iv" => nil,
