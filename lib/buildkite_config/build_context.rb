@@ -41,9 +41,6 @@ module Buildkite::Config
       end.tap do |rubies|
         rubies.reverse!
 
-        rubies << RubyConfig.new(version: RubyConfig.yjit_ruby, soft_fail: true, build: false)
-        rubies << RubyConfig.new(version: RubyConfig.master_ruby, soft_fail: true)
-
         rubies.sort_by { |r| [r.version.to_s, r.soft_fail] }
       end
     end
