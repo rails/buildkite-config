@@ -1,17 +1,14 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "json"
-require "net/http"
-require "pathname"
-require "yaml"
 require_relative "lib/buildkite_config"
 
 config = Buildkite::Config::Generate.new(ARGV.shift || File.expand_path("../..", __FILE__))
 
 config.root.join("rails.gemspec").read =~ /required_ruby_version[^0-9]+([0-9]+\.[0-9]+)/
-RUBY_MINORS = %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2 3.3).map { |v| Gem::Version.new(v) }
 MIN_RUBY = Gem::Version.new($1 || "2.0")
+
+RUBY_MINORS = %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2 3.3).map { |v| Gem::Version.new(v) }
 
 MAX_RUBY =
   case config.rails_version

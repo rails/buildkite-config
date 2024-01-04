@@ -1,3 +1,6 @@
+require "yaml"
+require "pathname"
+
 module Buildkite::Config
   class Generate
     STANDARD_QUEUES = [nil, "default", "builder"]
