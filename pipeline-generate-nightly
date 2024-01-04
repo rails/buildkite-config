@@ -32,8 +32,6 @@ RUBIES.concat SOFT_FAIL
 
 ONE_RUBY = RUBIES.last
 
-STEPS = []
-
 def step_for(config, subdirectory, rake_task, ruby: nil, service: "default", pre_steps: [])
   return unless config.root.join(subdirectory).exist?
 
@@ -117,7 +115,7 @@ def step_for(config, subdirectory, rake_task, ruby: nil, service: "default", pre
 
   yield hash if block_given?
 
-  STEPS << hash
+  config.steps << hash
 end
 
 def steps_for(config, subdirectory, rake_task, service: "default", pre_steps: [], &block)
@@ -255,22 +253,22 @@ step_for(config, "railties", "test", service: "railties", pre_steps: ["rm Gemfil
 end
 
 # Ugly hacks to just get the build passing for now
-STEPS.find { |s| s["label"] == "activestorage (2.2)" }&.tap do |s|
+config.steps.find { |s| s["label"] == "activestorage (2.2)" }&.tap do |s|
   s["soft_fail"] = true
 end
 
 # Bug report templates
-STEPS.select { |s| s["label"] =~ /^guides/  }.each do |s|
+config.steps.select { |s| s["label"] =~ /^guides/  }.each do |s|
   s["soft_fail"] = true
 end
 if config.rails_version < Gem::Version.new("7.x") && config.rails_version >= Gem::Version.new("6.1")
-  STEPS.delete_if { |s| s["label"] == "guides (2.7)" || s["label"] == "guides (3.0)" }
+  config.steps.delete_if { |s| s["label"] == "guides (2.7)" || s["label"] == "guides (3.0)" }
 end
-STEPS.delete_if { |s| s["label"] =~ /^guides/ } if config.rails_version < Gem::Version.new("7.0")
+config.steps.delete_if { |s| s["label"] =~ /^guides/ } if config.rails_version < Gem::Version.new("7.0")
 
 ###
 
-STEPS.sort_by! do |step|
+config.steps.sort_by! do |step|
   [
     -step["timeout_in_minutes"],
     step["group"] == "isolated" ? 2 : 1,
@@ -279,7 +277,7 @@ STEPS.sort_by! do |step|
   ]
 end
 
-groups = STEPS.group_by { |s| s.delete("group") }.map do |group, steps|
+groups = config.steps.group_by { |s| s.delete("group") }.map do |group, steps|
   { "group" => group, "steps" => steps }
 end
 

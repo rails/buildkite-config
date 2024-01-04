@@ -12,9 +12,12 @@ module Buildkite::Config
     attr_reader :rebuild_id
     attr_reader :root
     attr_reader :rails_version
+    attr_reader :steps
 
     def initialize(root)
       setup_queue
+
+      @steps = []
 
       @root = Pathname.new(root)
 
