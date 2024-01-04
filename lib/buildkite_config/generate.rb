@@ -1,6 +1,8 @@
 module Buildkite::Config
   class Generate
     STANDARD_QUEUES = [nil, "default", "builder"]
+    ARTIFACTS_PLUGIN = "artifacts#v1.2.0"
+    DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
 
     attr_reader :build_queue
     attr_reader :run_queue
@@ -13,6 +15,9 @@ module Buildkite::Config
     attr_reader :root
     attr_reader :rails_version
     attr_reader :steps
+
+    attr_accessor :default_ruby
+    attr_accessor :soft_fail
 
     def initialize(root)
       setup_queue
@@ -70,7 +75,7 @@ module Buildkite::Config
       # YJIT uses the same image as ruby-trunk because it's turned on
       # via an ENV var. This needs to remove the `yjit:` added onto the
       # front because otherwise it's not a valid image.
-      if ruby.start_with?("yjit:")
+      if yjit?(ruby)
         ruby.sub("yjit:", "")
       else
         ruby
@@ -78,14 +83,101 @@ module Buildkite::Config
     end
 
     # A shortened version of the name for the Buildkite label.
+    # TODO: Make private
     def short_ruby(ruby)
       if ruby.match?(%r{^rubylang/ruby:master})
         "master"
-      elsif ruby.start_with?("yjit:")
+      elsif yjit?(ruby)
         "yjit"
       else
         ruby.sub(/^ruby:|:latest$/, "")
       end
+    end
+
+    def add_step_for(subdirectory, rake_task, ruby: nil, service: "default", pre_steps: [])
+      return unless root.join(subdirectory).exist?
+
+      label = +"#{subdirectory} #{rake_task.sub(/[:_]test|test:/, "")}"
+      label.sub!(/ test/, "")
+      if ruby
+        label << " (#{short_ruby(ruby)})"
+      end
+
+      if rake_task.start_with?("mysql2:") || (rails_version >= Gem::Version.new("7.1.0.alpha") && rake_task.start_with?("trilogy:"))
+        rake_task = "db:mysql:rebuild #{rake_task}"
+      elsif rake_task.start_with?("postgresql:")
+        rake_task = "db:postgresql:rebuild #{rake_task}"
+      end
+
+      env = {
+        "IMAGE_NAME" => image_name_for(ruby || default_ruby),
+      }
+
+      # If we have YJIT_RUBY set the environment variable
+      # to turn it on.
+      if yjit?(ruby)
+        env["RUBY_YJIT_ENABLE"] = "1"
+      end
+
+      if !pre_steps.empty?
+        env["PRE_STEPS"] = pre_steps.join(" && ")
+      end
+      command = "rake #{rake_task}"
+
+      timeout = 30
+
+      group =
+        if rake_task.include?("isolated")
+          "isolated"
+        else
+          ruby || default_ruby
+        end
+
+      if rails_version < Gem::Version.new("5.x")
+        env["MYSQL_IMAGE"] = "mysql:5.6"
+      elsif rails_version < Gem::Version.new("6.x")
+        env["MYSQL_IMAGE"] = "mysql:5.7"
+      end
+
+      if rails_version < Gem::Version.new("5.2.x")
+        env["POSTGRES_IMAGE"] = "postgres:9.6-alpine"
+      end
+
+      hash = {
+        "label" => label,
+        "depends_on" => "docker-image-#{ruby_image(ruby || default_ruby).gsub(/\W/, "-")}",
+        "command" => command,
+        "group" => group,
+        "plugins" => [
+          {
+            ARTIFACTS_PLUGIN => {
+              "download" => [".buildkite/*", ".buildkite/**/*"],
+            },
+          },
+          {
+            DOCKER_COMPOSE_PLUGIN => {
+              "env" => [
+                "PRE_STEPS",
+                "RACK"
+              ],
+              "run" => service,
+              "pull" => service,
+              "config" => ".buildkite/docker-compose.yml",
+              "shell" => ["runner", subdirectory],
+            },
+          },
+        ],
+        "env" => env,
+        "timeout_in_minutes" => timeout,
+        "soft_fail" => soft_fail.include?(ruby),
+        "agents" => { "queue" => run_queue },
+        "artifact_paths" => ["test-reports/*/*.xml"],
+        "retry" => { "automatic" => { "exit_status" => -1, "limit" => 2 } },
+      }
+
+      yield hash if block_given?
+
+      self.steps << hash
     end
 
     private
@@ -100,6 +192,12 @@ module Buildkite::Config
 
     def mangle_name(name)
       name.tr("^A-Za-z0-9", "-")
+    end
+
+    def yjit?(ruby)
+      return false unless ruby
+
+      ruby.start_with?("yjit:")
     end
   end
 end

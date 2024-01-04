@@ -9,9 +9,6 @@ require_relative "lib/buildkite_config"
 
 config = Buildkite::Config::Generate.new(ARGV.shift || File.expand_path("../..", __FILE__))
 
-DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
-ARTIFACTS_PLUGIN = "artifacts#v1.2.0"
-
 config.root.join("rails.gemspec").read =~ /required_ruby_version[^0-9]+([0-9]+\.[0-9]+)/
 RUBY_MINORS = %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2 3.3).map { |v| Gem::Version.new(v) }
 MIN_RUBY = Gem::Version.new($1 || "2.0")
@@ -42,98 +39,20 @@ RUBY_MINORS.select { |v| v >= MIN_RUBY }.each do |v|
   end
 end
 
-ONE_RUBY = RUBIES.last || SOFT_FAIL.last
+config.default_ruby = RUBIES.last || SOFT_FAIL.last
 
 # Run steps for newer Rubies first.
 RUBIES.reverse!
 SOFT_FAIL.reverse!
 
+config.soft_fail = SOFT_FAIL
+
 # Run soft-failing Ruby steps last.
-RUBIES.concat SOFT_FAIL
-
-def step_for(config, subdirectory, rake_task, ruby: nil, service: "default", pre_steps: [])
-  return unless config.root.join(subdirectory).exist?
-
-  label = +"#{subdirectory} #{rake_task.sub(/[:_]test|test:/, "")}"
-  label.sub!(/ test/, "")
-  if ruby
-    label << " (#{config.short_ruby(ruby)})"
-  end
-
-  if rake_task.start_with?("mysql2:") || (config.rails_version >= Gem::Version.new("7.1.0.alpha") && rake_task.start_with?("trilogy:"))
-    rake_task = "db:mysql:rebuild #{rake_task}"
-  elsif rake_task.start_with?("postgresql:")
-    rake_task = "db:postgresql:rebuild #{rake_task}"
-  end
-
-  env = {
-    "IMAGE_NAME" => config.image_name_for(ruby || ONE_RUBY),
-  }
-
-  if !pre_steps.empty?
-    env["PRE_STEPS"] = pre_steps.join(" && ")
-  end
-  command = "rake #{rake_task}"
-
-  timeout = 30
-
-  group =
-    if rake_task.include?("isolated")
-      "isolated"
-    else
-      ruby || ONE_RUBY
-    end
-
-  if config.rails_version < Gem::Version.new("5.x")
-    env["MYSQL_IMAGE"] = "mysql:5.6"
-  elsif config.rails_version < Gem::Version.new("6.x")
-    env["MYSQL_IMAGE"] = "mysql:5.7"
-  end
-
-  if config.rails_version < Gem::Version.new("5.2.x")
-    env["POSTGRES_IMAGE"] = "postgres:9.6-alpine"
-  end
-
-  hash = {
-    "label" => label,
-    "depends_on" => "docker-image-#{config.ruby_image(ruby || ONE_RUBY).gsub(/\W/, "-")}",
-    "command" => command,
-    "group" => group,
-    "plugins" => [
-      {
-        ARTIFACTS_PLUGIN => {
-          "download" => [".buildkite/*", ".buildkite/**/*"],
-        },
-      },
-      {
-        DOCKER_COMPOSE_PLUGIN => {
-          "env" => [
-            "PRE_STEPS",
-            "RACK"
-          ],
-          "run" => service,
-          "pull" => service,
-          "config" => ".buildkite/docker-compose.yml",
-          "shell" => ["runner", subdirectory],
-        },
-      },
-    ],
-    "env" => env,
-    "timeout_in_minutes" => timeout,
-    "soft_fail" => SOFT_FAIL.include?(ruby),
-    "agents" => { "queue" => config.run_queue },
-    "artifact_paths" => ["test-reports/*/*.xml"],
-    "retry" => { "automatic" => { "exit_status" => -1, "limit" => 2 } },
-  }
-
-  yield hash if block_given?
-
-  config.steps << hash
-end
+RUBIES.concat config.soft_fail
 
 def steps_for(config, subdirectory, rake_task, service: "default", pre_steps: [], &block)
   RUBIES.each do |ruby|
-    step_for(config, subdirectory, rake_task, ruby: ruby, service: service, pre_steps: pre_steps, &block)
+    config.add_step_for(subdirectory, rake_task, ruby: ruby, service: service, pre_steps: pre_steps, &block)
   end
 end
 
@@ -158,16 +77,16 @@ end
   next unless config.mainline?
 
   if dir == "activerecord"
-    step_for(config, dir, task.sub(":test", ":isolated_test"), service: service) do |x|
+    config.add_step_for(dir, task.sub(":test", ":isolated_test"), service: service) do |x|
       x["parallelism"] = 5 if config.root.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
     end
   elsif dir == "actiontext"
     # added during 7.1 development on main
     if config.root.join("actiontext/Rakefile").read.include?("task :isolated")
-      step_for(config, dir, "#{task}:isolated", service: service)
+      config.add_step_for(dir, "#{task}:isolated", service: service)
     end
   else
-    step_for(config, dir, "#{task}:isolated", service: service)
+    config.add_step_for(dir, "#{task}:isolated", service: service)
   end
 end
 
@@ -185,26 +104,26 @@ end
 steps_for(config, "actioncable", "test", service: "postgresdb", pre_steps: ["cd ./activerecord", "bundle exec rake db:postgresql:rebuild", "cd -"])
 
 if config.rails_version >= Gem::Version.new("5.1.x")
-  step_for(config, "activerecord", "sqlite3_mem:test", service: "default")
+  config.add_step_for("activerecord", "sqlite3_mem:test", service: "default")
 end
 if config.rails_version >= Gem::Version.new("6.1.x")
-  step_for(config, "activerecord", "mysql2:test", service: "mysqldb") do |x|
+  config.add_step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
     x["label"] += " [prepared_statements]"
     x["env"]["MYSQL_PREPARED_STATEMENTS"] = "true"
   end
 end
-step_for(config, "activerecord", "mysql2:test", service: "mysqldb") do |x|
+config.add_step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
   x["label"] += " [mysql_5_7]"
   x["env"]["MYSQL_IMAGE"] = "mysql:5.7"
 end
 if config.rails_version >= Gem::Version.new("7.1.0.alpha")
-  step_for(config, "activerecord", "trilogy:test", service: "mysqldb") do |x|
+  config.add_step_for("activerecord", "trilogy:test", service: "mysqldb") do |x|
     x["label"] += " [mysql_5_7]"
     x["env"]["MYSQL_IMAGE"] = "mysql:5.7"
   end
 end
 if config.rails_version >= Gem::Version.new("5.x")
-  step_for(config, "activerecord", "mysql2:test", service: "mysqldb") do |x|
+  config.add_step_for("activerecord", "mysql2:test", service: "mysqldb") do |x|
     x["label"] += " [mariadb]"
     x["env"]["MYSQL_IMAGE"] =
       if config.rails_version < Gem::Version.new("6.x")
@@ -215,7 +134,7 @@ if config.rails_version >= Gem::Version.new("5.x")
   end
 end
 if config.rails_version >= Gem::Version.new("7.1.0.alpha")
-  step_for(config, "activerecord", "trilogy:test", service: "mysqldb") do |x|
+  config.add_step_for("activerecord", "trilogy:test", service: "mysqldb") do |x|
     x["label"] += " [mariadb]"
     x["env"]["MYSQL_IMAGE"] = "mariadb:latest"
   end
@@ -228,7 +147,7 @@ steps_for(config, "actioncable", "test:integration", service: "default") do |x|
   end
 end
 if config.root.join("actionview/Rakefile").read.include?("task :ujs")
-  step_for(config, "actionview", "test:ujs", service: "actionview") do |x|
+  config.add_step_for("actionview", "test:ujs", service: "actionview") do |x|
     x["retry"] = { "automatic" => { "limit" => 3 } }
   end
 end
@@ -241,24 +160,24 @@ steps_for(config, "railties", "test", service: "railties") do |x|
   x["parallelism"] = 12 if config.root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
 end
 
-step_for(config, "actionpack", "test", service: "default", pre_steps: ["bundle install"]) do |x|
+config.add_step_for("actionpack", "test", service: "default", pre_steps: ["bundle install"]) do |x|
   x["label"] += " [rack-2]"
   x["env"]["RACK"] = "~> 2.0"
 end
 
-step_for(config, "railties", "test", service: "railties", pre_steps: ["bundle install"]) do |x|
+config.add_step_for("railties", "test", service: "railties", pre_steps: ["bundle install"]) do |x|
   x["parallelism"] = 12 if config.root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
   x["label"] += " [rack-2]"
   x["env"]["RACK"] = "~> 2.0"
 end
 
-step_for(config, "actionpack", "test", service: "default", pre_steps: ["rm Gemfile.lock", "bundle install"]) do |x|
+config.add_step_for("actionpack", "test", service: "default", pre_steps: ["rm Gemfile.lock", "bundle install"]) do |x|
   x["label"] += " [rack-head]"
   x["env"]["RACK"] = "head"
   x["soft_fail"] = true
 end
 
-step_for(config, "railties", "test", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"]) do |x|
+config.add_step_for("railties", "test", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"]) do |x|
   x["parallelism"] = 12 if config.root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
   x["label"] += " [rack-head]"
   x["env"]["RACK"] = "head"
@@ -304,12 +223,12 @@ puts YAML.dump("steps" => [
           "key" => "docker-image-#{ruby.gsub(/\W/, "-")}",
           "plugins" => [
             {
-              ARTIFACTS_PLUGIN => {
+              Buildkite::Config::Generate::ARTIFACTS_PLUGIN => {
                 "download" => [".dockerignore", ".buildkite/*", ".buildkite/**/*"],
               },
             },
             {
-              DOCKER_COMPOSE_PLUGIN => {
+              Buildkite::Config::Generate::DOCKER_COMPOSE_PLUGIN => {
                 "build" => "base",
                 "config" => ".buildkite/docker-compose.yml",
                 "env" => [
@@ -341,7 +260,7 @@ puts YAML.dump("steps" => [
             "encrypted_0fb9444d0374_iv" => nil,
           },
           "timeout_in_minutes" => 15,
-          "soft_fail" => SOFT_FAIL.include?(ruby),
+          "soft_fail" => config.soft_fail.include?(ruby),
           "agents" => { "queue" => config.build_queue },
         }
       end,
