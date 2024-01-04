@@ -51,6 +51,18 @@ module Buildkite::Config
       end
     end
 
+    def image_name_for(ruby, suffix = nil, short: false)
+      ruby = ruby_image(ruby)
+
+      tag = "#{mangle_name(ruby)}-#{suffix || build_id}"
+
+      if short
+        tag
+      else
+        "#{image_base}:#{tag}"
+      end
+    end
+
     private
 
     def setup_queue

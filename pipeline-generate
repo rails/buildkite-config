@@ -53,18 +53,6 @@ RUBIES.concat SOFT_FAIL
 
 STEPS = []
 
-def image_name_for(config, ruby, suffix = nil, short: false)
-  ruby = ruby_image(ruby)
-
-  tag = "#{mangle_name(ruby)}-#{suffix || config.build_id}"
-
-  if short
-    tag
-  else
-    "#{config.image_base}:#{tag}"
-  end
-end
-
 def mangle_name(name)
   name.tr("^A-Za-z0-9", "-")
 end
@@ -97,7 +85,7 @@ def step_for(config, subdirectory, rake_task, ruby: nil, service: "default", pre
   end
 
   env = {
-    "IMAGE_NAME" => image_name_for(config, ruby || ONE_RUBY),
+    "IMAGE_NAME" => config.image_name_for(ruby || ONE_RUBY),
   }
 
   if !pre_steps.empty?
@@ -346,18 +334,18 @@ puts YAML.dump("steps" => [
                   "PRE_STEPS",
                   "RACK"
                 ],
-                "image-name" => image_name_for(config, ruby, short: true),
+                "image-name" => config.image_name_for(ruby, short: true),
                 "cache-from" => [
-                  config.rebuild_id && "base:" + image_name_for(config, ruby, config.rebuild_id),
-                  config.pull_request && "base:" + image_name_for(config, ruby, "pr-#{config.pull_request}"),
-                  config.local_branch && config.local_branch !~ /:/ && "base:" + image_name_for(config, ruby, "br-#{config.local_branch}"),
-                  config.base_branch && "base:" + image_name_for(config, ruby, "br-#{config.base_branch}"),
-                  "base:" + image_name_for(config, ruby, "br-main"),
+                  config.rebuild_id && "base:" + config.image_name_for(ruby, config.rebuild_id),
+                  config.pull_request && "base:" + config.image_name_for(ruby, "pr-#{config.pull_request}"),
+                  config.local_branch && config.local_branch !~ /:/ && "base:" + config.image_name_for(ruby, "br-#{config.local_branch}"),
+                  config.base_branch && "base:" + config.image_name_for(ruby, "br-#{config.base_branch}"),
+                  "base:" + config.image_name_for(ruby, "br-main"),
                 ].grep(String).uniq,
                 "push" => [
                   config.local_branch =~ /:/ ?
-                  "base:" + image_name_for(config, ruby, "pr-#{config.pull_request}") :
-                  "base:" + image_name_for(config, ruby, "br-#{config.local_branch}"),
+                  "base:" + config.image_name_for(ruby, "pr-#{config.pull_request}") :
+                  "base:" + config.image_name_for(ruby, "br-#{config.local_branch}"),
                 ],
                 "image-repository" => config.image_base,
               },
