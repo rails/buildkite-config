@@ -24,6 +24,10 @@ module Buildkite::Config
       @rebuild_id = ([ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]] - [""]).first
     end
 
+    def mainline?
+      local_branch == "main" || local_branch =~ /\A[0-9-]+(?:-stable)?\z/
+    end
+
     private
 
     def setup_queue

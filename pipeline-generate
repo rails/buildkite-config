@@ -9,8 +9,6 @@ require_relative "lib/buildkite_config"
 
 config = Buildkite::Config::Generate.new
 
-MAINLINE = config.local_branch == "main" || config.local_branch =~ /\A[0-9-]+(?:-stable)?\z/
-
 DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
 ARTIFACTS_PLUGIN = "artifacts#v1.2.0"
 
@@ -205,7 +203,7 @@ end
 
   steps_for(config, dir, task, service: service)
 
-  next unless MAINLINE
+  next unless config.mainline?
 
   if dir == "activerecord"
     step_for(config, dir, task.sub(":test", ":isolated_test"), service: service) do |x|
