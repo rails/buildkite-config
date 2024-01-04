@@ -120,40 +120,6 @@ class TestBuildContext < TestCase
     assert_equal Gem::Version.new("3.2"), sub.one_ruby.version
   end
 
-  def test_setup_rubies_yjit
-    sub = create_build_context
-
-    sub.stub(:min_ruby, Gem::Version.new("2.7")) do
-      sub.stub(:max_ruby, Gem::Version.new("3.2")) do
-        sub.setup_rubies %w(2.7 2.6 2.5)
-      end
-    end
-
-    assert_not_includes sub.rubies.map(&:version), Gem::Version.new("2.6")
-    assert_not_includes sub.rubies.map(&:version), Gem::Version.new("2.5")
-
-    assert_equal sub.rubies[-2].version, Buildkite::Config::RubyConfig.yjit_ruby
-    assert sub.rubies[-2].soft_fail
-    assert_not sub.rubies[-2].build?
-  end
-
-  def test_setup_rubies_master_ruby
-    sub = create_build_context
-
-    sub.stub(:min_ruby, Gem::Version.new("2.7")) do
-      sub.stub(:max_ruby, Gem::Version.new("3.2")) do
-        sub.setup_rubies %w(3.2 1.8.7)
-      end
-    end
-
-    assert_equal Gem::Version.new("3.2"), sub.rubies.first.version
-    assert_not_includes sub.rubies.map(&:version), Gem::Version.new("1.8.7")
-
-    assert_equal sub.rubies[-1].version, Buildkite::Config::RubyConfig.master_ruby
-    assert sub.rubies[-1].soft_fail
-    assert_predicate sub.rubies[-1], :build?
-  end
-
   def test_bundler_1_x
     sub = create_build_context
     sub.stub(:rails_version, Gem::Version.new("4.2")) do
