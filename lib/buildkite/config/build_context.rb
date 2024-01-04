@@ -25,7 +25,7 @@ module Buildkite::Config
       Gem::Version.new(rails_version_file)
     end
 
-    def one_ruby
+    def default_ruby
       rubies.select { |r| !r.soft_fail? }.first
     end
 

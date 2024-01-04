@@ -75,7 +75,7 @@ class TestBuildContext < TestCase
     end
   end
 
-  def test_one_ruby
+  def test_default
     sub = create_build_context
     rubies = [
       Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"), soft_fail: true),
@@ -84,7 +84,7 @@ class TestBuildContext < TestCase
     ]
 
     sub.stub(:rubies, rubies) do
-      assert_equal sub.one_ruby, rubies[1]
+      assert_equal sub.default_ruby, rubies[1]
     end
   end
 
@@ -101,10 +101,10 @@ class TestBuildContext < TestCase
 
     assert_equal sub.rubies.first.version, expected.version
     assert_equal sub.rubies.first.prefix, expected.prefix
-    assert_equal sub.one_ruby.version, Gem::Version.new("3.2")
+    assert_equal sub.default_ruby.version, Gem::Version.new("3.2")
   end
 
-  def test_setup_rubies_one_ruby
+  def test_setup_rubies_default_ruby
     sub = create_build_context
 
     sub.stub(:min_ruby, Gem::Version.new("2.7")) do
@@ -117,7 +117,7 @@ class TestBuildContext < TestCase
 
     assert_equal sub.rubies.first.version, expected.version
     assert_equal sub.rubies.first.prefix, expected.prefix
-    assert_equal Gem::Version.new("3.2"), sub.one_ruby.version
+    assert_equal Gem::Version.new("3.2"), sub.default_ruby.version
   end
 
   def test_bundler_1_x

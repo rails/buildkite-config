@@ -36,7 +36,7 @@ Buildkite::Builder.pipeline do
       rake "actionmailer"
       rake "actionpack"
 
-      if ruby == build_context.one_ruby
+      if ruby == build_context.default_ruby
         rake "actionpack", pre_steps: ["bundle install"] do |attrs, _|
           label "#{attrs["label"]} [rack-2]"
           env["RACK"] = "~> 2.0"
@@ -55,7 +55,7 @@ Buildkite::Builder.pipeline do
 
       rake "activerecord", "mysql2:test", service: "mysqldb"
 
-      if ruby == build_context.one_ruby
+      if ruby == build_context.default_ruby
         if build_context.rails_version >= Gem::Version.new("5.x")
           rake "activerecord", "mysql2:test", service: "mysqldb" do |attrs, build_context|
             label "#{attrs["label"]} [mariadb]"
@@ -84,14 +84,14 @@ Buildkite::Builder.pipeline do
       rake "activerecord", "postgresql:test", service: "postgresdb"
       rake "activerecord", "sqlite3:test"
 
-      if ruby == build_context.one_ruby && build_context.rails_version >= Gem::Version.new("5.1.x")
+      if ruby == build_context.default_ruby && build_context.rails_version >= Gem::Version.new("5.1.x")
         rake "activerecord", "sqlite3_mem:test"
       end
 
       if build_context.rails_version >= Gem::Version.new("7.1.0.alpha")
         rake "activerecord", "trilogy:test", service: "mysqldb"
 
-        if ruby == build_context.one_ruby
+        if ruby == build_context.default_ruby
           rake "activerecord", "trilogy:test", service: "mysqldb" do |attrs, _|
             label "#{attrs["label"]} [mariadb]"
             env["MYSQL_IMAGE"] = "mariadb:latest"
@@ -112,7 +112,7 @@ Buildkite::Builder.pipeline do
         parallelism 12 if build_context.rails_root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
       end
 
-      if ruby == build_context.one_ruby
+      if ruby == build_context.default_ruby
         rake "railties", service: "railties", pre_steps: ["bundle install"] do |attrs, build_context|
           parallelism 12 if build_context.rails_root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
           label "#{attrs["label"]} [rack-2]"
@@ -137,7 +137,7 @@ Buildkite::Builder.pipeline do
         end
       end
 
-      if ruby == build_context.one_ruby
+      if ruby == build_context.default_ruby
         if build_context.rails_root.join("actionview/Rakefile").read.include?("task :ujs")
           rake "actionview", "test:ujs", service: "actionview" do |attrs, _|
             attrs["retry"] = nil
@@ -155,7 +155,7 @@ Buildkite::Builder.pipeline do
   end
 
   # Isolated tests
-  ruby_group config: build_context.one_ruby do
+  ruby_group config: build_context.default_ruby do
     label "isolated"
 
     %w(
