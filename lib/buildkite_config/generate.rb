@@ -56,61 +56,7 @@ module Buildkite::Config
         { "group" => group, "steps" => steps }
       end
 
-      YAML.dump("steps" => [
-        {
-          "group" => "build",
-          "steps" => [
-            *(rubies - ignored_rubies).map do |ruby|
-              {
-                "label" => ":docker: #{ruby}",
-                "key" => "docker-image-#{ruby.gsub(/\W/, "-")}",
-                "plugins" => [
-                  {
-                    Buildkite::Config::Generate::ARTIFACTS_PLUGIN => {
-                      "download" => [".dockerignore", ".buildkite/*", ".buildkite/**/*"],
-                    },
-                  },
-                  {
-                    Buildkite::Config::Generate::DOCKER_COMPOSE_PLUGIN => {
-                      "build" => "base",
-                      "config" => ".buildkite/docker-compose.yml",
-                      "env" => [
-                        "PRE_STEPS",
-                        "RACK"
-                      ],
-                      "image-name" => image_name_for(ruby, short: true),
-                      "cache-from" => [
-                        rebuild_id && "base:" + image_name_for(ruby, rebuild_id),
-                        pull_request && "base:" + image_name_for(ruby, "pr-#{pull_request}"),
-                        local_branch && local_branch !~ /:/ && "base:" + image_name_for(ruby, "br-#{local_branch}"),
-                        base_branch && "base:" + image_name_for(ruby, "br-#{base_branch}"),
-                        "base:" + image_name_for(ruby, "br-main"),
-                      ].grep(String).uniq,
-                      "push" => [
-                        local_branch =~ /:/ ?
-                        "base:" + image_name_for(ruby, "pr-#{pull_request}") :
-                        "base:" + image_name_for(ruby, "br-#{local_branch}"),
-                      ],
-                      "image-repository" => image_base,
-                    },
-                  },
-                ],
-                "env" => {
-                  "BUNDLER" => bundler,
-                  "RUBYGEMS" => rubygems,
-                  "RUBY_IMAGE" => ruby_image(ruby),
-                  "encrypted_0fb9444d0374_key" => nil,
-                  "encrypted_0fb9444d0374_iv" => nil,
-                },
-                "timeout_in_minutes" => 15,
-                "soft_fail" => soft_fail.include?(ruby),
-                "agents" => { "queue" => build_queue },
-              }
-            end,
-          ],
-        },
-        *groups,
-      ])
+      dump(groups)
     end
 
     private
@@ -454,6 +400,64 @@ module Buildkite::Config
 
     def railties_parallel?
       root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+    end
+
+    def dump(groups)
+      YAML.dump("steps" => [
+        {
+          "group" => "build",
+          "steps" => [
+            *(rubies - ignored_rubies).map do |ruby|
+              {
+                "label" => ":docker: #{ruby}",
+                "key" => "docker-image-#{ruby.gsub(/\W/, "-")}",
+                "plugins" => [
+                  {
+                    ARTIFACTS_PLUGIN => {
+                      "download" => [".dockerignore", ".buildkite/*", ".buildkite/**/*"],
+                    },
+                  },
+                  {
+                    DOCKER_COMPOSE_PLUGIN => {
+                      "build" => "base",
+                      "config" => ".buildkite/docker-compose.yml",
+                      "env" => [
+                        "PRE_STEPS",
+                        "RACK"
+                      ],
+                      "image-name" => image_name_for(ruby, short: true),
+                      "cache-from" => [
+                        rebuild_id && "base:" + image_name_for(ruby, rebuild_id),
+                        pull_request && "base:" + image_name_for(ruby, "pr-#{pull_request}"),
+                        local_branch && local_branch !~ /:/ && "base:" + image_name_for(ruby, "br-#{local_branch}"),
+                        base_branch && "base:" + image_name_for(ruby, "br-#{base_branch}"),
+                        "base:" + image_name_for(ruby, "br-main"),
+                      ].grep(String).uniq,
+                      "push" => [
+                        local_branch =~ /:/ ?
+                        "base:" + image_name_for(ruby, "pr-#{pull_request}") :
+                        "base:" + image_name_for(ruby, "br-#{local_branch}"),
+                      ],
+                      "image-repository" => image_base,
+                    },
+                  },
+                ],
+                "env" => {
+                  "BUNDLER" => bundler,
+                  "RUBYGEMS" => rubygems,
+                  "RUBY_IMAGE" => ruby_image(ruby),
+                  "encrypted_0fb9444d0374_key" => nil,
+                  "encrypted_0fb9444d0374_iv" => nil,
+                },
+                "timeout_in_minutes" => 15,
+                "soft_fail" => soft_fail.include?(ruby),
+                "agents" => { "queue" => build_queue },
+              }
+            end,
+          ],
+        },
+        *groups,
+      ])
     end
   end
 end
