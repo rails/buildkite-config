@@ -3,7 +3,8 @@
 require "minitest/autorun"
 require "buildkite-builder"
 
-require "active_support/all"
+require "active_support"
+require "active_support/test_case"
 
 BUILDKITE_CONFIG_ROOT = Pathname.new(File.expand_path("../..", __dir__))
 
