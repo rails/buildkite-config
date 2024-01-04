@@ -12,16 +12,15 @@ config = Buildkite::Config::Generate.new(ARGV.shift || File.expand_path("../..",
 DOCKER_COMPOSE_PLUGIN = "docker-compose#v3.7.0"
 ARTIFACTS_PLUGIN = "artifacts#v1.2.0"
 
-RAILS_VERSION = Gem::Version.new(File.read(config.root.join("RAILS_VERSION")))
 BUNDLER =
-  case RAILS_VERSION
+  case config.rails_version
   when Gem::Requirement.new("< 5.0")
     "< 2"
   when Gem::Requirement.new("< 6.1")
     "< 2.2.10"
   end
 RUBYGEMS =
-  case RAILS_VERSION
+  case config.rails_version
   when Gem::Requirement.new("< 5.0")
     "2.6.13"
   when Gem::Requirement.new("< 6.1")
@@ -97,7 +96,7 @@ def step_for(config, subdirectory, rake_task, ruby: nil, service: "default", pre
     label << " (#{short_ruby(ruby)})"
   end
 
-  if rake_task.start_with?("mysql2:") || (RAILS_VERSION >= Gem::Version.new("7.1.0.alpha") && rake_task.start_with?("trilogy:"))
+  if rake_task.start_with?("mysql2:") || (config.rails_version >= Gem::Version.new("7.1.0.alpha") && rake_task.start_with?("trilogy:"))
     rake_task = "db:mysql:rebuild #{rake_task}"
   elsif rake_task.start_with?("postgresql:")
     rake_task = "db:postgresql:rebuild #{rake_task}"
@@ -127,13 +126,13 @@ def step_for(config, subdirectory, rake_task, ruby: nil, service: "default", pre
       ruby || ONE_RUBY
     end
 
-  if RAILS_VERSION < Gem::Version.new("5.x")
+  if config.rails_version < Gem::Version.new("5.x")
     env["MYSQL_IMAGE"] = "mysql:5.6"
-  elsif RAILS_VERSION < Gem::Version.new("6.x")
+  elsif config.rails_version < Gem::Version.new("6.x")
     env["MYSQL_IMAGE"] = "mysql:5.7"
   end
 
-  if RAILS_VERSION < Gem::Version.new("5.2.x")
+  if config.rails_version < Gem::Version.new("5.2.x")
     env["POSTGRES_IMAGE"] = "postgres:9.6-alpine"
   end
 
@@ -194,7 +193,7 @@ end
   activerecord    postgresql:test     postgresdb
   activerecord    sqlite3:test        default
 ).each_slice(3) do |dir, task, service|
-  next if RAILS_VERSION < Gem::Version.new("7.1.0.alpha") && task == "trilogy:test"
+  next if config.rails_version < Gem::Version.new("7.1.0.alpha") && task == "trilogy:test"
 
   steps_for(config, dir, task, service: service)
 
@@ -227,10 +226,10 @@ end
 
 steps_for(config, "actioncable", "test", service: "postgresdb", pre_steps: ["cd ./activerecord", "bundle exec rake db:postgresql:rebuild", "cd -"])
 
-if RAILS_VERSION >= Gem::Version.new("5.1.x")
+if config.rails_version >= Gem::Version.new("5.1.x")
   step_for(config, "activerecord", "sqlite3_mem:test", service: "default")
 end
-if RAILS_VERSION >= Gem::Version.new("6.1.x")
+if config.rails_version >= Gem::Version.new("6.1.x")
   step_for(config, "activerecord", "mysql2:test", service: "mysqldb") do |x|
     x["label"] += " [prepared_statements]"
     x["env"]["MYSQL_PREPARED_STATEMENTS"] = "true"
@@ -240,31 +239,31 @@ step_for(config, "activerecord", "mysql2:test", service: "mysqldb") do |x|
   x["label"] += " [mysql_5_7]"
   x["env"]["MYSQL_IMAGE"] = "mysql:5.7"
 end
-if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
+if config.rails_version >= Gem::Version.new("7.1.0.alpha")
   step_for(config, "activerecord", "trilogy:test", service: "mysqldb") do |x|
     x["label"] += " [mysql_5_7]"
     x["env"]["MYSQL_IMAGE"] = "mysql:5.7"
   end
 end
-if RAILS_VERSION >= Gem::Version.new("5.x")
+if config.rails_version >= Gem::Version.new("5.x")
   step_for(config, "activerecord", "mysql2:test", service: "mysqldb") do |x|
     x["label"] += " [mariadb]"
     x["env"]["MYSQL_IMAGE"] =
-      if RAILS_VERSION < Gem::Version.new("6.x")
+      if config.rails_version < Gem::Version.new("6.x")
         "mariadb:10.2"
       else
         "mariadb:latest"
       end
   end
 end
-if RAILS_VERSION >= Gem::Version.new("7.1.0.alpha")
+if config.rails_version >= Gem::Version.new("7.1.0.alpha")
   step_for(config, "activerecord", "trilogy:test", service: "mysqldb") do |x|
     x["label"] += " [mariadb]"
     x["env"]["MYSQL_IMAGE"] = "mariadb:latest"
   end
 end
 steps_for(config, "actioncable", "test:integration", service: "default") do |x|
-  if RAILS_VERSION < Gem::Version.new("6.x")
+  if config.rails_version < Gem::Version.new("6.x")
     x["soft_fail"] = true
   else
     x["retry"] = { "automatic" => { "limit" => 3 } }
@@ -278,7 +277,7 @@ end
 steps_for(config, "activejob", "test:integration", service: "activejob") do |x|
   # Enable soft_fail until the problem in queue_classic is solved.
   # https://github.com/rails/rails/pull/37517#issuecomment-545370408
-  x["soft_fail"] = true # if RAILS_VERSION < Gem::Version.new("5.x")
+  x["soft_fail"] = true # if config.rails_version < Gem::Version.new("5.x")
 end
 steps_for(config, "railties", "test", service: "railties") do |x|
   x["parallelism"] = 12 if config.root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
@@ -317,10 +316,10 @@ end
 STEPS.select { |s| s["label"] =~ /^guides/  }.each do |s|
   s["soft_fail"] = true
 end
-if RAILS_VERSION < Gem::Version.new("7.x") && RAILS_VERSION >= Gem::Version.new("6.1")
+if config.rails_version < Gem::Version.new("7.x") && config.rails_version >= Gem::Version.new("6.1")
   STEPS.delete_if { |s| s["label"] == "guides (2.7)" || s["label"] == "guides (3.0)" }
 end
-STEPS.delete_if { |s| s["label"] =~ /^guides/ } if RAILS_VERSION < Gem::Version.new("7.0")
+STEPS.delete_if { |s| s["label"] =~ /^guides/ } if config.rails_version < Gem::Version.new("7.0")
 
 ###
 

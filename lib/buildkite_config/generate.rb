@@ -11,6 +11,7 @@ module Buildkite::Config
     attr_reader :build_id
     attr_reader :rebuild_id
     attr_reader :root
+    attr_reader :rails_version
 
     def initialize(root)
       setup_queue
@@ -25,6 +26,7 @@ module Buildkite::Config
       @pull_request = ([ENV["BUILDKITE_PULL_REQUEST"]] - ["false"]).first
       @build_id = ENV["BUILDKITE_BUILD_ID"]
       @rebuild_id = ([ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]] - [""]).first
+      @rails_version = Gem::Version.new(File.read(@root.join("RAILS_VERSION")))
     end
 
     def mainline?
