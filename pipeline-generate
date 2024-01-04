@@ -7,11 +7,8 @@ require "pathname"
 require "yaml"
 require_relative "lib/buildkite_config"
 
-STANDARD_QUEUES = [nil, "default", "builder"]
-
 config = Buildkite::Config::Generate.new
 
-BUILD_ID = ENV["BUILDKITE_BUILD_ID"]
 REBUILD_ID = ([ENV["BUILDKITE_REBUILT_FROM_BUILD_ID"]] - [""]).first
 
 MAINLINE = config.local_branch == "main" || config.local_branch =~ /\A[0-9-]+(?:-stable)?\z/
@@ -78,10 +75,10 @@ RUBIES.concat SOFT_FAIL
 
 STEPS = []
 
-def image_name_for(config, ruby, suffix = BUILD_ID, short: false)
+def image_name_for(config, ruby, suffix = nil, short: false)
   ruby = ruby_image(ruby)
 
-  tag = "#{mangle_name(ruby)}-#{suffix}"
+  tag = "#{mangle_name(ruby)}-#{suffix || config.build_id}"
 
   if short
     tag
