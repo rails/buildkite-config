@@ -50,11 +50,7 @@ config.soft_fail = SOFT_FAIL
 # Run soft-failing Ruby steps last.
 RUBIES.concat config.soft_fail
 
-def steps_for(config, subdirectory, rake_task, service: "default", pre_steps: [], &block)
-  RUBIES.each do |ruby|
-    config.add_step_for(subdirectory, rake_task, ruby: ruby, service: service, pre_steps: pre_steps, &block)
-  end
-end
+config.rubies = RUBIES
 
 # GROUP 1: Runs additional isolated tests for non-PR builds
 %w(
@@ -72,7 +68,7 @@ end
 ).each_slice(3) do |dir, task, service|
   next if config.rails_version < Gem::Version.new("7.1.0.alpha") && task == "trilogy:test"
 
-  steps_for(config, dir, task, service: service)
+  config.add_steps_for(dir, task, service: service)
 
   next unless config.mainline?
 
@@ -96,12 +92,12 @@ end
   actionmailbox   test                default
   guides          test                default
 ).each_slice(3) do |dir, task, service|
-  steps_for(config, dir, task, service: service)
+  config.add_steps_for(dir, task, service: service)
 end
 
 # GROUP 3: Special cases
 
-steps_for(config, "actioncable", "test", service: "postgresdb", pre_steps: ["cd ./activerecord", "bundle exec rake db:postgresql:rebuild", "cd -"])
+config.add_steps_for("actioncable", "test", service: "postgresdb", pre_steps: ["cd ./activerecord", "bundle exec rake db:postgresql:rebuild", "cd -"])
 
 if config.rails_version >= Gem::Version.new("5.1.x")
   config.add_step_for("activerecord", "sqlite3_mem:test", service: "default")
@@ -139,7 +135,7 @@ if config.rails_version >= Gem::Version.new("7.1.0.alpha")
     x["env"]["MYSQL_IMAGE"] = "mariadb:latest"
   end
 end
-steps_for(config, "actioncable", "test:integration", service: "default") do |x|
+config.add_steps_for("actioncable", "test:integration", service: "default") do |x|
   if config.rails_version < Gem::Version.new("6.x")
     x["soft_fail"] = true
   else
@@ -151,12 +147,12 @@ if config.root.join("actionview/Rakefile").read.include?("task :ujs")
     x["retry"] = { "automatic" => { "limit" => 3 } }
   end
 end
-steps_for(config, "activejob", "test:integration", service: "activejob") do |x|
+config.add_steps_for("activejob", "test:integration", service: "activejob") do |x|
   # Enable soft_fail until the problem in queue_classic is solved.
   # https://github.com/rails/rails/pull/37517#issuecomment-545370408
   x["soft_fail"] = true # if config.rails_version < Gem::Version.new("5.x")
 end
-steps_for(config, "railties", "test", service: "railties") do |x|
+config.add_steps_for("railties", "test", service: "railties") do |x|
   x["parallelism"] = 12 if config.root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
 end
 
@@ -217,7 +213,7 @@ puts YAML.dump("steps" => [
   {
     "group" => "build",
     "steps" => [
-      *(RUBIES).map do |ruby|
+      *(config.rubies).map do |ruby|
         {
           "label" => ":docker: #{ruby}",
           "key" => "docker-image-#{ruby.gsub(/\W/, "-")}",

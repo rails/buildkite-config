@@ -18,6 +18,7 @@ module Buildkite::Config
 
     attr_accessor :default_ruby
     attr_accessor :soft_fail
+    attr_accessor :rubies
 
     def initialize(root)
       setup_queue
@@ -79,6 +80,12 @@ module Buildkite::Config
         ruby.sub("yjit:", "")
       else
         ruby
+      end
+    end
+
+    def add_steps_for(subdirectory, rake_task, service: "default", pre_steps: [], &block)
+      rubies.each do |ruby|
+        add_step_for(subdirectory, rake_task, ruby: ruby, service: service, pre_steps: pre_steps, &block)
       end
     end
 
