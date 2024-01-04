@@ -9,8 +9,10 @@ else
   Buildkite::Builder.root
 end
 
+$LOAD_PATH.unshift(BUILDKITE_ROOT_DIR.join("lib").to_s)
+
 Buildkite::Builder.pipeline do
-  require_relative "#{BUILDKITE_ROOT_DIR}/lib/buildkite_config"
+  require "buildkite_config"
 
   use Buildkite::Config::BuildContext
   use Buildkite::Config::DockerBuild

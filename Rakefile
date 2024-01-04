@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "lib/buildkite_config"
+$LOAD_PATH.unshift File.expand_path("lib", __dir__)
+require "buildkite_config"
 
 require "minitest/test_task"
 Minitest::TestTask.create
