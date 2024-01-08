@@ -118,6 +118,11 @@ services:
       chrome:
         condition: service_healthy
 
+  actiontext:
+    <<: *default
+    depends_on:
+      - chrome
+
   memcached:
     image: memcached:alpine
     healthcheck:
