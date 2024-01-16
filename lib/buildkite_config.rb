@@ -1,6 +1,18 @@
+# frozen_string_literal: true
+
+require "active_support"
+require "active_support/dependencies/autoload"
+
 module Buildkite
   module Config
-    autoload :Annotate, File.expand_path("buildkite_config/annotate", __dir__)
-    autoload :Diff, File.expand_path("buildkite_config/diff", __dir__)
+    extend ActiveSupport::Autoload
+
+    autoload :Annotate
+    autoload :Diff
+    autoload :DockerBuild
+    autoload :BuildContext
+    autoload :RakeCommand
+    autoload :RubyConfig
+    autoload :RubyGroup
   end
 end

@@ -15,7 +15,7 @@ def update_pipeline(pipeline, configuration)
   resp = client.update_pipeline("rails", pipeline, {
     configuration: configuration
   })
-  puts resp.steps.to_s
+  puts resp.steps
 end
 
 # Update rails/rails

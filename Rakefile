@@ -1,25 +1,18 @@
 # frozen_string_literal: true
 
-require_relative "lib/buildkite_config"
+$LOAD_PATH.unshift File.expand_path("lib", __dir__)
+require "buildkite_config"
 
 require "minitest/test_task"
 Minitest::TestTask.create
 task default: [:test]
 
-task :print_diff, [:nightly] => [:buildkite_config, :rails] do |_, args|
-  args.with_defaults(nightly: false)
-  diff = Buildkite::Config::Diff.compare(nightly: args[:nightly])
-  puts diff.to_s(:color)
-end
-
-task :diff, [:nightly] => [:buildkite_config, :rails] do |_, args|
+task :diff, [:nightly] do |_, args|
   args.with_defaults(nightly: false)
 
   diff = Buildkite::Config::Diff.compare(nightly: args[:nightly])
-  puts diff.to_s(:color)
-
   annotate = Buildkite::Config::Annotate.new(diff, nightly: args[:nightly])
-  annotate.perform
+  puts annotate.plan
 end
 
 task :buildkite_config do

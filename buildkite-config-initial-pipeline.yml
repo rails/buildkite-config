@@ -13,42 +13,90 @@ steps:
       Prefer a second opinion for any nontrivial change, especially outside `pipeline-generate`.
 
       - @matthewd
-  - command: |
-      git config --global --add safe.directory /workdir
-      bundle install
-      bundle exec rake test
-    key: self-test
-    plugins:
-      - docker#v5.8.0:
-          image: "ruby:latest"
-          propagate-environment: true
-  - command: |
-      git config --global --add safe.directory /workdir
-      bundle install
-      bundle exec rake diff
-      bundle exec rake diff[true]
-    key: diff
-    depends_on: self-test
-    plugins:
-      - docker#v5.8.0:
-          image: "ruby:latest"
-          mount-buildkite-agent: true
-          propagate-environment: true
-          environment:
-            - "GITHUB_TOKEN"
+  - group:
+    label: ":pipeline: buildkite-config meta-ci"
+    key: "meta"
+    steps:
+    - command: |
+        git config --global --add safe.directory /workdir
+        bundle install
+        bundle exec rubocop
+      label: ":nail_care: buildkite-config: lint"
+      plugins:
+        - docker#v5.8.0:
+            image: "ruby:latest"
+    - command: |
+        git config --global --add safe.directory /workdir
+        bundle install
+        bundle exec rake test
+      label: ":test_tube: buildkite-config: rake test"
+      plugins:
+        - docker#v5.8.0:
+            image: "ruby:latest"
+            environment:
+              - CI
+              - BUILDKITE
+              - BUILDKITE_BUILD_ID
+              - BUILDKITE_PIPELINE_NAME
+    - command: |
+        git clone --depth=1 https://github.com/rails/buildkite-config tmp/buildkite-config
+        git clone --depth=1 https://github.com/rails/rails tmp/rails
+
+        sh -c "$$ANNOTATE_COMMAND" > tmp/annotate.diff
+
+        if [[ -z $(grep '[^[:space:]]' tmp/annotate.diff) ]]; then
+          echo "annotate.diff is empty"
+        else
+          echo "annotate.diff is not empty"
+          cat tmp/annotate.diff
+          printf '%b\n' "$(cat tmp/annotate.diff)" | buildkite-agent annotate --style info --context config
+        fi
+      label: ":writing_hand: buildkite-config: annotate diff"
+      env:
+        BUNDLE_FROZEN: true
+        ANNOTATE_COMMAND: >-
+          docker run --rm
+          -v "$$PWD":/app:ro -w /app
+          -v "$$PWD/tmp":/app/tmp:rw
+          -e BUNDLE_FROZEN
+          ruby:latest
+          ./pipeline-annotate
+    - command: |
+        git clone --depth=1 https://github.com/rails/buildkite-config tmp/buildkite-config
+        git clone --depth=1 https://github.com/rails/rails tmp/rails
+
+        sh -c "$$ANNOTATE_COMMAND" > tmp/annotate-nightly.diff
+
+        if [[ -z $(grep '[^[:space:]]' tmp/annotate-nightly.diff) ]]; then
+          echo "annotate-nightly.diff is empty"
+        else
+          echo "annotate-nightly.diff is not empty"
+          cat tmp/annotate-nightly.diff
+          printf '%b\n' "$(cat tmp/annotate-nightly.diff)" | buildkite-agent annotate --style info --context nightly
+        fi
+      label: ":writing_hand: buildkite-config: annotate nightly diff"
+      env:
+        BUNDLE_FROZEN: true
+        ANNOTATE_COMMAND: >-
+          docker run --rm
+          -v "$$PWD":/app:ro -w /app
+          -v "$$PWD/tmp":/app/tmp:rw
+          -e BUNDLE_FROZEN
+          ruby:latest
+          ./pipeline-annotate --nightly
   - trigger: "rails-ci"
     label: ":pipeline: Build Rails main with new config"
-    depends_on: diff
+    depends_on: meta
     build:
       message: "[${BUILDKITE_BRANCH}] ${BUILDKITE_MESSAGE}"
       branch: "main"
       env:
-        CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
+        CONFIG_REPO: "${BUILDKITE_REPO}"
         CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
         BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
   - trigger: "rails-ci"
     label: ":pipeline: Build Rails 6-1-stable with new config"
-    depends_on: diff
+    depends_on: meta
     build:
       message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
       branch: "6-1-stable"
@@ -58,7 +106,7 @@ steps:
         BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
   - trigger: "rails-ci-nightly"
     label: ":pipeline: Build Rails main with new nightly config"
-    depends_on: diff
+    depends_on: meta
     build:
       message: "[${BUILDKITE_BRANCH}] ${BUILDKITE_MESSAGE}"
       branch: "main"
@@ -68,11 +116,11 @@ steps:
         BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
   - trigger: "rails-ci-nightly"
     label: ":pipeline: Build Rails 6-1-stable with new nightly config"
-    depends_on: diff
+    depends_on: meta
     build:
       message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
       branch: "6-1-stable"
       env:
-        CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
+        CONFIG_REPO: "${BUILDKITE_REPO}"
         CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
         BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
