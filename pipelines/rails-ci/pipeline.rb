@@ -61,7 +61,7 @@ Buildkite::Builder.pipeline do
 
       if ruby == build_context.default_ruby
         if build_context.rails_version >= Gem::Version.new("5.x")
-          rake "activerecord", "mysql2:test", service: "mysqldb" do |attrs, build_context|
+          rake "activerecord", "mysql2:test", service: "mariadb" do |attrs, build_context|
             label "#{attrs["label"]} [mariadb]"
             env["MYSQL_IMAGE"] =
               if build_context.rails_version < Gem::Version.new("6.x")
@@ -96,7 +96,7 @@ Buildkite::Builder.pipeline do
         rake "activerecord", "trilogy:test", service: "mysqldb"
 
         if ruby == build_context.default_ruby
-          rake "activerecord", "trilogy:test", service: "mysqldb" do |attrs, _|
+          rake "activerecord", "trilogy:test", service: "mariadb" do |attrs, _|
             label "#{attrs["label"]} [mariadb]"
             env["MYSQL_IMAGE"] = "mariadb:latest"
           end
