@@ -14,7 +14,7 @@ module Buildkite::Config
     end
 
     def rails_root
-      if ci? && %w[rails-ci rails-sandbox zzak/rails].include?(pipeline_name)
+      if ci? && %w[rails-ci rails-sandbox zzak/rails Rails].include?(pipeline_name)
         Pathname.pwd
       else
         Pathname.pwd.join("tmp/rails")
