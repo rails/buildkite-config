@@ -8,22 +8,20 @@ module Buildkite::Config
         "rubylang/ruby:master-nightly-jammy"
       end
 
-      # Adds yjit: onto the master ruby image string so we
-      # know when to turn on YJIT via the environment variable.
-      # Same as master ruby, we want this to soft fail.
-      # YJIT_RUBY = "yjit:#{MASTER_RUBY}"
       def yjit_ruby
-        "yjit:#{master_ruby}"
+        # Adds yjit: onto the master ruby image string so we
+        # know when to turn on YJIT via the environment variable.
+        new(version: "yjit:#{master_ruby}", soft_fail: true, yjit: true)
       end
     end
 
     attr_accessor :soft_fail
     attr_reader :version, :yjit, :prefix
-    def initialize(version:, soft_fail: nil, prefix: nil, build: true)
+    def initialize(version:, soft_fail: nil, prefix: nil, yjit: false)
       @prefix = prefix
       @version = version
-      @yjit = @version == RubyConfig.yjit_ruby
-      @build = build
+      @yjit = yjit
+      @build = !yjit
 
       if soft_fail
         @soft_fail = soft_fail
