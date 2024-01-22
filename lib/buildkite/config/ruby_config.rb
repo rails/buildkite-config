@@ -2,16 +2,17 @@
 
 module Buildkite::Config
   class RubyConfig
+    MASTER_RUBY_IMAGE = "rubylang/ruby:master-nightly-jammy"
+
     class << self
-      # MASTER_RUBY = "rubylang/ruby:master-nightly-jammy"
       def master_ruby
-        "rubylang/ruby:master-nightly-jammy"
+        new(version: MASTER_RUBY_IMAGE, soft_fail: true)
       end
 
       def yjit_ruby
         # Adds yjit: onto the master ruby image string so we
         # know when to turn on YJIT via the environment variable.
-        new(version: "yjit:#{master_ruby}", soft_fail: true, yjit: true)
+        new(version: "yjit:#{MASTER_RUBY_IMAGE}", soft_fail: true, yjit: true)
       end
     end
 
@@ -46,7 +47,7 @@ module Buildkite::Config
 
     # A shortened version of the name for the Buildkite label.
     def short_ruby
-      if @version == RubyConfig.master_ruby
+      if @version == RubyConfig::MASTER_RUBY_IMAGE
         "master"
       elsif yjit_enabled?
         "yjit"

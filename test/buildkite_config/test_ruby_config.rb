@@ -5,7 +5,8 @@ require "buildkite_config"
 
 class TestRubyConfig < TestCase
   def test_class_methods
-    assert_equal "rubylang/ruby:master-nightly-jammy", Buildkite::Config::RubyConfig.master_ruby
+    assert_instance_of Buildkite::Config::RubyConfig, Buildkite::Config::RubyConfig.master_ruby
+    assert_equal Buildkite::Config::RubyConfig::MASTER_RUBY_IMAGE, Buildkite::Config::RubyConfig.master_ruby.version
     assert_instance_of Buildkite::Config::RubyConfig, Buildkite::Config::RubyConfig.yjit_ruby
   end
 
@@ -44,7 +45,7 @@ class TestRubyConfig < TestCase
 
   def test_image_name_for_yjit
     sub = Buildkite::Config::RubyConfig.yjit_ruby
-    expected = Buildkite::Config::RubyConfig.master_ruby.gsub(/\W/, "-")
+    expected = Buildkite::Config::RubyConfig::MASTER_RUBY_IMAGE.gsub(/\W/, "-")
     assert_equal "#{expected}-build_id", sub.image_name_for
   end
 
@@ -55,7 +56,7 @@ class TestRubyConfig < TestCase
 
   def test_ruby_image_yjit
     sub = Buildkite::Config::RubyConfig.yjit_ruby
-    assert_equal Buildkite::Config::RubyConfig.master_ruby, sub.ruby_image
+    assert_equal Buildkite::Config::RubyConfig::MASTER_RUBY_IMAGE, sub.ruby_image
   end
 
   def test_ruby_image_prefix
@@ -74,7 +75,7 @@ class TestRubyConfig < TestCase
   end
 
   def test_short_ruby_master
-    sub = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.master_ruby)
+    sub = Buildkite::Config::RubyConfig.master_ruby
     assert_equal "master", sub.short_ruby
   end
 
