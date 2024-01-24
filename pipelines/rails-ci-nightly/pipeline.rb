@@ -26,6 +26,7 @@ Buildkite::Builder.pipeline do
 
   build_context.rubies << Buildkite::Config::RubyConfig.master_ruby
   build_context.rubies << Buildkite::Config::RubyConfig.yjit_ruby
+  build_context.rubies << Buildkite::Config::RubyConfig.master_debug_ruby
   build_context.default_ruby = Buildkite::Config::RubyConfig.master_ruby
 
   group do

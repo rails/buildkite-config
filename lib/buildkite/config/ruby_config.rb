@@ -3,10 +3,15 @@
 module Buildkite::Config
   class RubyConfig
     MASTER_RUBY_IMAGE = "rubylang/ruby:master-nightly-jammy"
+    MASTER_DEBUG_RUBY_IMAGE = "rubylang/ruby:master-debug-nightly-jammy"
 
     class << self
       def master_ruby
         new(version: MASTER_RUBY_IMAGE, soft_fail: true)
+      end
+
+      def master_debug_ruby
+        new(version: MASTER_DEBUG_RUBY_IMAGE, soft_fail: true)
       end
 
       def yjit_ruby
@@ -50,6 +55,8 @@ module Buildkite::Config
     def short_ruby
       if @version == RubyConfig::MASTER_RUBY_IMAGE
         "master"
+      elsif @version == RubyConfig::MASTER_DEBUG_RUBY_IMAGE
+        "master-debug"
       elsif yjit_enabled?
         "yjit"
       else

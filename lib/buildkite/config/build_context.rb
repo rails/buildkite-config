@@ -20,7 +20,7 @@ module Buildkite::Config
     end
 
     def rails_root
-      if ci? && %w[rails-ci rails-ci-nightly rails-sandbox zzak/rails Rails rails-nightly].include?(pipeline_name)
+      if ci? && %w[rails-ci rails-ci-nightly rails-sandbox zzak/rails rails rails-nightly].include?(pipeline_slug)
         Pathname.pwd
       else
         Pathname.pwd.join("tmp/rails")
@@ -111,8 +111,8 @@ module Buildkite::Config
       ENV.has_key?("BUILDKITE") || ENV.has_key?("CI")
     end
 
-    def pipeline_name
-      ENV["BUILDKITE_PIPELINE_NAME"] || "rails-ci"
+    def pipeline_slug
+      ENV["BUILDKITE_PIPELINE_SLUG"] || "rails-ci"
     end
 
     def pull_request

@@ -7,6 +7,9 @@ class TestRubyConfig < TestCase
   def test_class_methods
     assert_instance_of Buildkite::Config::RubyConfig, Buildkite::Config::RubyConfig.master_ruby
     assert_equal Buildkite::Config::RubyConfig::MASTER_RUBY_IMAGE, Buildkite::Config::RubyConfig.master_ruby.version
+    assert_instance_of Buildkite::Config::RubyConfig, Buildkite::Config::RubyConfig.master_debug_ruby
+    assert_equal Buildkite::Config::RubyConfig::MASTER_DEBUG_RUBY_IMAGE, Buildkite::Config::RubyConfig.master_debug_ruby.version
+
     assert_instance_of Buildkite::Config::RubyConfig, Buildkite::Config::RubyConfig.yjit_ruby
   end
 
@@ -83,6 +86,11 @@ class TestRubyConfig < TestCase
   def test_short_ruby_master
     sub = Buildkite::Config::RubyConfig.master_ruby
     assert_equal "master", sub.short_ruby
+  end
+
+  def test_short_ruby_master_debug
+    sub = Buildkite::Config::RubyConfig.master_debug_ruby
+    assert_equal "master-debug", sub.short_ruby
   end
 
   def test_short_ruby_yjit

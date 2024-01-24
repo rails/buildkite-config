@@ -37,7 +37,7 @@ steps:
               - CI
               - BUILDKITE
               - BUILDKITE_BUILD_ID
-              - BUILDKITE_PIPELINE_NAME
+              - BUILDKITE_PIPELINE_SLUG
     - command: |
         git clone --depth=1 https://github.com/rails/buildkite-config tmp/buildkite-config
         git clone --depth=1 https://github.com/rails/rails tmp/rails
