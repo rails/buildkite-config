@@ -2,28 +2,28 @@
 
 module Buildkite::Config
   class RubyConfig
+    MASTER_RUBY_IMAGE = "rubylang/ruby:master-nightly-jammy"
+
     class << self
-      # MASTER_RUBY = "rubylang/ruby:master-nightly-jammy"
       def master_ruby
-        "rubylang/ruby:master-nightly-jammy"
+        new(version: MASTER_RUBY_IMAGE, soft_fail: true)
       end
 
-      # Adds yjit: onto the master ruby image string so we
-      # know when to turn on YJIT via the environment variable.
-      # Same as master ruby, we want this to soft fail.
-      # YJIT_RUBY = "yjit:#{MASTER_RUBY}"
       def yjit_ruby
-        "yjit:#{master_ruby}"
+        # Adds yjit: onto the master ruby image string so we
+        # know when to turn on YJIT via the environment variable.
+        new(version: "yjit:#{MASTER_RUBY_IMAGE}", soft_fail: true, yjit: true)
       end
     end
 
     attr_accessor :soft_fail
     attr_reader :version, :yjit, :prefix
-    def initialize(version:, soft_fail: nil, prefix: nil, build: true)
+
+    def initialize(version:, soft_fail: nil, prefix: nil, yjit: false)
       @prefix = prefix
       @version = version
-      @yjit = @version == RubyConfig.yjit_ruby
-      @build = build
+      @yjit = yjit
+      @build = !yjit
 
       if soft_fail
         @soft_fail = soft_fail
@@ -48,7 +48,7 @@ module Buildkite::Config
 
     # A shortened version of the name for the Buildkite label.
     def short_ruby
-      if @version == RubyConfig.master_ruby
+      if @version == RubyConfig::MASTER_RUBY_IMAGE
         "master"
       elsif yjit_enabled?
         "yjit"
@@ -67,6 +67,23 @@ module Buildkite::Config
 
     def yjit_enabled?
       @yjit
+    end
+
+    def ==(other)
+      other.is_a?(RubyConfig) &&
+        other.prefix == prefix &&
+        other.version == version &&
+        other.yjit_enabled? == yjit_enabled? &&
+        other.build? == build? &&
+        other.soft_fail? == soft_fail?
+    end
+
+    def eql?(other)
+      self == other
+    end
+
+    def hash
+      [self.class.name, prefix, version, yjit_enabled?, build?, soft_fail?].hash
     end
 
     private

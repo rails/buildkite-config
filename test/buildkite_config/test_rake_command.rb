@@ -35,7 +35,7 @@ class TestRakeCommand < TestCase
   def test_depends_on_yjit
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
-      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
+      build_context.ruby = Buildkite::Config::RubyConfig.yjit_ruby
 
       group do
         depends_on build_context.ruby.ruby_image
@@ -187,7 +187,7 @@ class TestRakeCommand < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
 
-      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
+      build_context.ruby = Buildkite::Config::RubyConfig.yjit_ruby
       build_context.stub(:rails_version, Gem::Version.new("7.1")) do
         rake
       end
@@ -201,6 +201,7 @@ class TestRakeCommand < TestCase
         "agents" => { "queue" => "default" },
         "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
         "env" => { "IMAGE_NAME" => "buildkite-config-base:rubylang-ruby-master-nightly-jammy-local", "RUBY_YJIT_ENABLE" => "1" },
+        "soft_fail" => true,
         "timeout_in_minutes" => 30,
         "plugins" =>
         [{ "artifacts#v1.0" => { "download" => [".buildkite/*", ".buildkite/**/*"] } },

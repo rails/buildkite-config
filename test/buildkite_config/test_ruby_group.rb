@@ -68,7 +68,7 @@ class TestRubyGroup < TestCase
   def test_ruby_group_yjit
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RubyGroup
-      yjit = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
+      yjit = Buildkite::Config::RubyConfig.yjit_ruby
 
       ruby_group config: yjit do
         build_context = context.extensions.find(Buildkite::Config::BuildContext)

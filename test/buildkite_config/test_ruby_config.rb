@@ -5,8 +5,15 @@ require "buildkite_config"
 
 class TestRubyConfig < TestCase
   def test_class_methods
-    assert_equal "rubylang/ruby:master-nightly-jammy", Buildkite::Config::RubyConfig.master_ruby
-    assert_equal "yjit:#{Buildkite::Config::RubyConfig.master_ruby}", Buildkite::Config::RubyConfig.yjit_ruby
+    assert_instance_of Buildkite::Config::RubyConfig, Buildkite::Config::RubyConfig.master_ruby
+    assert_equal Buildkite::Config::RubyConfig::MASTER_RUBY_IMAGE, Buildkite::Config::RubyConfig.master_ruby.version
+    assert_instance_of Buildkite::Config::RubyConfig, Buildkite::Config::RubyConfig.yjit_ruby
+  end
+
+  def test_eql
+    assert_equal Buildkite::Config::RubyConfig.master_ruby, Buildkite::Config::RubyConfig.master_ruby
+    assert Buildkite::Config::RubyConfig.master_ruby.eql?(Buildkite::Config::RubyConfig.master_ruby), "master_ruby should eql itself"
+    assert_equal Buildkite::Config::RubyConfig.master_ruby.hash, Buildkite::Config::RubyConfig.master_ruby.hash
   end
 
   def test_constructor_defaults
@@ -43,8 +50,8 @@ class TestRubyConfig < TestCase
   end
 
   def test_image_name_for_yjit
-    sub = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
-    expected = Buildkite::Config::RubyConfig.master_ruby.gsub(/\W/, "-")
+    sub = Buildkite::Config::RubyConfig.yjit_ruby
+    expected = Buildkite::Config::RubyConfig::MASTER_RUBY_IMAGE.gsub(/\W/, "-")
     assert_equal "#{expected}-build_id", sub.image_name_for
   end
 
@@ -54,8 +61,8 @@ class TestRubyConfig < TestCase
   end
 
   def test_ruby_image_yjit
-    sub = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
-    assert_equal Buildkite::Config::RubyConfig.master_ruby, sub.ruby_image
+    sub = Buildkite::Config::RubyConfig.yjit_ruby
+    assert_equal Buildkite::Config::RubyConfig::MASTER_RUBY_IMAGE, sub.ruby_image
   end
 
   def test_ruby_image_prefix
@@ -74,12 +81,12 @@ class TestRubyConfig < TestCase
   end
 
   def test_short_ruby_master
-    sub = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.master_ruby)
+    sub = Buildkite::Config::RubyConfig.master_ruby
     assert_equal "master", sub.short_ruby
   end
 
   def test_short_ruby_yjit
-    sub = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
+    sub = Buildkite::Config::RubyConfig.yjit_ruby
     assert_equal "yjit", sub.short_ruby
   end
 
@@ -99,18 +106,13 @@ class TestRubyConfig < TestCase
   end
 
   def test_yjit_enabled
-    sub = Buildkite::Config::RubyConfig.new(version: Buildkite::Config::RubyConfig.yjit_ruby)
+    sub = Buildkite::Config::RubyConfig.yjit_ruby
     assert_predicate sub, :yjit_enabled?
   end
 
   def test_yjit_enabled_default
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
     assert_not sub.yjit_enabled?
-  end
-
-  def test_build
-    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"), build: false)
-    assert_not sub.build?
   end
 
   def test_build_default

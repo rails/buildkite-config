@@ -52,6 +52,24 @@ class TestBuildContext < TestCase
     end
   end
 
+  def test_rails_root_rails_ci_nightly
+    sub = create_build_context
+    sub.stub(:ci?, true) do
+      sub.stub(:pipeline_name, "rails-ci-nightly") do
+        assert_equal Pathname.new(Dir.pwd), sub.rails_root
+      end
+    end
+  end
+
+  def test_rails_root_nightly_ci
+    sub = create_build_context
+    sub.stub(:ci?, true) do
+      sub.stub(:pipeline_name, "rails-nightly") do
+        assert_equal Pathname.new(Dir.pwd), sub.rails_root
+      end
+    end
+  end
+
   def test_rails_root_not_ci
     sub = create_build_context
     sub.stub(:ci?, false) do
@@ -75,7 +93,15 @@ class TestBuildContext < TestCase
     end
   end
 
-  def test_default
+  def test_default_ruby_can_be_set
+    build_context = create_build_context
+
+    build_context.default_ruby = Buildkite::Config::RubyConfig.master_ruby
+
+    assert_equal Buildkite::Config::RubyConfig.master_ruby, build_context.default_ruby
+  end
+
+  def test_default_ruby
     sub = create_build_context
     rubies = [
       Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"), soft_fail: true),
