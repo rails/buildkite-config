@@ -11,13 +11,13 @@ module Buildkite::Config
     end
 
     def self.generated_pipeline(repo, nightly: false)
-      command = if nightly
-        "pipeline-generate-nightly"
-      else
-        "pipeline-generate"
-      end
+      command = ["ruby", "#{repo}/pipeline-generate"]
 
-      io = IO.popen "ruby #{repo}/#{command} tmp/rails"
+      command.push("--nightly") if nightly
+
+      command.push("tmp/rails")
+
+      io = IO.popen(command)
 
       output = io.read
       io.close

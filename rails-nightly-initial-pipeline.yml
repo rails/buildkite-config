@@ -2,7 +2,7 @@
 # configuration in the Buildkite UI.
 
 steps:
-  - name: ":pipeline:"
+  - name: ":pipeline: rails-nightly-initial-pipeline"
     command: |
       PATH=/bin:/usr/bin
       set -e
@@ -22,6 +22,8 @@ steps:
         GIT_BRANCH="$${CONFIG_BRANCH-main}"
         GIT_BRANCH="$${GIT_BRANCH#*:}"
 
+        echo "Cloning buildkite-config:"
+        echo "git clone -b \"$$GIT_BRANCH\" \"$$GIT_REPO\" .buildkite"
         git clone -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
 
         rm -rf .buildkite/.git
@@ -66,6 +68,7 @@ steps:
         -e BUILDKITE_AGENT_META_DATA_QUEUE
         -e BUILDKITE_BRANCH
         -e BUILDKITE_BUILD_ID
+        -e BUILDKITE_PIPELINE_NAME
         -e BUILDKITE_PULL_REQUEST
         -e BUILDKITE_PULL_REQUEST_BASE_BRANCH
         -e BUILDKITE_REBUILT_FROM_BUILD_ID
@@ -74,7 +77,7 @@ steps:
         -e RUN_QUEUE
         -e QUEUE
         ruby:latest
-        .buildkite/pipeline-generate-nightly |
+        .buildkite/pipeline-generate --nightly |
         buildkite-agent pipeline upload
     timeout_in_minutes: 5
     agents:

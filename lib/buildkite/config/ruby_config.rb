@@ -18,6 +18,7 @@ module Buildkite::Config
 
     attr_accessor :soft_fail
     attr_reader :version, :yjit, :prefix
+
     def initialize(version:, soft_fail: nil, prefix: nil, yjit: false)
       @prefix = prefix
       @version = version
@@ -66,6 +67,23 @@ module Buildkite::Config
 
     def yjit_enabled?
       @yjit
+    end
+
+    def ==(other)
+      other.is_a?(RubyConfig) &&
+        other.prefix == prefix &&
+        other.version == version &&
+        other.yjit_enabled? == yjit_enabled? &&
+        other.build? == build? &&
+        other.soft_fail? == soft_fail?
+    end
+
+    def eql?(other)
+      self == other
+    end
+
+    def hash
+      [self.class.name, prefix, version, yjit_enabled?, build?, soft_fail?].hash
     end
 
     private

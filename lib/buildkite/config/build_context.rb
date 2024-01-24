@@ -6,6 +6,12 @@ module Buildkite::Config
   class BuildContext < Buildkite::Builder::Extension
     attr_accessor :ruby
     attr_reader :rubies
+    attr_writer :default_ruby
+
+    def initialize(*)
+      @rubies = []
+      super
+    end
 
     dsl do
       def build_context
@@ -14,7 +20,7 @@ module Buildkite::Config
     end
 
     def rails_root
-      if ci? && %w[rails-ci rails-sandbox zzak/rails Rails].include?(pipeline_name)
+      if ci? && %w[rails-ci rails-ci-nightly rails-sandbox zzak/rails Rails rails-nightly].include?(pipeline_name)
         Pathname.pwd
       else
         Pathname.pwd.join("tmp/rails")
@@ -26,7 +32,7 @@ module Buildkite::Config
     end
 
     def default_ruby
-      rubies.select { |r| !r.soft_fail? }.first
+      @default_ruby ||= rubies.select { |r| !r.soft_fail? }.first
     end
 
     def setup_rubies(ruby_minors)

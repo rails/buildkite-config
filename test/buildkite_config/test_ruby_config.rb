@@ -10,6 +10,12 @@ class TestRubyConfig < TestCase
     assert_instance_of Buildkite::Config::RubyConfig, Buildkite::Config::RubyConfig.yjit_ruby
   end
 
+  def test_eql
+    assert_equal Buildkite::Config::RubyConfig.master_ruby, Buildkite::Config::RubyConfig.master_ruby
+    assert Buildkite::Config::RubyConfig.master_ruby.eql?(Buildkite::Config::RubyConfig.master_ruby), "master_ruby should eql itself"
+    assert_equal Buildkite::Config::RubyConfig.master_ruby.hash, Buildkite::Config::RubyConfig.master_ruby.hash
+  end
+
   def test_constructor_defaults
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
 
