@@ -162,12 +162,17 @@ Buildkite::Builder.pipeline do
   ruby_group config: build_context.default_ruby do
     label "isolated"
 
-    %w(
+    isolated_db_tasks = %w(
       activerecord    mysql2:isolated_test       mysqldb
       activerecord    postgresql:isolated_test   postgresdb
       activerecord    sqlite3:isolated_test      default
-      activerecord    trilogy:isolated_test      mysqldb
-    ).each_slice(3) do |dir, task, service|
+    )
+
+    if build_context.rails_version >= Gem::Version.new("7.1.0.alpha")
+      isolated_db_tasks << "activerecord" << "trilogy:isolated_test" << "mysqldb"
+    end
+
+    isolated_db_tasks.each_slice(3) do |dir, task, service|
       rake dir, task, service: service do |_, build_context|
         parallelism 5 if build_context.rails_root.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
       end
