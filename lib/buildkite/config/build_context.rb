@@ -23,7 +23,7 @@ module Buildkite::Config
       if ci? && %w[rails-ci rails-ci-nightly rails-sandbox zzak/rails rails rails-nightly].include?(pipeline_slug)
         Pathname.pwd
       else
-        Pathname.pwd.join("tmp/rails")
+        Pathname.pwd.join("../rails")
       end
     end
 

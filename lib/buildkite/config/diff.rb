@@ -11,24 +11,23 @@ module Buildkite::Config
     end
 
     def self.generated_pipeline(repo, nightly: false)
-      command = ["ruby", "#{repo}/pipeline-generate"]
+      command = ["ruby", "pipeline-generate"]
 
       command.push("--nightly") if nightly
 
-      command.push("tmp/rails")
+      Dir.chdir(repo) do
+        io = IO.popen(command)
+        output = io.read
+        io.close
 
-      io = IO.popen(command)
+        unless $?.success?
+          $stderr.puts "Failed to generate pipeline for #{repo}"
 
-      output = io.read
-      io.close
+          return ""
+        end
 
-      unless $?.success?
-        $stderr.puts "Failed to generate pipeline for #{repo}"
-
-        return ""
+        output
       end
-
-      output
     end
   end
 end

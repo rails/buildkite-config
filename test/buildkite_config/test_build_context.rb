@@ -73,7 +73,7 @@ class TestBuildContext < TestCase
   def test_rails_root_not_ci
     sub = create_build_context
     sub.stub(:ci?, false) do
-      assert_equal Pathname.new(Dir.pwd) + "tmp/rails", sub.rails_root
+      assert_equal Pathname.new(Dir.pwd) + "../rails", sub.rails_root
     end
   end
 
@@ -81,7 +81,7 @@ class TestBuildContext < TestCase
     sub = create_build_context
     sub.stub(:ci?, true) do
       sub.stub(:pipeline_slug, "not-rails-ci") do
-        assert_equal Pathname.new(Dir.pwd) + "tmp/rails", sub.rails_root
+        assert_equal Pathname.new(Dir.pwd) + "../rails", sub.rails_root
       end
     end
   end
