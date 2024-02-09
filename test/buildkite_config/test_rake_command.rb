@@ -70,7 +70,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "test"] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -100,7 +99,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "activerecord"] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -131,7 +129,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "first"] } }] },
       { "label" => "second all (3.2)",
@@ -147,7 +144,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "second"] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -177,7 +173,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "myservice",
-            "pull" => "myservice",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "subdirectory"] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -208,7 +203,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", ""] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -240,7 +234,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", ""] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -273,7 +266,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", ""] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -306,7 +298,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", ""] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -342,7 +333,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", ""] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -375,7 +365,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", ""] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -409,7 +398,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", ""] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -442,7 +430,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", ""] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -475,7 +462,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "test"] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -505,7 +491,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "default",
-            "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "activerecord"] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -537,7 +522,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "mysqldb",
-            "pull" => "mysqldb",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "activerecord"] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -569,7 +553,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "mysqldb",
-            "pull" => "mysqldb",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "activerecord"] } }] }] }
     assert_equal expected, pipeline.to_h
@@ -601,7 +584,6 @@ class TestRakeCommand < TestCase
           { "docker-compose#v1.0" =>
             { "env" => ["PRE_STEPS", "RACK"],
             "run" => "postgresdb",
-            "pull" => "postgresdb",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "activerecord"] } }] }] }
     assert_equal expected, pipeline.to_h
