@@ -49,3 +49,8 @@ puts "\n" * 2; puts "#####"; puts "\n" * 2
 puts "Updating rails/buildkite-config..."
 buildkite_config_init = File.read("buildkite-config-initial-pipeline.yml")
 update_pipeline("buildkite-config", buildkite_config_init)
+
+# Update rails/docs-preview
+puts "Updating rails/docs-preview..."
+docs_preview_config_init = File.read("docs-preview-initial-pipeline.yml")
+update_pipeline("docs-preview", docs_preview_config_init)

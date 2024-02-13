@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "json"
+require "net/http"
+
+def cloudflare_account_id
+  ENV.fetch("CLOUDFLARE_ACCOUNT_ID") { raise "Missing CLOUDFLARE_ACCOUNT_ID!" }
+end
+
+def cloudflare_api_token
+  ENV.fetch("CLOUDFLARE_API_TOKEN") { raise "Missing CLOUDFLARE_API_TOKEN!" }
+end
+
+def cloudflare_pages_project
+  ENV.fetch("CLOUDFLARE_PAGES_PROJECT") { raise "Missing CLOUDFLARE_PAGES_PROJECT!" }
+end
+
+url = URI("https://api.cloudflare.com/client/v4/accounts/#{cloudflare_account_id}/pages/projects/#{cloudflare_pages_project}/deployments")
+
+request = Net::HTTP::Get.new(url)
+request["Authorization"] = "Bearer #{cloudflare_api_token}"
+
+response = Net::HTTP.start(url.host, url.port, use_ssl: true) do |http|
+  http.request(request)
+end
+
+json = JSON.parse(response.body)
+result = json["result"].first
+
+plan = <<~PLAN
+#### :writing_hand: rails/docs-preview: <a href="#{result["url"]}">:link: Preview URL</a>
+PLAN
+
+puts plan
