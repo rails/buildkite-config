@@ -15,7 +15,6 @@ module Buildkite::Config
 
       pipeline = "rails-ci"
       pipeline += "-nightly" if nightly
-
       command.push(pipeline)
 
       command.push("tmp/rails")
