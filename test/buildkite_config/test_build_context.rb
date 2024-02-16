@@ -13,16 +13,6 @@ class TestBuildContext < TestCase
     assert_not_nil sub
   end
 
-  def test_pipeline_name
-    @before_buildkite_pipeline_name = ENV["BUILDKITE_PIPELINE_SLUG"]
-    ENV["BUILDKITE_PIPELINE_SLUG"] = "test_pipeline_name"
-
-    sub = create_build_context
-    assert_equal "test_pipeline_name", sub.pipeline_slug
-  ensure
-    ENV["BUILDKITE_PIPELINE_SLUG"] = @before_buildkite_pipeline_name
-  end
-
   def test_ci_env_buildkite
     @before_env_buildkite = ENV["BUILDKITE"]
     ENV["BUILDKITE"] = "true"
@@ -46,27 +36,7 @@ class TestBuildContext < TestCase
   def test_rails_root
     sub = create_build_context
     sub.stub(:ci?, true) do
-      sub.stub(:pipeline_slug, "rails-ci") do
-        assert_equal Pathname.new(Dir.pwd), sub.rails_root
-      end
-    end
-  end
-
-  def test_rails_root_rails_ci_nightly
-    sub = create_build_context
-    sub.stub(:ci?, true) do
-      sub.stub(:pipeline_slug, "rails-ci-nightly") do
-        assert_equal Pathname.new(Dir.pwd), sub.rails_root
-      end
-    end
-  end
-
-  def test_rails_root_nightly_ci
-    sub = create_build_context
-    sub.stub(:ci?, true) do
-      sub.stub(:pipeline_slug, "rails-nightly") do
-        assert_equal Pathname.new(Dir.pwd), sub.rails_root
-      end
+      assert_equal Pathname.new(Dir.pwd), sub.rails_root
     end
   end
 
@@ -74,15 +44,6 @@ class TestBuildContext < TestCase
     sub = create_build_context
     sub.stub(:ci?, false) do
       assert_equal Pathname.new(Dir.pwd) + "tmp/rails", sub.rails_root
-    end
-  end
-
-  def test_rails_root_not_pipeline
-    sub = create_build_context
-    sub.stub(:ci?, true) do
-      sub.stub(:pipeline_slug, "not-rails-ci") do
-        assert_equal Pathname.new(Dir.pwd) + "tmp/rails", sub.rails_root
-      end
     end
   end
 
