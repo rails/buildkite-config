@@ -13,7 +13,10 @@ module Buildkite::Config
     def self.generated_pipeline(repo, nightly: false)
       command = ["ruby", "#{repo}/pipeline-generate"]
 
-      command.push("--nightly") if nightly
+      pipeline = "rails-ci"
+      pipeline += "-nightly" if nightly
+
+      command.push(pipeline)
 
       command.push("tmp/rails")
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-nightly = ARGV.include?("--nightly")
+pipeline = ARGV.shift
 
 def run(cmd, env = {}, value = false)
   io = IO.popen(env, cmd)
@@ -15,12 +15,12 @@ end
 
 env = {}
 
-if %w[rails-ci rails-ci-nightly rails-sandbox zzak/rails rails rails-nightly].include?(ENV["BUILDKITE_PIPELINE_SLUG"])
+if %w[rails-ci rails-ci-nightly rails-sandbox zzak/rails rails rails-nightly docs-preview].include?(ENV["BUILDKITE_PIPELINE_SLUG"])
   env["BUNDLE_GEMFILE"] = ".buildkite/Gemfile"
 end
 
 run "bundle install", env
 
-pipeline = run "bundle exec buildkite-builder preview rails-ci#{ "-nightly" if nightly }", env, true
+pipeline = run "bundle exec buildkite-builder preview #{pipeline}", env, true
 
 puts pipeline

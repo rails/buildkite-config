@@ -77,7 +77,7 @@ steps:
         -e RUN_QUEUE
         -e QUEUE
         ruby:latest
-        .buildkite/pipeline-generate |
+        .buildkite/pipeline-generate rails-ci |
         buildkite-agent pipeline upload
     timeout_in_minutes: 5
     agents:
