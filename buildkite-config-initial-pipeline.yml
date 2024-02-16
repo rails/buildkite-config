@@ -5,6 +5,7 @@
 
 steps:
   - block: "Review Build Script"
+    branches: "!main"
     prompt: |
       Our CI scripts run outside the docker containers, which are a necessary security layer.
 
