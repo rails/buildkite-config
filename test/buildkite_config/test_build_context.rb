@@ -93,6 +93,18 @@ class TestBuildContext < TestCase
     end
   end
 
+  def test_supports_trilogy
+    sub = create_build_context
+    sub.stub(:rails_version_file, "6.1.0.rc1") do
+      assert_not_predicate sub, :supports_trilogy?
+    end
+
+    sub = create_build_context
+    sub.stub(:rails_version_file, "7.1.0") do
+      assert_predicate sub, :supports_trilogy?
+    end
+  end
+
   def test_default_ruby_can_be_set
     build_context = create_build_context
 

@@ -95,7 +95,7 @@ Buildkite::Builder.pipeline do
         rake "activerecord", "sqlite3_mem:test"
       end
 
-      if build_context.rails_version >= Gem::Version.new("7.1.0.alpha")
+      if build_context.supports_trilogy?
         rake "activerecord", "trilogy:test", service: "mysqldb"
 
         if ruby == build_context.default_ruby
@@ -169,9 +169,14 @@ Buildkite::Builder.pipeline do
       activerecord    mysql2:isolated_test       mysqldb
       activerecord    postgresql:isolated_test   postgresdb
       activerecord    sqlite3:isolated_test      default
-      activerecord    trilogy:isolated_test      mysqldb
     ).each_slice(3) do |dir, task, service|
       rake dir, task, service: service do |_, build_context|
+        parallelism 5 if build_context.rails_root.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
+      end
+    end
+
+    if build_context.supports_trilogy?
+      rake "activerecord", "trilogy:isolated_test", service: "mysqldb" do |_, build_context|
         parallelism 5 if build_context.rails_root.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
       end
     end

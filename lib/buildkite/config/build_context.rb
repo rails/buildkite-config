@@ -28,7 +28,7 @@ module Buildkite::Config
     end
 
     def rails_version
-      Gem::Version.new(rails_version_file)
+      @rails_version ||= Gem::Version.new(rails_version_file)
     end
 
     def default_ruby
@@ -129,6 +129,10 @@ module Buildkite::Config
       unless standard_queues.include?(ENV["BUILDKITE_AGENT_META_DATA_QUEUE"])
         ENV["BUILDKITE_AGENT_META_DATA_QUEUE"]
       end
+    end
+
+    def supports_trilogy?
+      rails_version >= Gem::Version.new("7.1.0.alpha")
     end
 
     def build_queue
