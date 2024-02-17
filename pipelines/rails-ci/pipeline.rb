@@ -109,19 +109,19 @@ Buildkite::Builder.pipeline do
       rake "activesupport"
       rake "guides"
 
-      rake "railties", service: "railties" do |_, build_context|
-        parallelism 12 if build_context.rails_root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+      rake "railties", service: "railties" do
+        parallelism 12
       end
 
       if ruby == build_context.default_ruby
-        rake "railties", service: "railties", pre_steps: ["bundle install"] do |attrs, build_context|
-          parallelism 12 if build_context.rails_root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+        rake "railties", service: "railties", pre_steps: ["bundle install"] do |attrs, _|
+          parallelism 12
           label "#{attrs["label"]} [rack-2]"
           env["RACK"] = "~> 2.0"
         end
 
-        rake "railties", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"] do |attrs, build_context|
-          parallelism 12 if build_context.rails_root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+        rake "railties", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"] do |attrs, _|
+          parallelism 12
           label "#{attrs["label"]} [rack-head]"
           env["RACK"] = "head"
           soft_fail true
@@ -164,14 +164,14 @@ Buildkite::Builder.pipeline do
       activerecord    postgresql:isolated_test   postgresdb
       activerecord    sqlite3:isolated_test      default
     ).each_slice(3) do |dir, task, service|
-      rake dir, task, service: service do |_, build_context|
-        parallelism 5 if build_context.rails_root.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
+      rake dir, task, service: service do
+        parallelism 5
       end
     end
 
     if build_context.supports_trilogy?
-      rake "activerecord", "trilogy:isolated_test", service: "mysqldb" do |_, build_context|
-        parallelism 5 if build_context.rails_root.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
+      rake "activerecord", "trilogy:isolated_test", service: "mysqldb" do
+        parallelism 5
       end
     end
 
