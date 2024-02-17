@@ -110,13 +110,6 @@ class TestBuildContext < TestCase
     assert_equal Gem::Version.new("3.2"), sub.default_ruby.version
   end
 
-  def test_bundler_1_x
-    sub = create_build_context
-    sub.stub(:rails_version, Gem::Version.new("4.2")) do
-      assert_equal("< 2", sub.bundler)
-    end
-  end
-
   def test_bundler_2_2
     sub = create_build_context
     sub.stub(:rails_version, Gem::Version.new("5.1.4")) do
@@ -124,38 +117,10 @@ class TestBuildContext < TestCase
     end
   end
 
-  def test_rubygems_2_6
-    sub = create_build_context
-    sub.stub(:rails_version, Gem::Version.new("4.2")) do
-      assert_equal("2.6.13", sub.rubygems)
-    end
-  end
-
   def test_rubygems_3_2
     sub = create_build_context
     sub.stub(:rails_version, Gem::Version.new("5.1.4")) do
       assert_equal("3.2.9", sub.rubygems)
-    end
-  end
-
-  def test_max_ruby_2_4
-    sub = create_build_context
-    sub.stub(:rails_version, Gem::Version.new("4.2")) do
-      assert_equal sub.max_ruby, Gem::Version.new("2.4")
-    end
-  end
-
-  def test_max_ruby_2_5
-    sub = create_build_context
-    sub.stub(:rails_version, Gem::Version.new("5.1")) do
-      assert_equal sub.max_ruby, Gem::Version.new("2.5")
-    end
-  end
-
-  def test_max_ruby_2_6
-    sub = create_build_context
-    sub.stub(:rails_version, Gem::Version.new("5.2")) do
-      assert_equal sub.max_ruby, Gem::Version.new("2.6")
     end
   end
 
