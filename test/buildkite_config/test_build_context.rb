@@ -35,16 +35,7 @@ class TestBuildContext < TestCase
 
   def test_rails_root
     sub = create_build_context
-    sub.stub(:ci?, true) do
-      assert_equal Pathname.new(Dir.pwd), sub.rails_root
-    end
-  end
-
-  def test_rails_root_not_ci
-    sub = create_build_context
-    sub.stub(:ci?, false) do
-      assert_equal Pathname.new(Dir.pwd) + "tmp/rails", sub.rails_root
-    end
+    assert_equal Pathname.new(Dir.pwd), sub.rails_root
   end
 
   def test_rails_version

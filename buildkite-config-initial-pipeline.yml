@@ -39,9 +39,6 @@ steps:
               - BUILDKITE
               - BUILDKITE_BUILD_ID
     - command: |
-        git clone --depth=1 https://github.com/rails/buildkite-config tmp/buildkite-config
-        git clone --depth=1 https://github.com/rails/rails tmp/rails
-
         sh -c "$$ANNOTATE_COMMAND" > tmp/annotate.diff
 
         if [[ -z $(grep '[^[:space:]]' tmp/annotate.diff) ]]; then
@@ -62,9 +59,6 @@ steps:
           ruby:latest
           ./pipeline-annotate
     - command: |
-        git clone --depth=1 https://github.com/rails/buildkite-config tmp/buildkite-config
-        git clone --depth=1 https://github.com/rails/rails tmp/rails
-
         sh -c "$$ANNOTATE_COMMAND" > tmp/annotate-nightly.diff
 
         if [[ -z $(grep '[^[:space:]]' tmp/annotate-nightly.diff) ]]; then

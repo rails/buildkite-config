@@ -20,11 +20,7 @@ module Buildkite::Config
     end
 
     def rails_root
-      if ci?
-        Pathname.pwd
-      else
-        Pathname.pwd.join("tmp/rails")
-      end
+      Pathname.pwd
     end
 
     def rails_version

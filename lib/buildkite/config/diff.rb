@@ -5,32 +5,35 @@ require "diffy"
 module Buildkite::Config
   module Diff
     def self.compare(nightly: false)
-      head = generated_pipeline(".", nightly: nightly)
-      main = generated_pipeline("tmp/buildkite-config", nightly: nightly)
+      head = generated_pipeline(Dir.pwd, nightly: nightly)
+      main = generated_pipeline(File.expand_path("tmp/buildkite-config", Dir.pwd), nightly: nightly)
       Diffy::Diff.new(main, head, context: 4)
     end
 
     def self.generated_pipeline(repo, nightly: false)
-      command = ["ruby", "#{repo}/pipeline-generate"]
+      File.symlink(repo, "tmp/rails/.buildkite")
+
+      command = ["ruby", ".buildkite/pipeline-generate"]
 
       pipeline = "rails-ci"
       pipeline += "-nightly" if nightly
       command.push(pipeline)
 
-      command.push("tmp/rails")
+      Dir.chdir("tmp/rails") do
+        io = IO.popen(command)
+        output = io.read
+        io.close
 
-      io = IO.popen(command)
+        unless $?.success?
+          $stderr.puts "Failed to generate pipeline for #{repo}"
 
-      output = io.read
-      io.close
+          return ""
+        end
 
-      unless $?.success?
-        $stderr.puts "Failed to generate pipeline for #{repo}"
-
-        return ""
+        output
       end
-
-      output
+    ensure
+      File.unlink("tmp/rails/.buildkite")
     end
   end
 end
