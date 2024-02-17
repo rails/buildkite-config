@@ -49,8 +49,6 @@ module Buildkite::Config
 
     def bundler
       case rails_version
-      when Gem::Requirement.new("< 5.0")
-        "< 2"
       when Gem::Requirement.new("< 6.1")
         "< 2.2.10"
       end
@@ -58,8 +56,6 @@ module Buildkite::Config
 
     def rubygems
       case rails_version
-      when Gem::Requirement.new("< 5.0")
-        "2.6.13"
       when Gem::Requirement.new("< 6.1")
         "3.2.9"
       end
@@ -67,12 +63,6 @@ module Buildkite::Config
 
     def max_ruby
       case rails_version
-      when Gem::Requirement.new("< 5.1")
-        Gem::Version.new("2.4")
-      when Gem::Requirement.new("< 5.2")
-        Gem::Version.new("2.5")
-      when Gem::Requirement.new("< 6.0")
-        Gem::Version.new("2.6")
       when Gem::Requirement.new("< 6.1")
         Gem::Version.new("2.7")
       end

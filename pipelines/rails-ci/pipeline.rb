@@ -57,16 +57,9 @@ Buildkite::Builder.pipeline do
       rake "activerecord", "mysql2:test", service: "mysqldb"
 
       if ruby == build_context.default_ruby
-        if build_context.rails_version >= Gem::Version.new("5.x")
-          rake "activerecord", "mysql2:test", service: "mariadb" do |attrs, build_context|
-            label "#{attrs["label"]} [mariadb]"
-            env["MYSQL_IMAGE"] =
-              if build_context.rails_version < Gem::Version.new("6.x")
-                "mariadb:10.2"
-              else
-                "mariadb:latest"
-              end
-          end
+        rake "activerecord", "mysql2:test", service: "mariadb" do |attrs, _|
+          label "#{attrs["label"]} [mariadb]"
+          env["MYSQL_IMAGE"] = "mariadb:latest"
         end
 
         rake "activerecord", "mysql2:test", service: "mysqldb" do |attrs, _|
@@ -85,7 +78,7 @@ Buildkite::Builder.pipeline do
       rake "activerecord", "postgresql:test", service: "postgresdb"
       rake "activerecord", "sqlite3:test"
 
-      if ruby == build_context.default_ruby && build_context.rails_version >= Gem::Version.new("5.1.x")
+      if ruby == build_context.default_ruby
         rake "activerecord", "sqlite3_mem:test"
       end
 
@@ -129,13 +122,9 @@ Buildkite::Builder.pipeline do
       end
 
       # ActionCable and ActiveJob integration tests
-      rake "actioncable", "test:integration" do |attrs, build_context|
-        if build_context.rails_version < Gem::Version.new("6.x")
-          soft_fail true
-        else
-          attrs["retry"] = nil
-          automatic_retry_on exit_status: -1, limit: 3
-        end
+      rake "actioncable", "test:integration" do |attrs, _|
+        attrs["retry"] = nil
+        automatic_retry_on exit_status: -1, limit: 3
       end
 
       if ruby == build_context.default_ruby
