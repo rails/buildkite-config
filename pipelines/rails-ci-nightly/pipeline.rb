@@ -1,16 +1,7 @@
 # frozen_string_literal: true
 
-BUILDKITE_ROOT_DIR = if ENV["CI"]
-  Buildkite::Builder.root.join(".buildkite")
-else
-  Buildkite::Builder.root
-end
-
-$LOAD_PATH.unshift(BUILDKITE_ROOT_DIR.join("lib").to_s)
-
-require "buildkite_config"
-
 Buildkite::Builder.pipeline do
+  require "buildkite_config"
   use Buildkite::Config::BuildContext
   use Buildkite::Config::DockerBuild
   use Buildkite::Config::RakeCommand
