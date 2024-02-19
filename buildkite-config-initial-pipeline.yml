@@ -39,6 +39,7 @@ steps:
               - BUILDKITE
               - BUILDKITE_BUILD_ID
     - command: |
+        mkdir -p tmp
         sh -c "$$ANNOTATE_COMMAND" > tmp/annotate.diff
 
         if [[ -z $(grep '[^[:space:]]' tmp/annotate.diff) ]]; then
@@ -59,6 +60,7 @@ steps:
           ruby:latest
           ./pipeline-annotate
     - command: |
+        mkdir -p tmp
         sh -c "$$ANNOTATE_COMMAND" > tmp/annotate-nightly.diff
 
         if [[ -z $(grep '[^[:space:]]' tmp/annotate-nightly.diff) ]]; then
@@ -91,7 +93,7 @@ steps:
           We have a finite number of CI resources, so we want to avoid unnecessary builds.
       - trigger: "rails-ci"
         label: ":pipeline: Build Rails main with new config"
-        depends_on: block-rails-ci
+        depends_on: block-rails-ci-main
         build:
           message: "[${BUILDKITE_BRANCH}] ${BUILDKITE_MESSAGE}"
           branch: "main"
