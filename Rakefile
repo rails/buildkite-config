@@ -7,7 +7,7 @@ require "minitest/test_task"
 Minitest::TestTask.create
 task default: [:test]
 
-task :diff, [:nightly] do |_, args|
+task :diff, [:nightly] => [:buildkite_config, :rails] do |_, args|
   args.with_defaults(nightly: false)
 
   diff = Buildkite::Config::Diff.compare(nightly: args[:nightly])

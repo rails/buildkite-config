@@ -15,7 +15,7 @@ end
 
 env = {}
 
-if %w[rails-ci rails-ci-nightly rails-sandbox zzak/rails rails rails-nightly docs-preview].include?(ENV["BUILDKITE_PIPELINE_SLUG"])
+if ENV.has_key?("BUILDKITE")
   env["BUNDLE_GEMFILE"] = ".buildkite/Gemfile"
 end
 

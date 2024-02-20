@@ -5,6 +5,7 @@
 
 steps:
   - block: "Review Build Script"
+    branches: "!main"
     prompt: |
       Our CI scripts run outside the docker containers, which are a necessary security layer.
 
@@ -37,11 +38,8 @@ steps:
               - CI
               - BUILDKITE
               - BUILDKITE_BUILD_ID
-              - BUILDKITE_PIPELINE_SLUG
     - command: |
-        git clone --depth=1 https://github.com/rails/buildkite-config tmp/buildkite-config
-        git clone --depth=1 https://github.com/rails/rails tmp/rails
-
+        mkdir -p tmp
         sh -c "$$ANNOTATE_COMMAND" > tmp/annotate.diff
 
         if [[ -z $(grep '[^[:space:]]' tmp/annotate.diff) ]]; then
@@ -62,9 +60,7 @@ steps:
           ruby:latest
           ./pipeline-annotate
     - command: |
-        git clone --depth=1 https://github.com/rails/buildkite-config tmp/buildkite-config
-        git clone --depth=1 https://github.com/rails/rails tmp/rails
-
+        mkdir -p tmp
         sh -c "$$ANNOTATE_COMMAND" > tmp/annotate-nightly.diff
 
         if [[ -z $(grep '[^[:space:]]' tmp/annotate-nightly.diff) ]]; then
@@ -84,43 +80,72 @@ steps:
           -e BUNDLE_FROZEN
           ruby:latest
           ./pipeline-annotate --nightly
-  - trigger: "rails-ci"
-    label: ":pipeline: Build Rails main with new config"
+
+  - group:
+    label: ":rails: Rails CI"
     depends_on: meta
-    build:
-      message: "[${BUILDKITE_BRANCH}] ${BUILDKITE_MESSAGE}"
-      branch: "main"
-      env:
-        CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
-        CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
-        BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
-  - trigger: "rails-ci"
-    label: ":pipeline: Build Rails 6-1-stable with new config"
-    depends_on: meta
-    build:
-      message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
-      branch: "6-1-stable"
-      env:
-        CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
-        CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
-        BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
-  - trigger: "rails-ci-nightly"
-    label: ":pipeline: Build Rails main with new nightly config"
-    depends_on: meta
-    build:
-      message: "[${BUILDKITE_BRANCH}] ${BUILDKITE_MESSAGE}"
-      branch: "main"
-      env:
-        CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
-        CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
-        BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
-  - trigger: "rails-ci-nightly"
-    label: ":pipeline: Build Rails 6-1-stable with new nightly config"
-    depends_on: meta
-    build:
-      message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
-      branch: "6-1-stable"
-      env:
-        CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
-        CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
-        BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
+    steps:
+      - block: "Rails CI main"
+        key: block-rails-ci-main
+        prompt: |
+          Are you sure you want to trigger a build of Rails CI pipeline for the main branch with this config?
+
+          We have a finite number of CI resources, so we want to avoid unnecessary builds.
+      - trigger: "rails-ci"
+        label: ":pipeline: Build Rails main with new config"
+        depends_on: block-rails-ci-main
+        build:
+          message: "[${BUILDKITE_BRANCH}] ${BUILDKITE_MESSAGE}"
+          branch: "main"
+          env:
+            CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
+            CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
+            BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
+      - block: "Rails CI stable"
+        key: block-rails-ci-stable
+        prompt: |
+          Are you sure you want to trigger a build of Rails CI pipeline for the stable branch with this config?
+
+          We have a finite number of CI resources, so we want to avoid unnecessary builds.
+      - trigger: "rails-ci"
+        label: ":pipeline: Build Rails 6-1-stable with new config"
+        depends_on: block-rails-ci-stable
+        build:
+          message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
+          branch: "6-1-stable"
+          env:
+            CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
+            CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
+            BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
+      - block: "Rails CI nightly"
+        key: block-rails-ci-nightly-main
+        prompt: |
+          Are you sure you want to trigger a build of Rails CI Nightly pipeline for the main branch with this config?
+
+          We have a finite number of CI resources, so we want to avoid unnecessary builds.
+      - trigger: "rails-ci-nightly"
+        label: ":pipeline: Build Rails main with new nightly config"
+        depends_on: block-rails-ci-nightly-main
+        build:
+          message: "[${BUILDKITE_BRANCH}] ${BUILDKITE_MESSAGE}"
+          branch: "main"
+          env:
+            CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
+            CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
+            BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
+      - block: "Rails CI nightly stable"
+        key: block-rails-ci-nightly-stable
+        prompt: |
+          Are you sure you want to trigger a build of Rails CI Nightly pipeline for the stable branch with this config?
+
+          We have a finite number of CI resources, so we want to avoid unnecessary builds.
+      - trigger: "rails-ci-nightly"
+        label: ":pipeline: Build Rails 6-1-stable with new nightly config"
+        depends_on: block-rails-ci-nightly-stable
+        build:
+          message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
+          branch: "6-1-stable"
+          env:
+            CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
+            CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
+            BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"

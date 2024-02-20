@@ -1,28 +1,14 @@
 # frozen_string_literal: true
 
-require "pathname"
-require "yaml"
-
-BUILDKITE_ROOT_DIR = if ENV["CI"]
-  Buildkite::Builder.root.join(".buildkite")
-else
-  Buildkite::Builder.root
-end
-
-$LOAD_PATH.unshift(BUILDKITE_ROOT_DIR.join("lib").to_s)
-
 Buildkite::Builder.pipeline do
   require "buildkite_config"
-
   use Buildkite::Config::BuildContext
   use Buildkite::Config::DockerBuild
   use Buildkite::Config::RakeCommand
   use Buildkite::Config::RubyGroup
 
-  plugin :docker_compose, "docker-compose#v3.7.0"
-  # plugin :docker_compose, "docker-compose#v4.16.0"
-  plugin :artifacts, "artifacts#v1.2.0"
-  # plugin :artifacts, "artifacts#v1.9.2"
+  plugin :docker_compose, "docker-compose#v4.16.0"
+  plugin :artifacts, "artifacts#v1.9.3"
 
   build_context.setup_rubies %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2 3.3)
 
@@ -60,16 +46,9 @@ Buildkite::Builder.pipeline do
       rake "activerecord", "mysql2:test", service: "mysqldb"
 
       if ruby == build_context.default_ruby
-        if build_context.rails_version >= Gem::Version.new("5.x")
-          rake "activerecord", "mysql2:test", service: "mariadb" do |attrs, build_context|
-            label "#{attrs["label"]} [mariadb]"
-            env["MYSQL_IMAGE"] =
-              if build_context.rails_version < Gem::Version.new("6.x")
-                "mariadb:10.2"
-              else
-                "mariadb:latest"
-              end
-          end
+        rake "activerecord", "mysql2:test", service: "mariadb" do |attrs, _|
+          label "#{attrs["label"]} [mariadb]"
+          env["MYSQL_IMAGE"] = "mariadb:latest"
         end
 
         rake "activerecord", "mysql2:test", service: "mysqldb" do |attrs, _|
@@ -88,7 +67,7 @@ Buildkite::Builder.pipeline do
       rake "activerecord", "postgresql:test", service: "postgresdb"
       rake "activerecord", "sqlite3:test"
 
-      if ruby == build_context.default_ruby && build_context.rails_version >= Gem::Version.new("5.1.x")
+      if ruby == build_context.default_ruby
         rake "activerecord", "sqlite3_mem:test"
       end
 
@@ -112,19 +91,19 @@ Buildkite::Builder.pipeline do
       rake "activesupport"
       rake "guides"
 
-      rake "railties", service: "railties" do |_, build_context|
-        parallelism 12 if build_context.rails_root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+      rake "railties", service: "railties" do
+        parallelism 12
       end
 
       if ruby == build_context.default_ruby
-        rake "railties", service: "railties", pre_steps: ["bundle install"] do |attrs, build_context|
-          parallelism 12 if build_context.rails_root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+        rake "railties", service: "railties", pre_steps: ["bundle install"] do |attrs, _|
+          parallelism 12
           label "#{attrs["label"]} [rack-2]"
           env["RACK"] = "~> 2.0"
         end
 
-        rake "railties", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"] do |attrs, build_context|
-          parallelism 12 if build_context.rails_root.join("railties/Rakefile").read.include?("BUILDKITE_PARALLEL")
+        rake "railties", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"] do |attrs, _|
+          parallelism 12
           label "#{attrs["label"]} [rack-head]"
           env["RACK"] = "head"
           soft_fail true
@@ -132,13 +111,9 @@ Buildkite::Builder.pipeline do
       end
 
       # ActionCable and ActiveJob integration tests
-      rake "actioncable", "test:integration" do |attrs, build_context|
-        if build_context.rails_version < Gem::Version.new("6.x")
-          soft_fail true
-        else
-          attrs["retry"] = nil
-          automatic_retry_on exit_status: -1, limit: 3
-        end
+      rake "actioncable", "test:integration" do |attrs, _|
+        attrs["retry"] = nil
+        automatic_retry_on exit_status: -1, limit: 3
       end
 
       if ruby == build_context.default_ruby
@@ -153,7 +128,7 @@ Buildkite::Builder.pipeline do
       rake "activejob", "test:integration", service: "activejob" do |attrs, build_context|
         # Enable soft_fail until the problem in queue_classic is solved.
         # https://github.com/rails/rails/pull/37517#issuecomment-545370408
-        soft_fail true if build_context.rails_version < Gem::Version.new("5.x")
+        soft_fail true
       end
     end
   end
@@ -167,14 +142,14 @@ Buildkite::Builder.pipeline do
       activerecord    postgresql:isolated_test   postgresdb
       activerecord    sqlite3:isolated_test      default
     ).each_slice(3) do |dir, task, service|
-      rake dir, task, service: service do |_, build_context|
-        parallelism 5 if build_context.rails_root.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
+      rake dir, task, service: service do
+        parallelism 5
       end
     end
 
     if build_context.supports_trilogy?
-      rake "activerecord", "trilogy:isolated_test", service: "mysqldb" do |_, build_context|
-        parallelism 5 if build_context.rails_root.join("activerecord/Rakefile").read.include?("BUILDKITE_PARALLEL")
+      rake "activerecord", "trilogy:isolated_test", service: "mysqldb" do
+        parallelism 5
       end
     end
 

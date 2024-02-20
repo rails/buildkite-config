@@ -18,7 +18,7 @@ GEM
     bigdecimal (3.1.4)
     buildkit (1.5.0)
       sawyer (>= 0.6)
-    buildkite-builder (4.2.4)
+    buildkite-builder (4.8.0)
       rainbow (>= 3)
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)

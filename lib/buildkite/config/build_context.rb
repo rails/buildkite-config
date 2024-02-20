@@ -20,11 +20,7 @@ module Buildkite::Config
     end
 
     def rails_root
-      if ci? && %w[rails-ci rails-ci-nightly rails-sandbox zzak/rails rails rails-nightly].include?(pipeline_slug)
-        Pathname.pwd
-      else
-        Pathname.pwd.join("tmp/rails")
-      end
+      Pathname.pwd
     end
 
     def rails_version
@@ -53,8 +49,6 @@ module Buildkite::Config
 
     def bundler
       case rails_version
-      when Gem::Requirement.new("< 5.0")
-        "< 2"
       when Gem::Requirement.new("< 6.1")
         "< 2.2.10"
       end
@@ -62,8 +56,6 @@ module Buildkite::Config
 
     def rubygems
       case rails_version
-      when Gem::Requirement.new("< 5.0")
-        "2.6.13"
       when Gem::Requirement.new("< 6.1")
         "3.2.9"
       end
@@ -71,12 +63,6 @@ module Buildkite::Config
 
     def max_ruby
       case rails_version
-      when Gem::Requirement.new("< 5.1")
-        Gem::Version.new("2.4")
-      when Gem::Requirement.new("< 5.2")
-        Gem::Version.new("2.5")
-      when Gem::Requirement.new("< 6.0")
-        Gem::Version.new("2.6")
       when Gem::Requirement.new("< 6.1")
         Gem::Version.new("2.7")
       end
@@ -109,10 +95,6 @@ module Buildkite::Config
 
     def ci?
       ENV.has_key?("BUILDKITE") || ENV.has_key?("CI")
-    end
-
-    def pipeline_slug
-      ENV["BUILDKITE_PIPELINE_SLUG"] || "rails-ci"
     end
 
     def pull_request

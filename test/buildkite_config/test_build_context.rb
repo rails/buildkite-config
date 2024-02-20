@@ -13,16 +13,6 @@ class TestBuildContext < TestCase
     assert_not_nil sub
   end
 
-  def test_pipeline_name
-    @before_buildkite_pipeline_name = ENV["BUILDKITE_PIPELINE_SLUG"]
-    ENV["BUILDKITE_PIPELINE_SLUG"] = "test_pipeline_name"
-
-    sub = create_build_context
-    assert_equal "test_pipeline_name", sub.pipeline_slug
-  ensure
-    ENV["BUILDKITE_PIPELINE_SLUG"] = @before_buildkite_pipeline_name
-  end
-
   def test_ci_env_buildkite
     @before_env_buildkite = ENV["BUILDKITE"]
     ENV["BUILDKITE"] = "true"
@@ -45,45 +35,7 @@ class TestBuildContext < TestCase
 
   def test_rails_root
     sub = create_build_context
-    sub.stub(:ci?, true) do
-      sub.stub(:pipeline_slug, "rails-ci") do
-        assert_equal Pathname.new(Dir.pwd), sub.rails_root
-      end
-    end
-  end
-
-  def test_rails_root_rails_ci_nightly
-    sub = create_build_context
-    sub.stub(:ci?, true) do
-      sub.stub(:pipeline_slug, "rails-ci-nightly") do
-        assert_equal Pathname.new(Dir.pwd), sub.rails_root
-      end
-    end
-  end
-
-  def test_rails_root_nightly_ci
-    sub = create_build_context
-    sub.stub(:ci?, true) do
-      sub.stub(:pipeline_slug, "rails-nightly") do
-        assert_equal Pathname.new(Dir.pwd), sub.rails_root
-      end
-    end
-  end
-
-  def test_rails_root_not_ci
-    sub = create_build_context
-    sub.stub(:ci?, false) do
-      assert_equal Pathname.new(Dir.pwd) + "tmp/rails", sub.rails_root
-    end
-  end
-
-  def test_rails_root_not_pipeline
-    sub = create_build_context
-    sub.stub(:ci?, true) do
-      sub.stub(:pipeline_slug, "not-rails-ci") do
-        assert_equal Pathname.new(Dir.pwd) + "tmp/rails", sub.rails_root
-      end
-    end
+    assert_equal Pathname.new(Dir.pwd), sub.rails_root
   end
 
   def test_rails_version
@@ -158,13 +110,6 @@ class TestBuildContext < TestCase
     assert_equal Gem::Version.new("3.2"), sub.default_ruby.version
   end
 
-  def test_bundler_1_x
-    sub = create_build_context
-    sub.stub(:rails_version, Gem::Version.new("4.2")) do
-      assert_equal("< 2", sub.bundler)
-    end
-  end
-
   def test_bundler_2_2
     sub = create_build_context
     sub.stub(:rails_version, Gem::Version.new("5.1.4")) do
@@ -172,38 +117,10 @@ class TestBuildContext < TestCase
     end
   end
 
-  def test_rubygems_2_6
-    sub = create_build_context
-    sub.stub(:rails_version, Gem::Version.new("4.2")) do
-      assert_equal("2.6.13", sub.rubygems)
-    end
-  end
-
   def test_rubygems_3_2
     sub = create_build_context
     sub.stub(:rails_version, Gem::Version.new("5.1.4")) do
       assert_equal("3.2.9", sub.rubygems)
-    end
-  end
-
-  def test_max_ruby_2_4
-    sub = create_build_context
-    sub.stub(:rails_version, Gem::Version.new("4.2")) do
-      assert_equal sub.max_ruby, Gem::Version.new("2.4")
-    end
-  end
-
-  def test_max_ruby_2_5
-    sub = create_build_context
-    sub.stub(:rails_version, Gem::Version.new("5.1")) do
-      assert_equal sub.max_ruby, Gem::Version.new("2.5")
-    end
-  end
-
-  def test_max_ruby_2_6
-    sub = create_build_context
-    sub.stub(:rails_version, Gem::Version.new("5.2")) do
-      assert_equal sub.max_ruby, Gem::Version.new("2.6")
     end
   end
 

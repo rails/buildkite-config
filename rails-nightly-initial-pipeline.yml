@@ -61,18 +61,20 @@ steps:
       - artifacts#v1.2.0:
           upload: [".buildkite/**/*", ".dockerignore"]
     env:
+      BUNDLE_FROZEN: true
       PIPELINE_COMMAND: >-
         docker run --rm
         -v "$$PWD":/app:ro -w /app
         -e CI
+        -e BUILDKITE
         -e BUILDKITE_AGENT_META_DATA_QUEUE
         -e BUILDKITE_BRANCH
         -e BUILDKITE_BUILD_ID
-        -e BUILDKITE_PIPELINE_SLUG
         -e BUILDKITE_PULL_REQUEST
         -e BUILDKITE_PULL_REQUEST_BASE_BRANCH
         -e BUILDKITE_REBUILT_FROM_BUILD_ID
         -e BUILD_QUEUE
+        -e BUNDLE_FROZEN
         -e DOCKER_IMAGE
         -e RUN_QUEUE
         -e QUEUE
