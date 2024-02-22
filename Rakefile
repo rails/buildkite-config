@@ -7,11 +7,9 @@ require "minitest/test_task"
 Minitest::TestTask.create
 task default: [:test]
 
-task :diff, [:nightly] => [:buildkite_config, :rails] do |_, args|
-  args.with_defaults(nightly: false)
-
-  diff = Buildkite::Config::Diff.compare(nightly: args[:nightly])
-  annotate = Buildkite::Config::Annotate.new(diff, nightly: args[:nightly])
+task diff: [:buildkite_config, :rails] do
+  diff = Buildkite::Config::Diff.compare
+  annotate = Buildkite::Config::Annotate.new(diff)
   puts annotate.plan
 end
 

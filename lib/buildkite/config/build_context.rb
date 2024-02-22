@@ -19,6 +19,10 @@ module Buildkite::Config
       end
     end
 
+    def nightly?
+      ENV.has_key?("RAILS_CI_NIGHTLY")
+    end
+
     def rails_root
       Pathname.pwd
     end

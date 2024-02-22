@@ -61,10 +61,12 @@ steps:
       - artifacts#v1.2.0:
           upload: [".buildkite/**/*", ".dockerignore"]
     env:
+      RAILS_CI_NIGHTLY: true
       BUNDLE_FROZEN: true
       PIPELINE_COMMAND: >-
         docker run --rm
         -v "$$PWD":/app:ro -w /app
+        -e RAILS_CI_NIGHTLY
         -e CI
         -e BUILDKITE
         -e BUILDKITE_AGENT_META_DATA_QUEUE
@@ -79,7 +81,7 @@ steps:
         -e RUN_QUEUE
         -e QUEUE
         ruby:latest
-        .buildkite/pipeline-generate rails-ci-nightly |
+        .buildkite/pipeline-generate rails-ci |
         buildkite-agent pipeline upload
     timeout_in_minutes: 5
     agents:
