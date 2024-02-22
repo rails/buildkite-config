@@ -10,7 +10,14 @@ Buildkite::Builder.pipeline do
   plugin :docker_compose, "docker-compose#v4.16.0"
   plugin :artifacts, "artifacts#v1.9.3"
 
-  build_context.setup_rubies %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2 3.3)
+  if build_context.nightly?
+    build_context.rubies << Buildkite::Config::RubyConfig.master_ruby
+    build_context.rubies << Buildkite::Config::RubyConfig.yjit_ruby
+    build_context.rubies << Buildkite::Config::RubyConfig.master_debug_ruby
+    build_context.default_ruby = Buildkite::Config::RubyConfig.master_ruby
+  else
+    build_context.setup_rubies %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2 3.3)
+  end
 
   group do
     label "build"

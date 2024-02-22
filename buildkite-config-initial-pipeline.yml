@@ -72,14 +72,16 @@ steps:
         fi
       label: ":writing_hand: buildkite-config: annotate nightly diff"
       env:
+        RAILS_CI_NIGHTLY: true
         BUNDLE_FROZEN: true
         ANNOTATE_COMMAND: >-
           docker run --rm
           -v "$$PWD":/app:ro -w /app
           -v "$$PWD/tmp":/app/tmp:rw
+          -e RAILS_CI_NIGHTLY
           -e BUNDLE_FROZEN
           ruby:latest
-          ./pipeline-annotate --nightly
+          ./pipeline-annotate
 
   - group:
     label: ":rails: Rails CI"
