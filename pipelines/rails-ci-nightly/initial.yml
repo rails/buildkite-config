@@ -6,60 +6,42 @@ steps:
     command: |
       PATH=/bin:/usr/bin
       set -e
-      treesha="$$(git ls-tree -d HEAD .buildkite | awk '{print $$3}')"
-      if [ -z "$${treesha}" ]; then
-        echo "+++ No .buildkite/; using fallback repository"
-        rm -rf .buildkite
 
-        if [ -n "$$CONFIG_REPO" ]; then
-          GIT_REPO="$$CONFIG_REPO"
-        elif [ -n "$$CONFIG_FORK" ]; then
-          GIT_REPO="https://github.com/$$CONFIG_FORK/buildkite-config"
-        else
-          GIT_REPO="https://github.com/rails/buildkite-config"
-        fi
-
-        GIT_BRANCH="$${CONFIG_BRANCH-main}"
-        GIT_BRANCH="$${GIT_BRANCH#*:}"
-
-        echo "Cloning buildkite-config:"
-        echo "git clone -b \"$$GIT_BRANCH\" \"$$GIT_REPO\" .buildkite"
-        git clone -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
-
-        rm -rf .buildkite/.git
-        sh -c "$$PIPELINE_COMMAND"
-      elif [ "$${#treesha}" -lt 40 ]; then
-        echo "Short SHA for .buildkite/"
+      if [ -d ".buildkite" ]; then
+        echo "+++ :bk-status-failed: .buildkite/ already exists; please remove it and try again"
         exit 1
-      elif curl -s -S "https://gist.githubusercontent.com/matthewd/3f98bcc9957c8ddf2204a390bf3a6cdd/raw/list" | grep -a -F -x "$${treesha}"; then
-        echo "+++ Known tree; generating pipeline"
-        echo ".buildkite/ tree is $${treesha}"
-        sh -c "$$PIPELINE_COMMAND"
-      else
-        echo "+++ Unknown tree; requesting approval"
-        echo ".buildkite/ tree is $${treesha}"
-        buildkite-agent pipeline upload <<'NESTED'
-      steps:
-        - block: "Review Build Script"
-          prompt: |
-            This commit uses new build configuration. Please review the changes in .buildkite/ carefully before unblocking.
-        - name: ":pipeline:"
-          command: >-
-            $$PIPELINE_COMMAND
-          plugins:
-            - artifacts#v1.2.0:
-                download:
-                  - ".buildkite/*"
-                  - ".buildkite/**/*"
-          timeout_in_minutes: 5
-          agents:
-            queue: "$$BUILDKITE_AGENT_META_DATA_QUEUE"
-      NESTED
       fi
+
+      if [ -n "$$CONFIG_REPO" ]; then
+        GIT_REPO="$$CONFIG_REPO"
+      else
+        GIT_REPO="https://github.com/rails/buildkite-config"
+      fi
+
+      GIT_BRANCH="$${CONFIG_BRANCH-main}"
+      GIT_BRANCH="$${GIT_BRANCH#*:}"
+
+      echo "Cloning buildkite-config:"
+      echo "git clone -b \"$$GIT_BRANCH\" \"$$GIT_REPO\" .buildkite"
+      git clone -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
+
+      rm -rf .buildkite/.git
+      sh -c "$$PIPELINE_COMMAND"
+
       ([ -f .buildkite/.dockerignore ] && cp .buildkite/.dockerignore .dockerignore) || true
+
     plugins:
-      - artifacts#v1.2.0:
-          upload: [".buildkite/**/*", ".dockerignore"]
+      - artifacts#v1.9.3:
+          upload: ".dockerignore"
+      - artifacts#v1.9.3:
+          upload:
+            - .buildkite/.empty
+            - .buildkite/docker-compose.yml
+            - .buildkite/Dockerfile
+            - .buildkite/Dockerfile.beanstalkd
+            - .buildkite/mysql-initdb.d
+            - .buildkite/runner
+          compressed: ".buildkite.tgz"
     env:
       RAILS_CI_NIGHTLY: true
       BUNDLE_FROZEN: true
@@ -81,7 +63,7 @@ steps:
         -e RUN_QUEUE
         -e QUEUE
         ruby:latest
-        .buildkite/pipeline-generate rails-ci |
+        .buildkite/bin/pipeline-generate rails-ci |
         buildkite-agent pipeline upload
     timeout_in_minutes: 5
     agents:

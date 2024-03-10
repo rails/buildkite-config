@@ -25,8 +25,16 @@ class TestDockerBuild < TestCase
           "encrypted_0fb9444d0374_iv" => nil },
         "timeout_in_minutes" => 15,
         "plugins" =>
-         [{ "artifacts#v1.0" =>
-            { "download" => [".dockerignore", ".buildkite/*", ".buildkite/**/*"] } },
+        [{ "artifacts#v1.0" => { "download" => ".dockerignore" } },
+         { "artifacts#v1.0" =>
+           { "download" =>
+             [".buildkite/.empty",
+              ".buildkite/docker-compose.yml",
+              ".buildkite/Dockerfile",
+              ".buildkite/Dockerfile.beanstalkd",
+              ".buildkite/mysql-initdb.d",
+              ".buildkite/runner"],
+            "compressed" => ".buildkite.tgz" } },
           { "docker-compose#v1.0" =>
             { "build" => "base",
             "config" => ".buildkite/docker-compose.yml",
@@ -72,8 +80,16 @@ class TestDockerBuild < TestCase
           "encrypted_0fb9444d0374_iv" => nil },
         "timeout_in_minutes" => 15,
         "plugins" =>
-         [{ "artifacts#v1.0" =>
-            { "download" => [".dockerignore", ".buildkite/*", ".buildkite/**/*"] } },
+        [{ "artifacts#v1.0" => { "download" => ".dockerignore" } },
+          { "artifacts#v1.0" =>
+            { "download" =>
+              [".buildkite/.empty",
+              ".buildkite/docker-compose.yml",
+               ".buildkite/Dockerfile",
+               ".buildkite/Dockerfile.beanstalkd",
+               ".buildkite/mysql-initdb.d",
+               ".buildkite/runner"],
+             "compressed" => ".buildkite.tgz" } },
           { "docker-compose#v1.0" =>
             { "build" => "base",
             "config" => ".buildkite/docker-compose.yml",

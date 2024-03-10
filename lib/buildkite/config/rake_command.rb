@@ -53,7 +53,18 @@ module Buildkite::Config
           command "rake #{task}"
 
           plugin :artifacts, {
-            download: %w[.buildkite/* .buildkite/**/*]
+            download: ".dockerignore"
+          }
+          plugin :artifacts, {
+            download: %w[
+              .buildkite/.empty
+              .buildkite/docker-compose.yml
+              .buildkite/Dockerfile
+              .buildkite/Dockerfile.beanstalkd
+              .buildkite/mysql-initdb.d
+              .buildkite/runner
+            ],
+            compressed: ".buildkite.tgz"
           }
 
           plugin :docker_compose, {

@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Example usage:
+# bin/trigger-pipeline [options] org pipeline [slug]
+
+require "buildkit"
+require "optparse"
+
+def buildkite_token
+  ENV.fetch("BUILDKITE_TOKEN") {
+    raise "BUILDKITE_TOKEN undefined!\nMake sure your BUILDKITE_TOKEN has `write_builds` scope too!"
+  }
+end
+
+# Make sure your BUILDKITE_TOKEN has `write_builds` scope
+def trigger_pipeline(org, pipeline, slug, branch: "main", commit: "HEAD")
+  slug ||= pipeline
+  puts "Trigger build for #{pipeline}..."
+  configuration = File.read("pipelines/#{slug}/initial.yml")
+  client = Buildkit.new(token: buildkite_token)
+  resp = client.create_build(org, pipeline, {
+    branch: branch,
+    commit: commit,
+    override_steps_configuration: configuration
+  })
+  puts resp.web_url
+end
+
+options = {}
+OptionParser.new do |opts|
+  opts.on("--branch=BRANCH")
+  opts.on("--commit=COMMIT")
+end.parse!(into: options)
+
+org = ARGV.shift
+pipeline = ARGV.shift
+slug = ARGV.shift
+
+trigger_pipeline(org, pipeline, slug, **options)
