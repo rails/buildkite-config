@@ -58,7 +58,7 @@ steps:
           -v "$$PWD/tmp":/app/tmp:rw
           -e BUNDLE_FROZEN
           ruby:latest
-          ./pipeline-annotate
+          ./bin/pipeline-annotate
     - command: |
         mkdir -p tmp
         sh -c "$$ANNOTATE_COMMAND" > tmp/annotate-nightly.diff
@@ -81,7 +81,7 @@ steps:
           -e RAILS_CI_NIGHTLY
           -e BUNDLE_FROZEN
           ruby:latest
-          ./pipeline-annotate
+          ./bin/pipeline-annotate
 
   - group:
     label: ":rails: Rails CI"
@@ -102,7 +102,6 @@ steps:
           env:
             CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
             CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
-            BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
       - block: "Rails CI stable"
         key: block-rails-ci-stable
         prompt: |
@@ -118,7 +117,6 @@ steps:
           env:
             CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
             CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
-            BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
       - block: "Rails CI nightly"
         key: block-rails-ci-nightly-main
         prompt: |
@@ -134,7 +132,6 @@ steps:
           env:
             CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
             CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
-            BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
       - block: "Rails CI nightly stable"
         key: block-rails-ci-nightly-stable
         prompt: |
@@ -150,4 +147,3 @@ steps:
           env:
             CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
             CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
-            BUILDKITE_CONFIG_TRIGGER: true # This variable can be used downstream to avoid things like "if branch==main do Y"
