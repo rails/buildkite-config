@@ -9,40 +9,40 @@ class TestRakeCommand < TestCase
       use Buildkite::Config::RakeCommand
       ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
 
-      group do
+      command do
         label to_label(ruby, "test", "test:all")
       end
     end
 
-    expected = { "steps" => [{ "label" => "test all (3.2)", "group" => nil, "steps" => [] }] }
+    expected = { "steps" => [{ "label" => "test all (3.2)" }] }
     assert_equal expected, pipeline.to_h
   end
 
   def test_ruby_image_key
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
-      build_context.ruby = Buildkite::Config::RubyConfig.new(version: "3.2", prefix: "ruby:")
+      ruby = Buildkite::Config::RubyConfig.new(version: "3.2", prefix: "ruby:")
 
-      group do
-        depends_on build_context.ruby.image_key
+      command do
+        depends_on ruby.image_key
       end
     end
 
-    expected = { "steps" => [{ "depends_on" => ["ruby-3-2"], "group" => nil, "steps" => [] }] }
+    expected = { "steps" => [{ "depends_on" => ["ruby-3-2"] }] }
     assert_equal expected, pipeline.to_h
   end
 
   def test_depends_on_yjit
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RakeCommand
-      build_context.ruby = Buildkite::Config::RubyConfig.yjit_ruby
+      ruby = Buildkite::Config::RubyConfig.yjit_ruby
 
-      group do
-        depends_on build_context.ruby.ruby_image
+      command do
+        depends_on ruby.ruby_image
       end
     end
 
-    expected = { "steps" => [{ "depends_on" => ["rubylang/ruby:master-nightly-jammy"], "group" => nil, "steps" => [] }] }
+    expected = { "steps" => [{ "depends_on" => ["rubylang/ruby:master-nightly-jammy"] }] }
     assert_equal expected, pipeline.to_h
   end
 
