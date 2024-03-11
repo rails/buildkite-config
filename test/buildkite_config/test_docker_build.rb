@@ -9,7 +9,7 @@ class TestDockerBuild < TestCase
       use Buildkite::Config::DockerBuild
 
       build_context.stub(:rails_version, Gem::Version.new("7.1")) do
-        builder ruby: Buildkite::Config::RubyConfig.new(prefix: "builder:", version: "3.2")
+        builder Buildkite::Config::RubyConfig.new(prefix: "builder:", version: "3.2")
       end
     end
 
@@ -52,7 +52,7 @@ class TestDockerBuild < TestCase
       yjit = Buildkite::Config::RubyConfig.yjit_ruby
 
       build_context.stub(:rails_version, Gem::Version.new("7.1")) do
-        builder ruby: yjit
+        builder yjit
       end
     end
 
@@ -64,7 +64,7 @@ class TestDockerBuild < TestCase
       use Buildkite::Config::DockerBuild
 
       build_context.stub(:rails_version, Gem::Version.new("7.1")) do
-        builder ruby: Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("1.9.3"))
+        builder Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("1.9.3"))
       end
     end
 

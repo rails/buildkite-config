@@ -8,7 +8,7 @@ class TestRubyGroup < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RubyGroup
 
-      ruby_group config: Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2")) do
+      ruby_group Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2")) do
         build_context = context.extensions.find(Buildkite::Config::BuildContext)
 
         command do
@@ -29,7 +29,7 @@ class TestRubyGroup < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RubyGroup
 
-      ruby_group config: Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"), soft_fail: true) do
+      ruby_group Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.3"), soft_fail: true) do
         build_context = context.extensions.find(Buildkite::Config::BuildContext)
 
         command do
@@ -50,7 +50,7 @@ class TestRubyGroup < TestCase
     pipeline = PipelineFixture.new do
       use Buildkite::Config::RubyGroup
 
-      ruby_group config: Buildkite::Config::RubyConfig.new(version: Gem::Version.new("1.8.7")) do
+      ruby_group Buildkite::Config::RubyConfig.new(version: Gem::Version.new("1.8.7")) do
         command do
           label "test"
           command "rake test"
@@ -70,7 +70,7 @@ class TestRubyGroup < TestCase
       use Buildkite::Config::RubyGroup
       yjit = Buildkite::Config::RubyConfig.yjit_ruby
 
-      ruby_group config: yjit do
+      ruby_group yjit do
         build_context = context.extensions.find(Buildkite::Config::BuildContext)
 
         command do
