@@ -29,16 +29,6 @@ module Buildkite::Config
           task = "db:postgresql:rebuild #{task}"
         end
 
-        if build_context.rails_version < Gem::Version.new("5.x")
-          _env["MYSQL_IMAGE"] = "mysql:5.6"
-        elsif build_context.rails_version < Gem::Version.new("6.x")
-          _env["MYSQL_IMAGE"] = "mysql:5.7"
-        end
-
-        if build_context.rails_version < Gem::Version.new("5.2.x")
-          _env["POSTGRES_IMAGE"] = "postgres:9.6-alpine"
-        end
-
         if build_context.ruby.yjit_enabled?
           _env[:RUBY_YJIT_ENABLE] = "1"
         end

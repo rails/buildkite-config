@@ -663,9 +663,7 @@ class TestRakeCommand < TestCase
         "artifact_paths" => ["test-reports/*/*.xml"],
         "agents" => { "queue" => "default" },
         "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
-        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local",
-                   "MYSQL_IMAGE" => "mysql:5.7",
-                   "POSTGRES_IMAGE" => "postgres:9.6-alpine" },
+        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local" },
         "timeout_in_minutes" => 30,
         "plugins" =>
         [{ "artifacts#v1.0" => { "download" => ".dockerignore" } },
@@ -704,9 +702,7 @@ class TestRakeCommand < TestCase
         "artifact_paths" => ["test-reports/*/*.xml"],
         "agents" => { "queue" => "default" },
         "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
-        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local",
-                   "MYSQL_IMAGE" => "mysql:5.6",
-                   "POSTGRES_IMAGE" => "postgres:9.6-alpine" },
+        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local" },
         "timeout_in_minutes" => 30,
         "plugins" =>
         [{ "artifacts#v1.0" => { "download" => ".dockerignore" } },
@@ -745,9 +741,7 @@ class TestRakeCommand < TestCase
         "artifact_paths" => ["test-reports/*/*.xml"],
         "agents" => { "queue" => "default" },
         "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
-        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local",
-                   "MYSQL_IMAGE" => "mysql:5.7",
-                   "POSTGRES_IMAGE" => "postgres:9.6-alpine" },
+        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local" },
         "timeout_in_minutes" => 30,
         "plugins" =>
         [{ "artifacts#v1.0" => { "download" => ".dockerignore" } },
