@@ -77,6 +77,10 @@ module Buildkite::Config
       ENV["DOCKER_IMAGE"] || remote_image_base
     end
 
+    def image_name_for(source)
+      "base:#{image_base}:#{ruby.image_name_for(source)}"
+    end
+
     def build_id
       ENV["BUILDKITE_BUILD_ID"] || ENV["BUILD_ID"] || "build_id"
     end
