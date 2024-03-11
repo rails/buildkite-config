@@ -159,6 +159,12 @@ class TestBuildContext < TestCase
     ENV["DOCKER_IMAGE"] = @before_docker_image
   end
 
+  def test_image_name_for
+    sub = create_build_context
+    sub.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.3"))
+    assert_equal "base:buildkite-config-base:ruby-3-3-br-main", sub.image_name_for("br-main")
+  end
+
   def test_build_id
     sub = create_build_context
     assert_equal "local", sub.build_id
