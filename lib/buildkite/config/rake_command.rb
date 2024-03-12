@@ -20,7 +20,7 @@ module Buildkite::Config
         env ||= {}
         pre_steps ||= []
 
-        env[:IMAGE_NAME] = build_context.image_base + ":" + build_context.ruby.image_name_for(build_context.build_id)
+        env[:IMAGE_NAME] = build_context.image_name_for(build_context.build_id, prefix: nil)
 
         if build_context.ruby.yjit_enabled?
           env[:RUBY_YJIT_ENABLE] = "1"
