@@ -137,8 +137,8 @@ services:
     image: "${MYSQL_IMAGE-mysql:latest}"
     command: "--default-authentication-plugin=mysql_native_password"
     healthcheck:
-      test: mysqladmin -h localhost -P 3306 ping --silent
-      interval: 10s
+      test: mysql -h localhost -P 3306 -e "SELECT 1;"
+      interval: 1s
       retries: 60
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
@@ -149,7 +149,7 @@ services:
     <<: *mysql-defaults
     healthcheck:
       test: healthcheck.sh --su-mysql --connect --innodb_initialized
-      interval: 10s
+      interval: 1s
       retries: 60
 
   postgres:
