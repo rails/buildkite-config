@@ -1,16 +1,21 @@
 # frozen_string_literal: true
 
 Buildkite::Builder.pipeline do
+  require "buildkite_config"
+  use Buildkite::Config::BuildContext
+
   plugin :docker, "docker#v5.10.0"
-  plugin :artifacts, "artifacts#v1.2.0"
-  # plugin :artifacts, "artifacts#v1.9.2"
+  plugin :artifacts, "artifacts#v1.9.3"
+
+  build_context = context.extensions.find(Buildkite::Config::BuildContext)
+  build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.3"))
 
   command do
     label "build", emoji: :rails
     key "build"
     command "bundle install && bundle exec rake preview_docs"
     plugin :docker, {
-      image: "ruby:latest",
+      image: build_context.image_name_for("br-main", prefix: nil),
       environment: [
         "BUILDKITE_BRANCH",
         "BUILDKITE_BUILD_CREATOR",
@@ -23,7 +28,9 @@ Buildkite::Builder.pipeline do
         "BUNDLE_WITHOUT=db:job:cable:storage:ujs",
       ],
     }
-    artifact_paths "preview.tar.gz"
+    plugin :artifacts, {
+      upload: "preview.tar.gz"
+    }
   end
 
   command do
@@ -41,7 +48,9 @@ Buildkite::Builder.pipeline do
       ],
       image: "node:latest"
     }
-    plugin :artifacts, { download: "preview.tar.gz" }
+    plugin :artifacts, {
+      download: "preview.tar.gz"
+    }
     command "tar -xzf preview.tar.gz"
     command "npm install wrangler"
     command "npx wrangler pages publish preview --project-name=$CLOUDFLARE_PAGES_PROJECT --branch=\"$BUILDKITE_BRANCH\""

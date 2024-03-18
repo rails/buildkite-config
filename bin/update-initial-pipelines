@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "buildkit"
+
+def buildkite_token
+  ENV.fetch("BUILDKITE_TOKEN") {
+    raise "BUILDKITE_TOKEN undefined!\nMake sure your BUILDKITE_TOKEN has `write_pipelines` scope too!"
+  }
+end
+
+# Make sure your BUILDKITE_TOKEN has `write_pipelines` scope
+def update_pipeline(org, pipeline, slug = nil)
+  slug ||= pipeline
+  puts "Updating #{pipeline}..."
+  configuration = File.read("pipelines/#{slug}/initial.yml")
+  client = Buildkit.new(token: buildkite_token)
+  resp = client.update_pipeline(org, pipeline, {
+    configuration: configuration
+  })
+  puts resp.steps
+end
+
+# org     pipeline          slug
+%(
+  rails   rails             rails-ci
+  rails   rails-ci          rails-ci
+  rails   rails-nightly     rails-ci-nightly
+  rails   rails-ci-nightly  rails-ci-nightly
+  rails   buildkite-config  buildkite-config
+  rails   docs-preview      docs-preview
+).each_slice(3) do |org, pipeline, slug|
+  update_pipeline(org, pipeline, slug)
+end

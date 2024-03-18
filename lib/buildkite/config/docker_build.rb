@@ -4,8 +4,46 @@ require "buildkite-builder"
 
 module Buildkite::Config
   class DockerBuild < Buildkite::Builder::Extension
+    module Step
+      def cache_from(build_context)
+        sources = []
+
+        if build_context.rebuild_id
+          sources << build_context.image_name_for(build_context.rebuild_id)
+        end
+
+        if build_context.pull_request
+          sources << build_context.image_name_for("pr-#{build_context.pull_request}")
+        end
+
+        if build_context.local_branch && build_context.local_branch !~ /:/
+          sources << build_context.image_name_for("br-#{build_context.local_branch}")
+        end
+
+        if build_context.base_branch
+          sources << build_context.image_name_for("br-#{build_context.base_branch}")
+        end
+
+        sources << build_context.image_name_for("br-main")
+
+        sources.grep(String).uniq
+      end
+
+      def build_push(build_context)
+        [
+          build_context.local_branch =~ /:/ ?
+            build_context.image_name_for("pr-#{build_context.pull_request}") :
+            build_context.image_name_for("br-#{build_context.local_branch}"),
+        ]
+      end
+    end
+
+    def prepare
+      ::Buildkite::Pipelines::Steps::Command.prepend(DockerBuild::Step)
+    end
+
     dsl do
-      def builder(ruby:, &block)
+      def builder(ruby)
         build_context = context.extensions.find(BuildContext)
         build_context.ruby = ruby
         return unless build_context.ruby.build?
@@ -14,7 +52,18 @@ module Buildkite::Config
           label ":docker: #{build_context.ruby.prefix}#{build_context.ruby.version}"
           key "docker-image-#{build_context.ruby.image_key}"
           plugin :artifacts, {
-            download: %w[.dockerignore .buildkite/* .buildkite/**/*]
+            download: ".dockerignore"
+          }
+          plugin :artifacts, {
+            download: %w[
+              .buildkite/.empty
+              .buildkite/docker-compose.yml
+              .buildkite/Dockerfile
+              .buildkite/Dockerfile.beanstalkd
+              .buildkite/mysql-initdb.d
+              .buildkite/runner
+            ],
+            compressed: ".buildkite.tgz"
           }
 
           plugin :docker_compose, {
@@ -22,18 +71,8 @@ module Buildkite::Config
             config: ".buildkite/docker-compose.yml",
             env: %w[PRE_STEPS RACK],
             "image-name" => build_context.ruby.image_name_for(build_context.build_id),
-            "cache-from" => [
-              build_context.rebuild_id && "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for(build_context.rebuild_id),
-              build_context.pull_request && "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("pr-#{build_context.pull_request}"),
-              build_context.local_branch && build_context.local_branch !~ /:/ && "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("br-#{build_context.local_branch}"),
-              build_context.base_branch && "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("br-#{build_context.base_branch}"),
-              "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("br-main"),
-            ].grep(String).uniq,
-            push: [
-              build_context.local_branch =~ /:/ ?
-                "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("pr-#{build_context.pull_request}") :
-                "base:" + build_context.image_base + ":" + build_context.ruby.image_name_for("br-#{build_context.local_branch}"),
-            ],
+            "cache-from" => cache_from(build_context),
+            push: build_push(build_context),
             "image-repository" => build_context.image_base,
           }
 
@@ -51,8 +90,6 @@ module Buildkite::Config
             soft_fail true
           end
           agents queue: build_context.build_queue
-
-          instance_exec(@attributes, &block) if block_given?
         end
       end
     end

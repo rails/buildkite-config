@@ -1,0 +1,68 @@
+# This file is never read -- it's just a copy of the pipeline's
+# configuration in the Buildkite UI.
+
+steps:
+  - name: ":pipeline: rails-initial-pipeline"
+    command: |
+      PATH=/bin:/usr/bin
+      set -e
+
+      if [ -d ".buildkite" ]; then
+        echo "+++ :bk-status-failed: .buildkite/ already exists; please remove it and try again"
+        exit 1
+      fi
+
+      if [ -n "$$CONFIG_REPO" ]; then
+        GIT_REPO="$$CONFIG_REPO"
+      else
+        GIT_REPO="https://github.com/rails/buildkite-config"
+      fi
+
+      GIT_BRANCH="$${CONFIG_BRANCH-main}"
+      GIT_BRANCH="$${GIT_BRANCH#*:}"
+
+      echo "Cloning buildkite-config:"
+      echo "git clone -b \"$$GIT_BRANCH\" \"$$GIT_REPO\" .buildkite"
+      git clone -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
+
+      rm -rf .buildkite/.git
+      sh -c "$$PIPELINE_COMMAND"
+
+      ([ -f .buildkite/.dockerignore ] && cp .buildkite/.dockerignore .dockerignore) || true
+
+    plugins:
+      - artifacts#v1.9.3:
+          upload: ".dockerignore"
+      - artifacts#v1.9.3:
+          upload:
+            - .buildkite/.empty
+            - .buildkite/docker-compose.yml
+            - .buildkite/Dockerfile
+            - .buildkite/Dockerfile.beanstalkd
+            - .buildkite/mysql-initdb.d
+            - .buildkite/runner
+          compressed: ".buildkite.tgz"
+    env:
+      BUNDLE_FROZEN: true
+      PIPELINE_COMMAND: >-
+        docker run --rm
+        -v "$$PWD":/app:ro -w /app
+        -e CI
+        -e BUILDKITE
+        -e BUILDKITE_AGENT_META_DATA_QUEUE
+        -e BUILDKITE_BRANCH
+        -e BUILDKITE_BUILD_ID
+        -e BUILDKITE_PULL_REQUEST
+        -e BUILDKITE_PULL_REQUEST_BASE_BRANCH
+        -e BUILDKITE_REBUILT_FROM_BUILD_ID
+        -e BUILD_QUEUE
+        -e BUNDLE_FROZEN
+        -e DOCKER_IMAGE
+        -e RUN_QUEUE
+        -e QUEUE
+        ruby:latest
+        .buildkite/bin/pipeline-generate rails-ci |
+        buildkite-agent pipeline upload
+    timeout_in_minutes: 5
+    agents:
+      queue: "${QUEUE-builder}"

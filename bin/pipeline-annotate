@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-nightly = ARGV.include?("--nightly")
-
 def run(cmd, value = false)
   io = IO.popen(cmd)
   output = io.read
@@ -15,6 +13,6 @@ end
 
 run "bundle install"
 
-annotation = run "bundle exec rake diff#{"[true]" if nightly}", true
+annotation = run "bundle exec rake diff", true
 
 puts annotation

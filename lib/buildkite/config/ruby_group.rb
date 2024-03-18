@@ -5,7 +5,7 @@ require "buildkite-builder"
 module Buildkite::Config
   class RubyGroup < Buildkite::Builder::Extension
     dsl do
-      def ruby_group(config:, &block)
+      def ruby_group(config, &block)
         build_context = context.extensions.find(BuildContext)
         build_context.ruby = config
 
