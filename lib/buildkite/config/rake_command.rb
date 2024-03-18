@@ -59,7 +59,6 @@ module Buildkite::Config
           plugin :docker_compose, {
             "env" => %w[PRE_STEPS RACK],
             "run" => service,
-            "pull" => service,
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", dir],
           }
