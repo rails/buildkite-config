@@ -162,5 +162,6 @@ Buildkite::Builder.pipeline do
     label "lint"
 
     bundle "exec rubocop --parallel", label: "rubocop"
+    rake "guides", task: "guides:lint"
   end
 end
