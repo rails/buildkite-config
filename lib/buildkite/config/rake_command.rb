@@ -32,6 +32,31 @@ module Buildkite::Config
 
         env
       end
+
+      def install_plugins(service = "default", env = nil, dir = ".")
+        plugin :artifacts, {
+            download: ".dockerignore"
+          }
+        plugin :artifacts, {
+          download: %w[
+            .buildkite/.empty
+            .buildkite/docker-compose.yml
+            .buildkite/Dockerfile
+            .buildkite/Dockerfile.beanstalkd
+            .buildkite/mysql-initdb.d
+            .buildkite/runner
+          ],
+          compressed: ".buildkite.tgz"
+        }
+
+        plugin :docker_compose, {
+          "env" => env,
+          "run" => service,
+          "pull" => service,
+          "config" => ".buildkite/docker-compose.yml",
+          "shell" => ["runner", *dir],
+        }.compact
+      end
     end
 
     def prepare
@@ -39,6 +64,26 @@ module Buildkite::Config
     end
 
     dsl do
+      def bundle(command, label:)
+        build_context = context.extensions.find(BuildContext)
+
+        command do
+          label label
+          depends_on "docker-image-#{build_context.ruby.image_key}"
+          command command
+
+          install_plugins
+
+          env build_env(build_context, nil, nil)
+
+          agents queue: build_context.run_queue
+
+          artifact_paths build_context.artifact_paths
+
+          timeout_in_minutes build_context.timeout_in_minutes
+        end
+      end
+
       def rake(dir, task: "test", label: nil, service: "default", pre_steps: nil, env: nil, retry_on: nil, soft_fail: nil, parallelism: nil)
         build_context = context.extensions.find(BuildContext)
 
@@ -53,28 +98,7 @@ module Buildkite::Config
           depends_on "docker-image-#{build_context.ruby.image_key}"
           command "rake #{task}"
 
-          plugin :artifacts, {
-            download: ".dockerignore"
-          }
-          plugin :artifacts, {
-            download: %w[
-              .buildkite/.empty
-              .buildkite/docker-compose.yml
-              .buildkite/Dockerfile
-              .buildkite/Dockerfile.beanstalkd
-              .buildkite/mysql-initdb.d
-              .buildkite/runner
-            ],
-            compressed: ".buildkite.tgz"
-          }
-
-          plugin :docker_compose, {
-            "env" => %w[PRE_STEPS RACK],
-            "run" => service,
-            "pull" => service,
-            "config" => ".buildkite/docker-compose.yml",
-            "shell" => ["runner", dir],
-          }
+          install_plugins(service,  %w[PRE_STEPS RACK], dir)
 
           env build_env(build_context, pre_steps, env)
 

@@ -156,4 +156,11 @@ Buildkite::Builder.pipeline do
     rake "activemodel", task: "test:isolated"
     rake "activesupport", task: "test:isolated"
   end
+
+  # Lints
+  ruby_group build_context.default_ruby do
+    label "lint"
+
+    bundle "exec rubocop --parallel", label: "rubocop"
+  end
 end
