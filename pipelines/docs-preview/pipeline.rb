@@ -2,8 +2,7 @@
 
 Buildkite::Builder.pipeline do
   plugin :docker, "docker#v5.10.0"
-  plugin :artifacts, "artifacts#v1.2.0"
-  # plugin :artifacts, "artifacts#v1.9.2"
+  plugin :artifacts, "artifacts#v1.9.3"
 
   command do
     label "build", emoji: :rails
@@ -23,7 +22,9 @@ Buildkite::Builder.pipeline do
         "BUNDLE_WITHOUT=db:job:cable:storage:ujs",
       ],
     }
-    artifact_paths "preview.tar.gz"
+    plugin :artifacts, {
+      upload: "preview.tar.gz"
+    }
   end
 
   command do
@@ -41,7 +42,9 @@ Buildkite::Builder.pipeline do
       ],
       image: "node:latest"
     }
-    plugin :artifacts, { download: "preview.tar.gz" }
+    plugin :artifacts, {
+      download: "preview.tar.gz"
+    }
     command "tar -xzf preview.tar.gz"
     command "npm install wrangler"
     command "npx wrangler pages publish preview --project-name=$CLOUDFLARE_PAGES_PROJECT --branch=\"$BUILDKITE_BRANCH\""

@@ -14,7 +14,18 @@ module Buildkite::Config
           label ":docker: #{build_context.ruby.prefix}#{build_context.ruby.version}"
           key "docker-image-#{build_context.ruby.image_key}"
           plugin :artifacts, {
-            download: %w[.dockerignore .buildkite/* .buildkite/**/*]
+            download: ".dockerignore"
+          }
+          plugin :artifacts, {
+            download: %w[
+              .buildkite/.empty
+              .buildkite/docker-compose.yml
+              .buildkite/Dockerfile
+              .buildkite/Dockerfile.beanstalkd
+              .buildkite/mysql-initdb.d
+              .buildkite/runner
+            ],
+            compressed: ".buildkite.tgz"
           }
 
           plugin :docker_compose, {

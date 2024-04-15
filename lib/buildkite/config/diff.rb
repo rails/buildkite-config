@@ -13,12 +13,17 @@ module Buildkite::Config
     def self.generated_pipeline(repo)
       File.symlink(repo, "tmp/rails/.buildkite")
 
-      command = ["ruby", ".buildkite/pipeline-generate"]
-
-      pipeline = "rails-ci"
-      command.push(pipeline)
-
       Dir.chdir("tmp/rails") do
+        bin = if File.exist?(".buildkite/bin/pipeline-generate")
+          ".buildkite/bin/pipeline-generate"
+        else
+          ".buildkite/pipeline-generate"
+        end
+        command = ["ruby", bin]
+
+        pipeline = "rails-ci"
+        command.push(pipeline)
+
         io = IO.popen(command)
         output = io.read
         io.close
