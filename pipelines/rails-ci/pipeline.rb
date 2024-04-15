@@ -163,7 +163,10 @@ Buildkite::Builder.pipeline do
 
     bundle "exec rubocop --parallel", label: "rubocop"
     rake "guides", task: "guides:lint"
-    bundle "exec tools/railspect changelogs .", label: "changelogs"
-    bundle "exec tools/railspect configuration .", label: "configuration"
+
+    if build_context.has_railspect?
+      bundle "exec tools/railspect changelogs .", label: "changelogs"
+      bundle "exec tools/railspect configuration .", label: "configuration"
+    end
   end
 end
