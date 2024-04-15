@@ -307,84 +307,6 @@ class TestRakeCommand < TestCase
     assert_equal expected, pipeline.to_h
   end
 
-  def test_agents
-    pipeline = PipelineFixture.new do
-      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
-      use Buildkite::Config::RakeCommand
-
-      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
-        rake "test_agents", agents: { queue: "test_agents" }
-      end
-    end
-
-    expected = { "steps" =>
-      [{ "label" => "test_agents (3.2)",
-        "command" => ["rake test"],
-        "depends_on" => ["docker-image-3-2"],
-        "artifact_paths" => ["test-reports/*/*.xml"],
-        "agents" => { "queue" => "test_agents" },
-        "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
-        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local" },
-        "timeout_in_minutes" => 30,
-        "plugins" =>
-        [{ "artifacts#v1.0" => { "download" => ".dockerignore" } },
-         { "artifacts#v1.0" =>
-           { "download" =>
-             [".buildkite/.empty",
-              ".buildkite/docker-compose.yml",
-              ".buildkite/Dockerfile",
-              ".buildkite/Dockerfile.beanstalkd",
-              ".buildkite/mysql-initdb.d",
-              ".buildkite/runner"],
-            "compressed" => ".buildkite.tgz" } },
-          { "docker-compose#v1.0" =>
-            { "env" => ["PRE_STEPS", "RACK"],
-            "run" => "default",
-            "pull" => "default",
-            "config" => ".buildkite/docker-compose.yml",
-            "shell" => ["runner", "test_agents"] } }] }] }
-    assert_equal expected, pipeline.to_h
-  end
-
-  def test_artifact_paths
-    pipeline = PipelineFixture.new do
-      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
-      use Buildkite::Config::RakeCommand
-
-      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
-        rake "test_artifact_paths", artifact_paths: ["test_artifact_paths"]
-      end
-    end
-
-    expected = { "steps" =>
-      [{ "label" => "test_artifact_paths (3.2)",
-        "command" => ["rake test"],
-        "depends_on" => ["docker-image-3-2"],
-        "artifact_paths" => ["test_artifact_paths"],
-        "agents" => { "queue" => "default" },
-        "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
-        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local" },
-        "timeout_in_minutes" => 30,
-        "plugins" =>
-        [{ "artifacts#v1.0" => { "download" => ".dockerignore" } },
-         { "artifacts#v1.0" =>
-           { "download" =>
-             [".buildkite/.empty",
-              ".buildkite/docker-compose.yml",
-              ".buildkite/Dockerfile",
-              ".buildkite/Dockerfile.beanstalkd",
-              ".buildkite/mysql-initdb.d",
-              ".buildkite/runner"],
-            "compressed" => ".buildkite.tgz" } },
-          { "docker-compose#v1.0" =>
-            { "env" => ["PRE_STEPS", "RACK"],
-            "run" => "default",
-            "pull" => "default",
-            "config" => ".buildkite/docker-compose.yml",
-            "shell" => ["runner", "test_artifact_paths"] } }] }] }
-    assert_equal expected, pipeline.to_h
-  end
-
   def test_automatic_retry_on
     pipeline = PipelineFixture.new do
       build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
@@ -421,45 +343,6 @@ class TestRakeCommand < TestCase
             "pull" => "default",
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", "test_automatic_retry_on"] } }] }] }
-    assert_equal expected, pipeline.to_h
-  end
-
-  def test_timeout_in_minutes
-    pipeline = PipelineFixture.new do
-      build_context.ruby = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
-      use Buildkite::Config::RakeCommand
-
-      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
-        rake "test_timeout_in_minutes", timeout_in_minutes: 10
-      end
-    end
-
-    expected = { "steps" =>
-      [{ "label" => "test_timeout_in_minutes (3.2)",
-        "command" => ["rake test"],
-        "depends_on" => ["docker-image-3-2"],
-        "artifact_paths" => ["test-reports/*/*.xml"],
-        "agents" => { "queue" => "default" },
-        "retry" => { "automatic" => [{ "limit" => 2, "exit_status" => -1 }] },
-        "env" => { "IMAGE_NAME" => "buildkite-config-base:3-2-local" },
-        "timeout_in_minutes" => 10,
-        "plugins" =>
-        [{ "artifacts#v1.0" => { "download" => ".dockerignore" } },
-         { "artifacts#v1.0" =>
-           { "download" =>
-             [".buildkite/.empty",
-              ".buildkite/docker-compose.yml",
-              ".buildkite/Dockerfile",
-              ".buildkite/Dockerfile.beanstalkd",
-              ".buildkite/mysql-initdb.d",
-              ".buildkite/runner"],
-            "compressed" => ".buildkite.tgz" } },
-          { "docker-compose#v1.0" =>
-            { "env" => ["PRE_STEPS", "RACK"],
-            "run" => "default",
-            "pull" => "default",
-            "config" => ".buildkite/docker-compose.yml",
-            "shell" => ["runner", "test_timeout_in_minutes"] } }] }] }
     assert_equal expected, pipeline.to_h
   end
 

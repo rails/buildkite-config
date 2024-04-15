@@ -39,9 +39,8 @@ module Buildkite::Config
     end
 
     dsl do
-      def rake(dir, options = {})
+      def rake(dir, task: "test", label: nil, service: "default", pre_steps: nil, env: nil, retry_on: nil, soft_fail: nil, parallelism: nil)
         build_context = context.extensions.find(BuildContext)
-        task = options[:task] || "test"
 
         if task.start_with?("mysql2:") || (build_context.rails_version >= Gem::Version.new("7.1.0.alpha") && task.start_with?("trilogy:"))
           task = "db:mysql:rebuild #{task}"
@@ -50,7 +49,7 @@ module Buildkite::Config
         end
 
         command do
-          label to_label(build_context.ruby, dir, task, options[:label])
+          label to_label(build_context.ruby, dir, task, label)
           depends_on "docker-image-#{build_context.ruby.image_key}"
           command "rake #{task}"
 
@@ -71,32 +70,32 @@ module Buildkite::Config
 
           plugin :docker_compose, {
             "env" => %w[PRE_STEPS RACK],
-            "run" => options[:service] || "default",
-            "pull" => options[:service] || "default",
+            "run" => service,
+            "pull" => service,
             "config" => ".buildkite/docker-compose.yml",
             "shell" => ["runner", dir],
           }
 
-          env build_env(build_context, options[:pre_steps], options[:env])
+          env build_env(build_context, pre_steps, env)
 
-          agents options[:agents] || { queue: build_context.run_queue }
+          agents queue: build_context.run_queue
 
-          artifact_paths options[:artifact_paths] || build_context.artifact_paths
+          artifact_paths build_context.artifact_paths
 
-          if options[:retry_on]
-            automatic_retry_on(**options[:retry_on])
+          if retry_on
+            automatic_retry_on(**retry_on)
           else
             automatic_retry_on(**build_context.automatic_retry_on)
           end
 
-          timeout_in_minutes options[:timeout_in_minutes] || build_context.timeout_in_minutes
+          timeout_in_minutes build_context.timeout_in_minutes
 
-          if options[:soft_fail] || build_context.ruby.soft_fail?
+          if soft_fail || build_context.ruby.soft_fail?
             soft_fail true
           end
 
-          if options[:parallelism]
-            parallelism options[:parallelism]
+          if parallelism
+            parallelism parallelism
           end
         end
       end
