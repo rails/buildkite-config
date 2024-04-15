@@ -10,25 +10,20 @@ def buildkite_token
 end
 
 # Make sure your BUILDKITE_TOKEN has `write_pipelines` scope
-def update_pipeline(org, pipeline, slug = nil)
+def update_pipeline(pipeline, slug = nil)
   slug ||= pipeline
   puts "Updating #{pipeline}..."
   configuration = File.read("pipelines/#{slug}/initial.yml")
   client = Buildkit.new(token: buildkite_token)
-  resp = client.update_pipeline(org, pipeline, {
+  resp = client.update_pipeline("rails", pipeline, {
     configuration: configuration
   })
   puts resp.steps
 end
 
-# org     pipeline          slug
-%(
-  rails   rails             rails-ci
-  rails   rails-ci          rails-ci
-  rails   rails-nightly     rails-ci-nightly
-  rails   rails-ci-nightly  rails-ci-nightly
-  rails   buildkite-config  buildkite-config
-  rails   docs-preview      docs-preview
-).each_slice(3) do |org, pipeline, slug|
-  update_pipeline(org, pipeline, slug)
-end
+update_pipeline("rails", "rails-ci")
+update_pipeline("rails-ci", "rails-ci")
+update_pipeline("rails-nightly", "rails-ci-nightly")
+update_pipeline("rails-ci-nightly", "rails-ci-nightly")
+update_pipeline("buildkite-config", "buildkite-config")
+update_pipeline("docs-preview", "docs-preview")
