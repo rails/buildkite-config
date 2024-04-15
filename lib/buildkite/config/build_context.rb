@@ -129,6 +129,10 @@ module Buildkite::Config
       File.exist?(rails_root.join("tools/railspect"))
     end
 
+    def support_guides_lint?
+      rails_version >= Gem::Version.new("7.1.0.beta1")
+    end
+
     def build_queue
       ENV["BUILD_QUEUE"] || queue || "builder"
     end

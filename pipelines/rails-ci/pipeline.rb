@@ -162,7 +162,10 @@ Buildkite::Builder.pipeline do
     label "lint"
 
     bundle "exec rubocop --parallel", label: "rubocop"
-    rake "guides", task: "guides:lint"
+
+    if build_context.support_guides_lint?
+      rake "guides", task: "guides:lint"
+    end
 
     if build_context.has_railspect?
       bundle "exec tools/railspect changelogs .", label: "changelogs"

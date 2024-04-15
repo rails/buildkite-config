@@ -489,4 +489,16 @@ class TestBuildContext < TestCase
       assert_predicate sub, :has_railspect?
     end
   end
+
+  def test_support_guides_lint
+    sub = create_build_context
+
+    sub.stub(:rails_version, Gem::Version.new("7.0.0")) do
+      assert_not_predicate sub, :support_guides_lint?
+    end
+
+    sub.stub(:rails_version, Gem::Version.new("7.1.0")) do
+      assert_predicate sub, :support_guides_lint?
+    end
+  end
 end
