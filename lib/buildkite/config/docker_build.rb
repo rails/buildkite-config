@@ -5,7 +5,7 @@ require "buildkite-builder"
 module Buildkite::Config
   class DockerBuild < Buildkite::Builder::Extension
     dsl do
-      def builder(ruby:, &block)
+      def builder(ruby)
         build_context = context.extensions.find(BuildContext)
         build_context.ruby = ruby
         return unless build_context.ruby.build?
@@ -62,8 +62,6 @@ module Buildkite::Config
             soft_fail true
           end
           agents queue: build_context.build_queue
-
-          instance_exec(@attributes, &block) if block_given?
         end
       end
     end

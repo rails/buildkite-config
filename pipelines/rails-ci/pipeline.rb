@@ -22,27 +22,29 @@ Buildkite::Builder.pipeline do
   group do
     label "build"
     build_context.rubies.each do |ruby|
-      builder ruby: ruby
+      builder ruby
     end
   end
 
   build_context.rubies.each do |ruby|
-    ruby_group config: ruby do
-      rake "actioncable", service: "postgresdb", pre_steps: ["bundle exec rake -f activerecord/Rakefile db:postgresql:rebuild"]
+    ruby_group ruby do
+      rake "actioncable",
+        service: "postgresdb",
+        pre_steps: ["bundle exec rake -f activerecord/Rakefile db:postgresql:rebuild"]
       rake "actionmailbox"
       rake "actionmailer"
       rake "actionpack"
 
       if ruby == build_context.default_ruby
-        rake "actionpack", pre_steps: ["bundle install"] do |attrs, _|
-          label "#{attrs["label"]} [rack-2]"
-          env["RACK"] = "~> 2.0"
-        end
-        rake "actionpack", pre_steps: ["rm Gemfile.lock", "bundle install"] do |attrs, _|
-          label "#{attrs["label"]} [rack-head]"
-          env["RACK"] = "head"
-          soft_fail true
-        end
+        rake "actionpack",
+          pre_steps: ["bundle install"],
+          label: "[rack-2]",
+          env: { RACK: "~> 2.0" }
+        rake "actionpack",
+          pre_steps: ["rm Gemfile.lock", "bundle install"],
+          label: "[rack-head]",
+          env: { RACK: "head" },
+          soft_fail: true
       end
 
       rake "actiontext"
@@ -50,47 +52,47 @@ Buildkite::Builder.pipeline do
       rake "activejob"
       rake "activemodel"
 
-      rake "activerecord", "mysql2:test", service: "mysqldb"
+      rake "activerecord", task: "mysql2:test", service: "mysqldb"
 
       if ruby == build_context.default_ruby
-        rake "activerecord", "mysql2:test", service: "mariadb" do |attrs, _|
-          label "#{attrs["label"]} [mariadb]"
-          env["MYSQL_IMAGE"] = "mariadb:latest"
-        end
+        rake "activerecord", task: "mysql2:test",
+          service: "mariadb",
+          label: "[mariadb]",
+          env: { MYSQL_IMAGE: "mariadb:latest" }
 
-        rake "activerecord", "mysql2:test", service: "mysqldb" do |attrs, _|
-          label "#{attrs["label"]} [mysql_5_7]"
-          env["MYSQL_IMAGE"] = "mysql:5.7"
-        end
+        rake "activerecord", task: "mysql2:test",
+          service: "mysqldb",
+          label: "[mysql_5_7]",
+          env: { MYSQL_IMAGE: "mysql:5.7" }
 
         if build_context.rails_version >= Gem::Version.new("6.1.x")
-          rake "activerecord", "mysql2:test", service: "mysqldb" do |attrs, _|
-            label "#{attrs["label"]} [prepared_statements]"
-            env["MYSQL_PREPARED_STATEMENTS"] = "true"
-          end
+          rake "activerecord", task: "mysql2:test",
+            service: "mysqldb",
+            label: "[prepared_statements]",
+            env: { MYSQL_PREPARED_STATEMENTS: "true" }
         end
       end
 
-      rake "activerecord", "postgresql:test", service: "postgresdb"
-      rake "activerecord", "sqlite3:test"
+      rake "activerecord", task: "postgresql:test", service: "postgresdb"
+      rake "activerecord", task: "sqlite3:test"
 
       if ruby == build_context.default_ruby
-        rake "activerecord", "sqlite3_mem:test"
+        rake "activerecord", task: "sqlite3_mem:test"
       end
 
       if build_context.supports_trilogy?
-        rake "activerecord", "trilogy:test", service: "mysqldb"
+        rake "activerecord", task: "trilogy:test", service: "mysqldb"
 
         if ruby == build_context.default_ruby
-          rake "activerecord", "trilogy:test", service: "mariadb" do |attrs, _|
-            label "#{attrs["label"]} [mariadb]"
-            env["MYSQL_IMAGE"] = "mariadb:latest"
-          end
+          rake "activerecord", task: "trilogy:test",
+            service: "mariadb",
+            label: "[mariadb]",
+            env: { MYSQL_IMAGE: "mariadb:latest" }
 
-          rake "activerecord", "trilogy:test", service: "mysqldb" do |attrs, _|
-            label "#{attrs["label"]} [mysql_5_7]"
-            env["MYSQL_IMAGE"] = "mysql:5.7"
-          end
+          rake "activerecord", task: "trilogy:test",
+            service: "mysqldb",
+            label: "[mysql_5_7]",
+            env: { MYSQL_IMAGE: "mysql:5.7" }
         end
       end
 
@@ -98,77 +100,60 @@ Buildkite::Builder.pipeline do
       rake "activesupport"
       rake "guides"
 
-      rake "railties", service: "railties" do
-        parallelism 12
-      end
+      rake "railties", service: "railties", parallelism: 12
 
       if ruby == build_context.default_ruby
-        rake "railties", service: "railties", pre_steps: ["bundle install"] do |attrs, _|
-          parallelism 12
-          label "#{attrs["label"]} [rack-2]"
-          env["RACK"] = "~> 2.0"
-        end
+        rake "railties",
+          service: "railties",
+          pre_steps: ["bundle install"],
+          parallelism: 12,
+          label: "[rack-2]",
+          env: { RACK: "~> 2.0" }
 
-        rake "railties", service: "railties", pre_steps: ["rm Gemfile.lock", "bundle install"] do |attrs, _|
-          parallelism 12
-          label "#{attrs["label"]} [rack-head]"
-          env["RACK"] = "head"
-          soft_fail true
-        end
+        rake "railties",
+          service: "railties",
+          pre_steps: ["rm Gemfile.lock", "bundle install"],
+          parallelism: 12,
+          label: "[rack-head]",
+          env: { RACK: "head" },
+          soft_fail: true
       end
 
       # ActionCable and ActiveJob integration tests
-      rake "actioncable", "test:integration" do |attrs, _|
-        attrs["retry"] = nil
-        automatic_retry_on exit_status: -1, limit: 3
-      end
+      rake "actioncable", task: "test:integration", retry_on: { exit_status: -1, limit: 3 }
 
       if ruby == build_context.default_ruby
         if build_context.rails_root.join("actionview/Rakefile").read.include?("task :ujs")
-          rake "actionview", "test:ujs", service: "actionview" do |attrs, _|
-            attrs["retry"] = nil
-            automatic_retry_on exit_status: -1, limit: 3
-          end
+          rake "actionview", task: "test:ujs", service: "actionview", retry_on: { exit_status: -1, limit: 3 }
         end
       end
 
-      rake "activejob", "test:integration", service: "activejob" do |attrs, build_context|
+      rake "activejob", task: "test:integration",
+        service: "activejob",
         # Enable soft_fail until the problem in queue_classic is solved.
         # https://github.com/rails/rails/pull/37517#issuecomment-545370408
-        soft_fail true
-      end
+        soft_fail: true
     end
   end
 
   # Isolated tests
-  ruby_group config: build_context.default_ruby do
+  ruby_group build_context.default_ruby do
     label "isolated"
 
-    %w(
-      activerecord    mysql2:isolated_test       mysqldb
-      activerecord    postgresql:isolated_test   postgresdb
-      activerecord    sqlite3:isolated_test      default
-    ).each_slice(3) do |dir, task, service|
-      rake dir, task, service: service do
-        parallelism 5
-      end
-    end
+    rake "activerecord", task: "mysql2:isolated_test", service: "mysqldb", parallelism: 5
+    rake "activerecord", task: "postgresql:isolated_test", service: "postgresdb", parallelism: 5
+    rake "activerecord", task: "sqlite3:isolated_test", parallelism: 5
 
     if build_context.supports_trilogy?
-      rake "activerecord", "trilogy:isolated_test", service: "mysqldb" do
-        parallelism 5
-      end
+      rake "activerecord", task: "trilogy:isolated_test",
+        service: "mysqldb", parallelism: 5
     end
 
-    %w(
-      actionmailer    test:isolated
-      actionpack      test:isolated
-      actionview      test:isolated
-      activejob       test:isolated
-      activemodel     test:isolated
-      activesupport   test:isolated
-    ).each_slice(2) do |dir, task|
-      rake dir, task
-    end
+    rake "actionmailer", task: "test:isolated"
+    rake "actionpack", task: "test:isolated"
+    rake "actionview", task: "test:isolated"
+    rake "activejob", task: "test:isolated"
+    rake "activemodel", task: "test:isolated"
+    rake "activesupport", task: "test:isolated"
   end
 end
