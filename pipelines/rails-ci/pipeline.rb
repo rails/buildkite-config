@@ -156,4 +156,20 @@ Buildkite::Builder.pipeline do
     rake "activemodel", task: "test:isolated"
     rake "activesupport", task: "test:isolated"
   end
+
+  # Lints
+  ruby_group build_context.default_ruby do
+    label "lint"
+
+    bundle "exec rubocop --parallel", label: "rubocop"
+
+    if build_context.support_guides_lint?
+      rake "guides", task: "guides:lint"
+    end
+
+    if build_context.has_railspect?
+      bundle "exec tools/railspect changelogs .", label: "changelogs"
+      bundle "exec tools/railspect configuration .", label: "configuration"
+    end
+  end
 end

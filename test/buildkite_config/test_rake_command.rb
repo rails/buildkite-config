@@ -46,7 +46,7 @@ class TestRakeCommand < TestCase
     assert_equal expected, pipeline.to_h
   end
 
-  def test_command
+  def test_rake_command
     pipeline = PipelineFixture.new do
       build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
@@ -409,5 +409,58 @@ class TestRakeCommand < TestCase
 
     assert_equal "activerecord mysql2 (3.2)", pipeline.to_h["steps"][0]["label"]
     assert_equal ["rake db:mysql:rebuild mysql2:test"], pipeline.to_h["steps"][0]["command"]
+  end
+
+  def test_bundle_command
+    pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
+      use Buildkite::Config::RakeCommand
+
+      bundle "rubocop", label: "rubocop"
+    end
+
+    assert_equal 1, pipeline.to_h["steps"].size
+
+    step = pipeline.to_h["steps"][0]
+
+    assert_equal "rubocop", step["label"]
+    assert_equal "docker-image-ruby-3-2", step["depends_on"][0]
+    assert_includes step, "command"
+    assert_equal "rubocop", step["command"][0]
+
+    plugins = step["plugins"]
+
+    assert_equal 3, plugins.size
+
+    artifacts = plugins[0]
+
+    assert_equal "artifacts#v1.0", artifacts.keys.first
+    assert_equal ".dockerignore", artifacts["artifacts#v1.0"]["download"]
+
+    artifacts = plugins[1]
+
+    assert_equal "artifacts#v1.0", artifacts.keys.first
+    assert_equal %w[
+      .buildkite/.empty
+      .buildkite/docker-compose.yml
+      .buildkite/Dockerfile
+      .buildkite/Dockerfile.beanstalkd
+      .buildkite/mysql-initdb.d
+      .buildkite/runner
+    ], artifacts["artifacts#v1.0"]["download"]
+    assert_equal ".buildkite.tgz", artifacts["artifacts#v1.0"]["compressed"]
+
+    compose = plugins[2].fetch("docker-compose#v1.0")
+
+    assert_not_includes compose, "env"
+    assert_equal "default", compose["run"]
+    assert_equal "default", compose["pull"]
+    assert_equal ".buildkite/docker-compose.yml", compose["config"]
+    assert_equal ["runner", "."], compose["shell"]
+
+    assert_equal "buildkite-config-base:ruby-3-2-local", step["env"]["IMAGE_NAME"]
+    assert_equal "default", step["agents"]["queue"]
+    assert_equal ["test-reports/*/*.xml"], step["artifact_paths"]
+    assert_equal 30, step["timeout_in_minutes"]
   end
 end

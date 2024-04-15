@@ -18,7 +18,7 @@ def update_pipeline(pipeline, slug = nil)
   resp = client.update_pipeline("rails", pipeline, {
     configuration: configuration
   })
-  puts resp.steps
+  puts resp.steps.map { |step| step["name"] }.join("\n")
 end
 
 update_pipeline("rails", "rails-ci")

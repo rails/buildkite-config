@@ -476,4 +476,29 @@ class TestBuildContext < TestCase
     sub = create_build_context
     assert_equal 30, sub.timeout_in_minutes
   end
+
+  def test_has_railspect
+    sub = create_build_context
+    assert_not_predicate sub, :has_railspect?
+
+    file_check = -> (path) do
+      assert_equal "#{Dir.pwd}/tools/railspect", path.to_s
+    end
+
+    File.stub(:exist?, file_check) do
+      assert_predicate sub, :has_railspect?
+    end
+  end
+
+  def test_support_guides_lint
+    sub = create_build_context
+
+    sub.stub(:rails_version, Gem::Version.new("7.0.0")) do
+      assert_not_predicate sub, :support_guides_lint?
+    end
+
+    sub.stub(:rails_version, Gem::Version.new("7.1.0")) do
+      assert_predicate sub, :support_guides_lint?
+    end
+  end
 end
