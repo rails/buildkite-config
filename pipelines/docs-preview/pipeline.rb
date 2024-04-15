@@ -1,15 +1,21 @@
 # frozen_string_literal: true
 
 Buildkite::Builder.pipeline do
+  require "buildkite_config"
+  use Buildkite::Config::BuildContext
+
   plugin :docker, "docker#v5.10.0"
   plugin :artifacts, "artifacts#v1.9.3"
+
+  build_context = context.extensions.find(Buildkite::Config::BuildContext)
+  build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.3"))
 
   command do
     label "build", emoji: :rails
     key "build"
     command "bundle install && bundle exec rake preview_docs"
     plugin :docker, {
-      image: "ruby:latest",
+      image: build_context.image_name_for("br-main", prefix: nil),
       environment: [
         "BUILDKITE_BRANCH",
         "BUILDKITE_BUILD_CREATOR",

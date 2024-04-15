@@ -14,15 +14,29 @@ def buildkite_token
 end
 
 # Make sure your BUILDKITE_TOKEN has `write_builds` scope
-def trigger_pipeline(org, pipeline, slug, branch: "main", commit: "HEAD")
+def trigger_pipeline(org, pipeline, slug, branch: "main", commit: "HEAD", config_branch: nil, fork: nil, pr: nil)
+  env = {}
   slug ||= pipeline
   puts "Trigger build for #{pipeline}..."
   configuration = File.read("pipelines/#{slug}/initial.yml")
   client = Buildkit.new(token: buildkite_token)
+
+  if pr && fork
+    env["BUILDKITE_PULL_REQUEST"] = pr
+    env["BUILDKITE_PULL_REQUEST_BASE_BRANCH"] = "main"
+    env["BUILDKITE_PULL_REQUEST_REPO"] = "https://github.com/#{fork}/buildkite-config.git"
+  end
+
+  if config_branch && fork
+    env["CONFIG_REPO"] = "https://github.com/#{fork}/buildkite-config.git"
+    env["CONFIG_BRANCH"] = config_branch
+  end
+
   resp = client.create_build(org, pipeline, {
     branch: branch,
     commit: commit,
-    override_steps_configuration: configuration
+    override_steps_configuration: configuration,
+    env: env,
   })
   puts resp.web_url
 end
@@ -31,6 +45,9 @@ options = {}
 OptionParser.new do |opts|
   opts.on("--branch=BRANCH")
   opts.on("--commit=COMMIT")
+  opts.on("--config_branch=CONFIG_BRANCH")
+  opts.on("--fork=FORK")
+  opts.on("--pr=PR")
 end.parse!(into: options)
 
 org = ARGV.shift
