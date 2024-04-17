@@ -292,8 +292,7 @@ class TestRakeCommand < TestCase
     assert_includes pipeline.to_h["steps"][0]["env"], "RUBY_YJIT_ENABLE"
     assert_equal "1", pipeline.to_h["steps"][0]["env"]["RUBY_YJIT_ENABLE"]
 
-    assert_includes pipeline.to_h["steps"][0], "soft_fail"
-    assert_equal true, pipeline.to_h["steps"][0]["soft_fail"]
+    assert_not_includes pipeline.to_h["steps"][0], "soft_fail"
   end
 
   def test_env_pre_steps

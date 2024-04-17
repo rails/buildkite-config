@@ -7,17 +7,17 @@ module Buildkite::Config
 
     class << self
       def master_ruby
-        new(version: MASTER_RUBY_IMAGE, soft_fail: true)
+        new(version: MASTER_RUBY_IMAGE)
       end
 
       def master_debug_ruby
-        new(version: MASTER_DEBUG_RUBY_IMAGE, soft_fail: true)
+        new(version: MASTER_DEBUG_RUBY_IMAGE)
       end
 
       def yjit_ruby
         # Adds yjit: onto the master ruby image string so we
         # know when to turn on YJIT via the environment variable.
-        new(version: "yjit:#{MASTER_RUBY_IMAGE}", soft_fail: true, yjit: true)
+        new(version: "yjit:#{MASTER_RUBY_IMAGE}", yjit: true)
       end
     end
 
