@@ -10,6 +10,8 @@ Buildkite::Builder.pipeline do
   build_context = context.extensions.find(Buildkite::Config::BuildContext)
   build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.3"))
 
+  env CLOUDFLARE_PAGES_PROJECT: "rails-docs-preview"
+
   command do
     label "build", emoji: :rails
     key "build"
@@ -40,6 +42,8 @@ Buildkite::Builder.pipeline do
     plugin :docker, {
       environment: [
         "BUILDKITE_BRANCH",
+        "BUILDKITE_PTY=false",
+        "CLOUDFLARE_PAGES_PROJECT",
         "CLOUDFLARE_ACCOUNT_ID",
         "CLOUDFLARE_API_TOKEN",
         # Turn off annoying prompt
@@ -51,15 +55,20 @@ Buildkite::Builder.pipeline do
     plugin :artifacts, {
       download: "preview.tar.gz"
     }
-    command "tar -xzf preview.tar.gz"
-    command "npm install wrangler"
-    command "npx wrangler pages publish preview --project-name=$CLOUDFLARE_PAGES_PROJECT --branch=\"$BUILDKITE_BRANCH\""
+    command "tar -xzf preview.tar.gz;"
+    command "echo \"[wrangler] pages deploy preview: $$CLOUDFLARE_PAGES_PROJECT\";"
+    command "npm install wrangler@3;"
+    command "npx wrangler@3 pages project create \"$$CLOUDFLARE_PAGES_PROJECT\" --production-branch=\"main\" || true;"
+    command "npx wrangler@3 pages deploy preview --project-name=\"$$CLOUDFLARE_PAGES_PROJECT\" --branch=\"$BUILDKITE_BRANCH\";"
   end
 
   command do
     label "annotate", emoji: :writing_hand
     depends_on "deploy"
-    plugin :artifacts, { download: ".buildkite/docs-preview-annotate" }
+    plugin :artifacts, {
+      download: ".buildkite/bin/docs-preview-annotate",
+      compressed: ".buildkite.tgz"
+    }
     command "sh -c \"$$ANNOTATE_COMMAND\" | buildkite-agent annotate --style info"
     env "ANNOTATE_COMMAND" => <<~ANNOTATE.gsub(/[[:space:]]+/, " ").strip
       docker run --rm
@@ -68,7 +77,7 @@ Buildkite::Builder.pipeline do
       -e CLOUDFLARE_API_TOKEN
       -e CLOUDFLARE_PAGES_PROJECT
       ruby:latest
-      ruby .buildkite/docs-preview-annotate
+      ruby .buildkite/bin/docs-preview-annotate
     ANNOTATE
   end
 end

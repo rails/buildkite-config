@@ -39,6 +39,7 @@ steps:
       - artifacts#v1.9.3:
           upload:
             - .buildkite/.empty
+            - .buildkite/bin/docs-preview-annotate
             - .buildkite/docker-compose.yml
             - .buildkite/Dockerfile
             - .buildkite/Dockerfile.beanstalkd
