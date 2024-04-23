@@ -42,7 +42,6 @@ Buildkite::Builder.pipeline do
     plugin :docker, {
       environment: [
         "BUILDKITE_BRANCH",
-        "BUILDKITE_PTY=false",
         "CLOUDFLARE_PAGES_PROJECT",
         "CLOUDFLARE_ACCOUNT_ID",
         "CLOUDFLARE_API_TOKEN",
@@ -50,16 +49,18 @@ Buildkite::Builder.pipeline do
         # "? Would you like to help improve Wrangler by sending usage metrics to Cloudflare? › (Y/n)"
         "WRANGLER_SEND_METRICS=false"
       ],
-      image: "node:latest"
+      image: "node:latest",
+      tty: false
     }
     plugin :artifacts, {
       download: "preview.tar.gz"
     }
-    command "tar -xzf preview.tar.gz;"
-    command "echo \"[wrangler] pages deploy preview: $$CLOUDFLARE_PAGES_PROJECT\";"
-    command "npm install wrangler@3;"
-    command "npx wrangler@3 pages project create \"$$CLOUDFLARE_PAGES_PROJECT\" --production-branch=\"main\" || true;"
-    command "npx wrangler@3 pages deploy preview --project-name=\"$$CLOUDFLARE_PAGES_PROJECT\" --branch=\"$BUILDKITE_BRANCH\";"
+    command "mkdir /tmp/preview"
+    command "tar -xzf preview.tar.gz -C /tmp/preview"
+    command "rm preview.tar.gz"
+    command "npm install wrangler@3"
+    command "npx wrangler@3 pages project create \"$$CLOUDFLARE_PAGES_PROJECT\" --production-branch=\"main\" || true"
+    command "npx wrangler@3 pages deploy /tmp/preview --project-name=\"$$CLOUDFLARE_PAGES_PROJECT\" --branch=\"$BUILDKITE_BRANCH\""
   end
 
   command do
@@ -70,6 +71,7 @@ Buildkite::Builder.pipeline do
       compressed: ".buildkite.tgz"
     }
     command "sh -c \"$$ANNOTATE_COMMAND\" | buildkite-agent annotate --style info"
+    # CLOUDFLARE_API_TOKEN is used to fetch preview URL from latest deployment
     env "ANNOTATE_COMMAND" => <<~ANNOTATE.gsub(/[[:space:]]+/, " ").strip
       docker run --rm
       -v "$$PWD":/app:ro -w /app
