@@ -2,9 +2,6 @@
 # configuration in the Buildkite UI.
 
 steps:
-  - block: "Approve"
-    prompt: |
-      Only team members can approve this pipeline.
   - name: ":pipeline: docs-preview-initial-pipeline"
     command: |
       PATH=/bin:/usr/bin
