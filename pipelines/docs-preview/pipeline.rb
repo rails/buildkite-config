@@ -50,14 +50,16 @@ Buildkite::Builder.pipeline do
         "WRANGLER_SEND_METRICS=false"
       ],
       image: "node:latest",
-      tty: false
+      mount_checkout: false,
+      tty: false,
+      volumes: ["./preview.tar.gz:/tmp/preview.tar.gz"],
+      workdir: "/workdir"
     }
     plugin :artifacts, {
       download: "preview.tar.gz"
     }
     command "mkdir /tmp/preview"
-    command "tar -xzf preview.tar.gz -C /tmp/preview"
-    command "rm preview.tar.gz"
+    command "tar -xzf /tmp/preview.tar.gz -C /tmp/preview"
     command "npm install wrangler@3"
     command "npx wrangler@3 pages deploy /tmp/preview --project-name=\"$$CLOUDFLARE_PAGES_PROJECT\" --branch=\"$BUILDKITE_BRANCH\""
   end
@@ -73,10 +75,11 @@ Buildkite::Builder.pipeline do
     # CLOUDFLARE_API_TOKEN is used to fetch preview URL from latest deployment
     env "ANNOTATE_COMMAND" => <<~ANNOTATE.gsub(/[[:space:]]+/, " ").strip
       docker run --rm
-      -v "$$PWD":/app:ro -w /app
       -e CLOUDFLARE_ACCOUNT_ID
       -e CLOUDFLARE_API_TOKEN
       -e CLOUDFLARE_PAGES_PROJECT
+      -v ./.buildkite:/workdir/.buildkite
+      -w /workdir
       ruby:latest
       ruby .buildkite/bin/docs-preview-annotate
     ANNOTATE
