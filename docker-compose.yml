@@ -135,7 +135,6 @@ services:
 
   mysql: &mysql-defaults
     image: "${MYSQL_IMAGE-mysql:latest}"
-    command: "--default-authentication-plugin=mysql_native_password"
     healthcheck:
       test: mysql -h localhost -P 3306 -e "SELECT 1;"
       interval: 1s
