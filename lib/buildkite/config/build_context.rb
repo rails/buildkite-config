@@ -23,6 +23,11 @@ module Buildkite::Config
       ENV.has_key?("RAILS_CI_NIGHTLY")
     end
 
+    def skip?
+      # [ci skip], [skip ci], [ci-skip], or [skip-ci]
+      [ENV["BUILDKITE_MESSAGE"]].grep(/(ci skip|skip ci|ci-skip|skip-ci)/i).any?
+    end
+
     def rails_root
       Pathname.pwd
     end
