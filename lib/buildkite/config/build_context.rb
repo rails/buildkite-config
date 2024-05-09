@@ -25,7 +25,7 @@ module Buildkite::Config
 
     def skip?
       # [ci skip], [skip ci], [ci-skip], or [skip-ci]
-      [ENV["BUILDKITE_MESSAGE"]].grep(/(ci skip|skip ci|ci-skip|skip-ci)/i).any?
+      [ENV["BUILDKITE_MESSAGE"], FetchPr.title].grep(/(ci skip|skip ci|ci-skip|skip-ci)/i).any?
     end
 
     def rails_root

@@ -11,6 +11,7 @@ module Buildkite
     autoload :Diff
     autoload :DockerBuild
     autoload :BuildContext
+    autoload :FetchPr
     autoload :RakeCommand
     autoload :RubyConfig
     autoload :RubyGroup

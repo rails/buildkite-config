@@ -13,7 +13,7 @@ Buildkite::Builder.pipeline do
   if build_context.skip?
     command do
       label "skip"
-      command "echo 'Build skipped'"
+      command "echo '+++ :bk-status-passed: Build skipped'"
     end
 
     next
