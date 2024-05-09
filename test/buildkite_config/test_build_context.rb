@@ -33,6 +33,76 @@ class TestBuildContext < TestCase
     ENV["CI"] = @before_env_ci
   end
 
+  def test_nightly
+    @before_env_nightly = ENV["RAILS_CI_NIGHTLY"]
+    ENV["RAILS_CI_NIGHTLY"] = "true"
+
+    sub = create_build_context
+    assert_predicate sub, :nightly?
+  ensure
+    ENV["RAILS_CI_NIGHTLY"] = @before_env_nightly
+  end
+
+  def test_nightly_false
+    @before_env_nightly = ENV["RAILS_CI_NIGHTLY"]
+    ENV["RAILS_CI_NIGHTLY"] = nil
+
+    sub = create_build_context
+    assert_not_predicate sub, :nightly?
+  ensure
+    ENV["RAILS_CI_NIGHTLY"] = @before_env_nightly
+  end
+
+  def test_skip_ci_skip
+    @before_env_buildkite_message = ENV["BUILDKITE_MESSAGE"]
+    ENV["BUILDKITE_MESSAGE"] = "[ci skip] test_skip"
+
+    sub = create_build_context
+    assert_predicate sub, :skip?
+  ensure
+    ENV["BUILDKITE_MESSAGE"] = @before_env_buildkite_message
+  end
+
+  def test_skip_ci
+    @before_env_buildkite_message = ENV["BUILDKITE_MESSAGE"]
+    ENV["BUILDKITE_MESSAGE"] = "[skip ci] test_skip"
+
+    sub = create_build_context
+    assert_predicate sub, :skip?
+  ensure
+    ENV["BUILDKITE_MESSAGE"] = @before_env_buildkite_message
+  end
+
+  def test_skip_ci_dash_skip
+    @before_env_buildkite_message = ENV["BUILDKITE_MESSAGE"]
+    ENV["BUILDKITE_MESSAGE"] = "[ci-skip] test_skip"
+
+    sub = create_build_context
+    assert_predicate sub, :skip?
+  ensure
+    ENV["BUILDKITE_MESSAGE"] = @before_env_buildkite_message
+  end
+
+  def test_skip_skip_dash_ci
+    @before_env_buildkite_message = ENV["BUILDKITE_MESSAGE"]
+    ENV["BUILDKITE_MESSAGE"] = "[skip-ci] test_skip"
+
+    sub = create_build_context
+    assert_predicate sub, :skip?
+  ensure
+    ENV["BUILDKITE_MESSAGE"] = @before_env_buildkite_message
+  end
+
+  def test_skip_false
+    @before_env_buildkite_message = ENV["BUILDKITE_MESSAGE"]
+    ENV["BUILDKITE_MESSAGE"] = "not a skip commit message for ci"
+
+    sub = create_build_context
+    assert_not_predicate sub, :skip?
+  ensure
+    ENV["BUILDKITE_MESSAGE"] = @before_env_buildkite_message
+  end
+
   def test_rails_root
     sub = create_build_context
     assert_equal Pathname.new(Dir.pwd), sub.rails_root

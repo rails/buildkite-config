@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "net/http"
+require "json"
+require "uri"
+
+def github_token
+  ENV.fetch("GITHUB_PUBLIC_REPO_TOKEN") { raise "Missing GITHUB_PUBLIC_REPO_TOKEN!" }
+end
+
+def pull_request_number
+  ENV.fetch("BUILDKITE_PULL_REQUEST") { raise "Missing BUILDKITE_PULL_REQUEST!" }
+end
+
+uri = URI("https://api.github.com/repos/rails/rails/pulls/#{pull_request_number}")
+
+req = Net::HTTP::Get.new(uri)
+req["Authorization"] = "token #{github_token}"
+
+res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+  http.request(req)
+end
+
+puts res.body

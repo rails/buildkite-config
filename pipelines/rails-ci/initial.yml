@@ -26,6 +26,16 @@ steps:
       git clone -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
 
       rm -rf .buildkite/.git
+
+      echo "Fetching pull-request metadata:"
+      (docker run --rm \
+        -v "$$PWD":/app:ro -w /app \
+        -e GITHUB_PUBLIC_REPO_TOKEN \
+        -e BUILDKITE_PULL_REQUEST \
+        ruby:latest \
+        .buildkite/bin/fetch-pr > .buildkite/tmp/.pr-meta.json) || true
+
+      echo "Generating pipeline:"
       sh -c "$$PIPELINE_COMMAND"
 
       ([ -f .buildkite/.dockerignore ] && cp .buildkite/.dockerignore .dockerignore) || true
@@ -52,6 +62,7 @@ steps:
         -e BUILDKITE_AGENT_META_DATA_QUEUE
         -e BUILDKITE_BRANCH
         -e BUILDKITE_BUILD_ID
+        -e BUILDKITE_MESSAGE
         -e BUILDKITE_PULL_REQUEST
         -e BUILDKITE_PULL_REQUEST_BASE_BRANCH
         -e BUILDKITE_REBUILT_FROM_BUILD_ID

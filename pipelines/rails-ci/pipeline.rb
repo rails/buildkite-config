@@ -10,6 +10,15 @@ Buildkite::Builder.pipeline do
   plugin :docker_compose, "docker-compose#v4.16.0"
   plugin :artifacts, "artifacts#v1.9.3"
 
+  if build_context.skip?
+    command do
+      label "skip"
+      command "echo '+++ :bk-status-passed: Build skipped'"
+    end
+
+    next
+  end
+
   if build_context.nightly?
     build_context.rubies << Buildkite::Config::RubyConfig.master_ruby
     build_context.rubies << Buildkite::Config::RubyConfig.yjit_ruby
