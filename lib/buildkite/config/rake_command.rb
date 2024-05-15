@@ -64,7 +64,7 @@ module Buildkite::Config
     end
 
     dsl do
-      def bundle(command, label:)
+      def bundle(command, label:, env: nil)
         build_context = context.extensions.find(BuildContext)
 
         command do
@@ -74,7 +74,7 @@ module Buildkite::Config
 
           install_plugins
 
-          env build_env(build_context, nil, nil)
+          env build_env(build_context, nil, env)
 
           agents queue: build_context.run_queue
 

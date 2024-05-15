@@ -10,15 +10,6 @@ Buildkite::Builder.pipeline do
   plugin :docker_compose, "docker-compose#v4.16.0"
   plugin :artifacts, "artifacts#v1.9.3"
 
-  if build_context.skip?
-    command do
-      label "skip"
-      command "echo '+++ :bk-status-passed: Build skipped'"
-    end
-
-    next
-  end
-
   if build_context.nightly?
     build_context.rubies << Buildkite::Config::RubyConfig.master_ruby
     build_context.rubies << Buildkite::Config::RubyConfig.yjit_ruby
@@ -33,6 +24,33 @@ Buildkite::Builder.pipeline do
     build_context.rubies.each do |ruby|
       builder ruby
     end
+  end
+
+  # Lints
+  ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.3"))
+  ruby_group ruby do
+    label "lint"
+
+    bundle "exec rubocop --parallel", label: "rubocop"
+
+    if build_context.support_guides_lint?
+      rake "guides", task: "guides:lint"
+    end
+
+    if build_context.has_railspect?
+      bundle "exec tools/railspect changelogs .", label: "changelogs"
+      bundle "exec tools/railspect configuration .", label: "configuration"
+    end
+  end
+
+  if build_context.skip?
+    command do
+      label ":bk-status-passed: Build skipped"
+      skip true
+      command "true"
+    end
+
+    next
   end
 
   build_context.rubies.each do |ruby|
@@ -164,21 +182,5 @@ Buildkite::Builder.pipeline do
     rake "activejob", task: "test:isolated"
     rake "activemodel", task: "test:isolated"
     rake "activesupport", task: "test:isolated"
-  end
-
-  # Lints
-  ruby_group build_context.default_ruby do
-    label "lint"
-
-    bundle "exec rubocop --parallel", label: "rubocop"
-
-    if build_context.support_guides_lint?
-      rake "guides", task: "guides:lint"
-    end
-
-    if build_context.has_railspect?
-      bundle "exec tools/railspect changelogs .", label: "changelogs"
-      bundle "exec tools/railspect configuration .", label: "configuration"
-    end
   end
 end
