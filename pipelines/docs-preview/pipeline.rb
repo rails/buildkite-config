@@ -15,7 +15,7 @@ Buildkite::Builder.pipeline do
   command do
     label "build", emoji: :rails
     key "build"
-    command "bundle install && bundle exec rake preview_docs"
+    command "bundle exec rake preview_docs"
     plugin :docker, {
       image: build_context.image_name_for("br-main", prefix: nil),
       environment: [
@@ -27,7 +27,6 @@ Buildkite::Builder.pipeline do
         "BUILDKITE_MESSAGE",
         "BUILDKITE_PULL_REQUEST",
         "BUILDKITE_REPO",
-        "BUNDLE_WITHOUT=db:job:cable:storage:ujs",
       ],
     }
     plugin :artifacts, {
