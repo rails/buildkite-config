@@ -100,6 +100,13 @@ module Buildkite::Config
 
           install_plugins(service,  %w[PRE_STEPS RACK], dir)
 
+          if build_context.mainline
+            plugin :test_collector, {
+              files: build_context.artifact_paths.find(/test-reports/)
+              format: "junit"
+            }
+          end
+
           env build_env(build_context, pre_steps, env)
 
           agents queue: build_context.run_queue

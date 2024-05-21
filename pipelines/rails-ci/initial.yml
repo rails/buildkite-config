@@ -35,6 +35,11 @@ steps:
         ruby:latest \
         .buildkite/bin/fetch-pr > .buildkite/tmp/.pr-meta.json) || true
 
+      # This lets us ensure we don't blindly pass in the analytics token into user jobs
+      if [[ "$BUILDKITE_BRANCH" != *:* ]]; then
+        export BUILDKITE_ANALYTICS_TOKEN="$$RAILS_TESTS_ANALYTICS_TOKEN"
+      fi
+
       echo "Generating pipeline:"
       sh -c "$$PIPELINE_COMMAND"
 
@@ -54,14 +59,21 @@ steps:
           compressed: ".buildkite.tgz"
     env:
       BUNDLE_FROZEN: true
+      # Includes the env vars needed for test collector
+      # https://buildkite.com/docs/test-analytics/ci-environments#containers-and-test-collectors
       PIPELINE_COMMAND: >-
         docker run --rm
         -v "$$PWD":/app:ro -w /app
         -e CI
         -e BUILDKITE
         -e BUILDKITE_AGENT_META_DATA_QUEUE
+        -e BUILDKITE_ANALYTICS_TOKEN
         -e BUILDKITE_BRANCH
         -e BUILDKITE_BUILD_ID
+        -e BUILDKITE_BUILD_NUMBER
+        -e BUILDKITE_JOB_ID
+        -e BUILDKITE_COMMIT
+        -e BUILDKITE_BUILD_URL
         -e BUILDKITE_MESSAGE
         -e BUILDKITE_PULL_REQUEST
         -e BUILDKITE_PULL_REQUEST_BASE_BRANCH
