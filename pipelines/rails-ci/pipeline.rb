@@ -62,11 +62,12 @@ Buildkite::Builder.pipeline do
       rake "actionmailer"
       rake "actionpack"
 
-      if ruby == build_context.default_ruby
+      if ruby == build_context.default_ruby && build_context.rails_version >= Gem::Version.new("7.1.x")
         rake "actionpack",
           pre_steps: ["bundle install"],
           label: "[rack-2]",
           env: { RACK: "~> 2.0" }
+
         rake "actionpack",
           pre_steps: ["bundle install"],
           label: "[rack-3-0]",
@@ -133,7 +134,7 @@ Buildkite::Builder.pipeline do
 
       rake "railties", service: "railties", parallelism: 12
 
-      if ruby == build_context.default_ruby
+      if ruby == build_context.default_ruby && build_context.rails_version >= Gem::Version.new("7.1.x")
         rake "railties",
           service: "railties",
           pre_steps: ["bundle install"],
