@@ -68,6 +68,10 @@ Buildkite::Builder.pipeline do
           label: "[rack-2]",
           env: { RACK: "~> 2.0" }
         rake "actionpack",
+          pre_steps: ["bundle install"],
+          label: "[rack-3-0]",
+          env: { RACK: "~> 3.0.0" }
+        rake "actionpack",
           pre_steps: ["rm Gemfile.lock", "bundle install"],
           label: "[rack-head]",
           env: { RACK: "head" },
@@ -136,6 +140,13 @@ Buildkite::Builder.pipeline do
           parallelism: 12,
           label: "[rack-2]",
           env: { RACK: "~> 2.0" }
+
+        rake "railties",
+          service: "railties",
+          pre_steps: ["bundle install"],
+          parallelism: 12,
+          label: "[rack-3-0]",
+          env: { RACK: "~> 3.0.0" }
 
         rake "railties",
           service: "railties",
