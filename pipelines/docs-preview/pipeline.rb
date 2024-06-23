@@ -12,6 +12,16 @@ Buildkite::Builder.pipeline do
 
   env CLOUDFLARE_PAGES_PROJECT: "rails-docs-preview"
 
+  if build_context.rails_version < Gem::Version.new("7.2.x")
+    command do
+      label ":bk-status-passed: Build skipped"
+      skip true
+      command "true"
+    end
+
+    next
+  end
+
   command do
     label "build", emoji: :rails
     key "build"
