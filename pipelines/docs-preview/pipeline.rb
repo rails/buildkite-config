@@ -26,6 +26,7 @@ Buildkite::Builder.pipeline do
     label "build", emoji: :rails
     key "build"
     command "bundle exec rake preview_docs"
+    timeout_in_minutes 15
     plugin :docker, {
       image: build_context.image_name_for("br-main", prefix: nil),
       environment: [
@@ -48,6 +49,7 @@ Buildkite::Builder.pipeline do
     label "deploy", emoji: :rocket
     key "deploy"
     depends_on "build"
+    timeout_in_minutes 15
     plugin :docker, {
       environment: [
         "BUILDKITE_BRANCH",
@@ -76,6 +78,7 @@ Buildkite::Builder.pipeline do
   command do
     label "annotate", emoji: :writing_hand
     depends_on "deploy"
+    timeout_in_minutes 15
     plugin :artifacts, {
       download: ".buildkite/bin/docs-preview-annotate",
       compressed: ".buildkite.tgz"
