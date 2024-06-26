@@ -2,8 +2,8 @@
 
 module Buildkite::Config
   class RubyConfig
-    MASTER_RUBY_IMAGE = "rubylang/ruby:master-nightly-jammy"
-    MASTER_DEBUG_RUBY_IMAGE = "rubylang/ruby:master-debug-nightly-jammy"
+    MASTER_RUBY_IMAGE = "rubylang/ruby:master"
+    MASTER_DEBUG_RUBY_IMAGE = "rubylang/ruby:master-debug"
 
     class << self
       def master_ruby

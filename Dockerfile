@@ -86,6 +86,11 @@ RUN echo "--- :ruby: Updating RubyGems and Bundler" \
                 echo 'libmysqlclient-dev'; \
             fi \
         ) \
+        $( \
+            if apt-cache show 'tzdata-legacy' 2>/dev/null | grep -q '^Version:'; then \
+                echo 'tzdata-legacy'; \
+            fi \
+        ) \
     #  specific dependencies for the rails build
     && apt-get install -y --no-install-recommends \
         postgresql-client default-mysql-client sqlite3 \
