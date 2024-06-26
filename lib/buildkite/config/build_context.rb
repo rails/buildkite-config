@@ -138,6 +138,10 @@ module Buildkite::Config
       rails_version >= Gem::Version.new("7.1.0.beta1")
     end
 
+    def test_with_multiple_versions_of_rack?(ruby)
+      ruby == default_ruby && rails_version >= Gem::Version.new("7.1.x")
+    end
+
     def build_queue
       ENV["BUILD_QUEUE"] || queue || "builder"
     end
