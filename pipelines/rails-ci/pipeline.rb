@@ -62,11 +62,17 @@ Buildkite::Builder.pipeline do
       rake "actionmailer"
       rake "actionpack"
 
-      if ruby == build_context.default_ruby
+      if build_context.test_with_multiple_versions_of_rack?(ruby)
         rake "actionpack",
           pre_steps: ["bundle install"],
           label: "[rack-2]",
           env: { RACK: "~> 2.0" }
+
+        rake "actionpack",
+          pre_steps: ["bundle install"],
+          label: "[rack-3-0]",
+          env: { RACK: "~> 3.0.0" }
+
         rake "actionpack",
           pre_steps: ["rm Gemfile.lock", "bundle install"],
           label: "[rack-head]",
@@ -129,13 +135,20 @@ Buildkite::Builder.pipeline do
 
       rake "railties", service: "railties", parallelism: 12
 
-      if ruby == build_context.default_ruby
+      if build_context.test_with_multiple_versions_of_rack?(ruby)
         rake "railties",
           service: "railties",
           pre_steps: ["bundle install"],
           parallelism: 12,
           label: "[rack-2]",
           env: { RACK: "~> 2.0" }
+
+        rake "railties",
+          service: "railties",
+          pre_steps: ["bundle install"],
+          parallelism: 12,
+          label: "[rack-3-0]",
+          env: { RACK: "~> 3.0.0" }
 
         rake "railties",
           service: "railties",

@@ -571,4 +571,24 @@ class TestBuildContext < TestCase
       assert_predicate sub, :support_guides_lint?
     end
   end
+
+  def test_test_with_multiple_versions_of_rack
+    sub = create_build_context
+
+    sub.default_ruby = Buildkite::Config::RubyConfig.master_ruby
+
+    sub.stub(:rails_version, Gem::Version.new("7.0.0")) do
+      assert_equal false, sub.test_with_multiple_versions_of_rack?(Buildkite::Config::RubyConfig.master_ruby)
+    end
+
+    sub.stub(:rails_version, Gem::Version.new("7.2.0")) do
+      assert_equal false, sub.test_with_multiple_versions_of_rack?(Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2")))
+    end
+
+    sub.stub(:rails_version, Gem::Version.new("7.2.0")) do
+      assert_equal true, sub.test_with_multiple_versions_of_rack?(Buildkite::Config::RubyConfig.master_ruby)
+    end
+
+    Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
+  end
 end
