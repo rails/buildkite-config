@@ -42,7 +42,7 @@ class TestRakeCommand < TestCase
       end
     end
 
-    expected = { "steps" => [{ "depends_on" => ["rubylang/ruby:master-nightly-jammy"] }] }
+    expected = { "steps" => [{ "depends_on" => ["rubylang/ruby:master"] }] }
     assert_equal expected, pipeline.to_h
   end
 
