@@ -25,7 +25,7 @@ Buildkite::Builder.pipeline do
   command do
     label "build", emoji: :rails
     key "build"
-    command "bundle exec rake preview_docs"
+    command "bundle install && bundle exec rake preview_docs"
     timeout_in_minutes 15
     plugin :docker, {
       image: build_context.image_name_for("br-main", prefix: nil),
