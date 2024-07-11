@@ -38,6 +38,7 @@ Buildkite::Builder.pipeline do
         "BUILDKITE_MESSAGE",
         "BUILDKITE_PULL_REQUEST",
         "BUILDKITE_REPO",
+        "RUBY_YJIT_ENABLE",
       ],
     }
     plugin :artifacts, {
