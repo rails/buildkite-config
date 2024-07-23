@@ -134,7 +134,7 @@ services:
   mysql: &mysql-defaults
     image: "${MYSQL_IMAGE-mysql:latest}"
     healthcheck:
-      test: mysql -h localhost -P 3306 -e "SELECT 1;"
+      test: mysql -h 127.0.0.1 -P 3306 -e "SELECT 1;"
       interval: 1s
       retries: 60
     environment:
