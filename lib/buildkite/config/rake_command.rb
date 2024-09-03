@@ -101,7 +101,7 @@ module Buildkite::Config
           depends_on "docker-image-#{build_context.ruby.image_key}"
           command "rake #{task}"
 
-          install_plugins(service,  %w[PRE_STEPS RACK], dir, compose: compose)
+          install_plugins(service, %w[PRE_STEPS RACK], dir, compose: compose)
 
           env build_env(build_context, pre_steps, env)
 
