@@ -131,7 +131,7 @@ RUN rm -f .empty */.empty \
     fi
 
 ADD */*.gemspec tmp/
-ADD .buildkite/.empty tools/releaser/releaser.gemspec tools/releaser/
+ADD .buildkite/.empty tools/*/releaser.gemspec tools/releaser/
 ADD .buildkite/.empty railties/exe/* railties/exe/
 ADD Gemfile Gemfile.lock RAILS_VERSION rails.gemspec ./
 
