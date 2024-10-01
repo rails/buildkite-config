@@ -106,16 +106,17 @@ module Buildkite::Config
 
           artifact_paths build_context.artifact_paths
 
-          if retry_on
-            automatic_retry_on(**retry_on)
-          else
-            automatic_retry_on(**build_context.automatic_retry_on)
+          [retry_on].flatten.compact.each do |retry_args|
+            automatic_retry_on(**retry_args)
           end
+          automatic_retry_on(**build_context.automatic_retry_on)
 
           timeout_in_minutes build_context.timeout_in_minutes
 
-          if soft_fail || build_context.ruby.soft_fail?
+          if soft_fail.is_a?(TrueClass) || build_context.ruby.soft_fail?
             soft_fail true
+          else
+            soft_fail([soft_fail].flatten.compact) if soft_fail
           end
 
           if parallelism
