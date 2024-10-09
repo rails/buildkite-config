@@ -13,7 +13,11 @@ def pull_request_number
   ENV.fetch("BUILDKITE_PULL_REQUEST") { raise "Missing BUILDKITE_PULL_REQUEST!" }
 end
 
-uri = URI("https://api.github.com/repos/rails/rails/pulls/#{pull_request_number}")
+def github_repo
+  ENV.fetch("BUILDKITE_REPO")[%r{github\.com[/:](.+?)(?:\.git)?\z}, 1]
+end
+
+uri = URI("https://api.github.com/repos/#{github_repo}/pulls/#{pull_request_number}")
 
 req = Net::HTTP::Get.new(uri)
 req["Authorization"] = "token #{github_token}"
