@@ -75,6 +75,8 @@ module Buildkite::Config
       case rails_version
       when Gem::Requirement.new("< 6.1")
         Gem::Version.new("2.7")
+      when Gem::Requirement.new("< 7.2")
+        Gem::Version.new("3.3")
       end
     end
 
