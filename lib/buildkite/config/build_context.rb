@@ -41,8 +41,9 @@ module Buildkite::Config
     end
 
     def setup_rubies(ruby_minors)
-      @rubies = ruby_minors.sort.map { |m| Gem::Version.new(m) }.select { |v| v >= min_ruby }.map do |v|
-        rc = RubyConfig.new(version: v, prefix: "ruby:")
+      @rubies = ruby_minors.sort.select { |v| Gem::Version.new(v) >= min_ruby }.map do |m|
+        v = Gem::Version.new(m)
+        rc = RubyConfig.new(version: m, prefix: "ruby:")
 
         if max_ruby && v > max_ruby && !(max_ruby.approximate_recommendation === v)
           rc.soft_fail = true

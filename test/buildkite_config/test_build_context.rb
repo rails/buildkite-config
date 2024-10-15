@@ -157,11 +157,23 @@ class TestBuildContext < TestCase
       end
     end
 
-    expected = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.3"))
+    expected = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: "3.3")
 
-    assert_equal sub.rubies.first.version, expected.version
-    assert_equal sub.rubies.first.prefix, expected.prefix
-    assert_equal sub.default_ruby.version, Gem::Version.new("3.2")
+    assert_equal expected.version, sub.rubies.first.version
+    assert_equal expected.prefix, sub.rubies.first.prefix
+    assert_equal "3.2", sub.default_ruby.version
+  end
+
+  def test_setup_preview_rubies
+    sub = create_build_context
+
+    sub.stub(:min_ruby, Gem::Version.new("2.7")) do
+      sub.stub(:max_ruby, Gem::Version.new("3.5")) do
+        sub.setup_rubies %w(3.4.0-preview2 3.3 3.2 3.1 3.0)
+      end
+    end
+
+    assert_equal "3.4.0-preview2", sub.default_ruby.version.to_s
   end
 
   def test_setup_rubies_default_ruby
@@ -173,11 +185,11 @@ class TestBuildContext < TestCase
       end
     end
 
-    expected = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.3"))
+    expected = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: "3.3")
 
-    assert_equal sub.rubies.first.version, expected.version
-    assert_equal sub.rubies.first.prefix, expected.prefix
-    assert_equal Gem::Version.new("3.2"), sub.default_ruby.version
+    assert_equal expected.version, sub.rubies.first.version
+    assert_equal expected.prefix, sub.rubies.first.prefix
+    assert_equal "3.2", sub.default_ruby.version
   end
 
   def test_bundler_2_2
