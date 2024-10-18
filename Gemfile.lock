@@ -58,8 +58,8 @@ GEM
     regexp_parser (2.8.2)
     reline (0.3.9)
       io-console (~> 0.5)
-    rexml (3.2.8)
-      strscan (>= 3.0.9)
+    rexml (3.3.6)
+      strscan
     rubocop (1.57.2)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
