@@ -160,7 +160,7 @@ Buildkite::Builder.pipeline do
       end
 
       # ActionCable and ActiveJob integration tests
-      rake "actioncable", task: "test:integration", retry_on: { exit_status: -1, limit: 3 }
+      rake "actioncable", task: "test:integration", retry_on: { exit_status: 3, limit: 1 }, soft_fail: { exit_status: 3 }
 
       if ruby == build_context.default_ruby
         if build_context.rails_root.join("actionview/Rakefile").read.include?("task :ujs")
