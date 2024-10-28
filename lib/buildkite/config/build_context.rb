@@ -159,7 +159,10 @@ module Buildkite::Config
     end
 
     def automatic_retry_on
-      { exit_status: -1, limit: 2 }
+      [
+        { exit_status: -1, limit: 2 },
+        { exit_status: 255, limit: 2 },
+      ]
     end
 
     def timeout_in_minutes

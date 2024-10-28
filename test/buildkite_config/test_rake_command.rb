@@ -129,7 +129,7 @@ class TestRakeCommand < TestCase
     end
 
     assert_includes pipeline.to_h["steps"][0], "retry"
-    assert_equal({ "automatic" => [{ "limit" => 2, "exit_status" => -1 }] }, pipeline.to_h["steps"][0]["retry"])
+    assert_equal({ "automatic" => [{ "limit" => 2, "exit_status" => -1 }, { "limit" => 2, "exit_status" => 255 }] }, pipeline.to_h["steps"][0]["retry"])
   end
 
   def test_env
