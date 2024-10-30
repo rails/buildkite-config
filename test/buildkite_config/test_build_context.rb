@@ -551,7 +551,7 @@ class TestBuildContext < TestCase
 
   def test_automatic_retry_on
     sub = create_build_context
-    assert_equal({ exit_status: -1, limit: 2 }, sub.automatic_retry_on)
+    assert_equal([{ exit_status: -1, limit: 2 }, { exit_status: 255, limit: 2 }], sub.automatic_retry_on)
   end
 
   def test_timeout_in_minutes
