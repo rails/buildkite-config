@@ -6,6 +6,7 @@ require "buildkite-builder"
 require "active_support"
 require "active_support/test_case"
 
+require "pathname"
 BUILDKITE_CONFIG_ROOT = Pathname.new(File.expand_path("../..", __dir__))
 
 class PipelineFixture < Buildkite::Builder::Pipeline

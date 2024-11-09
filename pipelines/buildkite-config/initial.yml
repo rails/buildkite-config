@@ -104,6 +104,7 @@ steps:
             CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
       - block: "Rails CI stable"
         key: block-rails-ci-stable
+        depends_on: ~
         prompt: |
           Are you sure you want to trigger a build of Rails CI pipeline for the stable branch with this config?
 
@@ -119,6 +120,7 @@ steps:
             CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
       - block: "Rails CI nightly"
         key: block-rails-ci-nightly-main
+        depends_on: ~
         prompt: |
           Are you sure you want to trigger a build of Rails CI Nightly pipeline for the main branch with this config?
 
@@ -134,6 +136,7 @@ steps:
             CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
       - block: "Rails CI nightly stable"
         key: block-rails-ci-nightly-stable
+        depends_on: ~
         prompt: |
           Are you sure you want to trigger a build of Rails CI Nightly pipeline for the stable branch with this config?
 
