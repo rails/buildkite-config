@@ -27,8 +27,7 @@ Buildkite::Builder.pipeline do
   end
 
   # Lints
-  ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.3"))
-  ruby_group ruby do
+  ruby_group build_context.default_ruby do
     label "lint"
 
     bundle "exec rubocop --parallel", label: "rubocop"
