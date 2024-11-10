@@ -52,8 +52,7 @@ module Buildkite::Config
         plugin :docker_compose, {
           "env" => env,
           "run" => service,
-          "pull" => service,
-          "pull-retries" => 3,
+          "tty" => "true",
           "config" => ".buildkite/docker-compose.yml",
           "shell" => ["runner", *dir],
         }.compact
