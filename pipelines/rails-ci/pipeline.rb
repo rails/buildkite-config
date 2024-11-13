@@ -9,6 +9,7 @@ Buildkite::Builder.pipeline do
 
   plugin :docker_compose, "docker-compose#v5.4.1"
   plugin :artifacts, "artifacts#v1.9.3"
+  plugin :metahook, "improbable-eng/metahook#v0.4.1"
 
   if build_context.nightly?
     build_context.rubies << Buildkite::Config::RubyConfig.master_ruby

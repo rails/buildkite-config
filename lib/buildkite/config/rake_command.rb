@@ -48,6 +48,9 @@ module Buildkite::Config
           ],
           compressed: ".buildkite.tgz"
         }
+        plugin :metahook, {
+          "pre-command": "echo \"+++ inspect docker image store\"\ndocker image ls"
+        }
 
         plugin :docker_compose, {
           "env" => env,
