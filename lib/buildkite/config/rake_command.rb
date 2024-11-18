@@ -53,6 +53,7 @@ module Buildkite::Config
           "env" => env,
           "run" => service,
           "pull" => service,
+          "pull-retries" => 3,
           "config" => ".buildkite/docker-compose.yml",
           "shell" => ["runner", *dir],
         }.compact
