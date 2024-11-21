@@ -27,6 +27,7 @@ services:
       BEANSTALK_URL: "beanstalk://beanstalkd"
       MEMCACHE_SERVERS: "memcached:11211"
       MYSQL_HOST: mysql
+      MYSQL_PREPARED_STATEMENTS:
       PGHOST: postgres
       PGUSER: postgres
       QC_DATABASE_URL: "postgres://postgres@postgres/active_jobs_qc_int_test"
