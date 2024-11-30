@@ -96,6 +96,27 @@ RUN echo "--- :ruby: Updating RubyGems and Bundler" \
         postgresql-client default-mysql-client sqlite3 \
         git nodejs=18.19.0-1nodesource1 yarn lsof \
         ffmpeg mupdf mupdf-tools poppler-utils \
+    # Install Chrome
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
+        apt-get update && apt-get install -y google-chrome-stable \
+    # Install ChromeDriver
+    && apt-get update && apt-get install -y unzip graphviz && \
+        CHROME_VERSION=$(google-chrome-stable --version | cut -d " " -f3) && \
+        echo "Chrome_Version: ${CHROME_VERSION}" && \
+        curl -sS -o /root/chromedriver_linux64.zip https://storage.googleapis.com/chrome-for-testing-public/$CHROME_VERSION/linux64/chromedriver-linux64.zip &&\
+        unzip ~/chromedriver_linux64.zip -d ~/ && \
+        rm ~/chromedriver_linux64.zip && \
+        chown root:root ~/chromedriver-linux64/chromedriver && \
+        chmod 755 ~/chromedriver-linux64/chromedriver && \
+        mv ~/chromedriver-linux64/chromedriver /usr/bin/chromedriver \
+    # Install Firefox and Geckodriver
+    && apt-get update && apt-get install -y --no-install-recommends \
+        firefox-esr xvfb \
+    && GECKODRIVER_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep tag_name | cut -d '"' -f 4 | sed 's/v//') \
+    && wget -q https://github.com/mozilla/geckodriver/releases/download/v$GECKODRIVER_VERSION/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz \
+    && tar -xvzf geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz -C /usr/local/bin/ \
+    && rm geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz \
     # clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* \
