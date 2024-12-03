@@ -20,7 +20,7 @@ module Buildkite::Config
         env ||= {}
         pre_steps ||= []
 
-        env[:IMAGE_NAME] = build_context.image_name_for(build_context.build_id, prefix: nil)
+        env[:IMAGE_NAME] ||= build_context.image_name_for(build_context.build_id, prefix: nil)
 
         if build_context.ruby.yjit_enabled?
           env[:RUBY_YJIT_ENABLE] = "1"
@@ -33,7 +33,17 @@ module Buildkite::Config
         env
       end
 
-      def install_plugins(service = "default", env = nil, dir = ".")
+      def install_plugins(service = "default", env = nil, dir = ".", compose: nil)
+        compose_options = {
+          "env" => env,
+          "run" => service,
+          "pull" => service,
+          "pull-retries" => 3,
+          "config" => ".buildkite/docker-compose.yml",
+          "shell" => ["runner", *dir],
+        }
+        compose_options.merge!(compose) if compose
+
         plugin :artifacts, {
             download: ".dockerignore"
           }
@@ -49,14 +59,7 @@ module Buildkite::Config
           compressed: ".buildkite.tgz"
         }
 
-        plugin :docker_compose, {
-          "env" => env,
-          "run" => service,
-          "pull" => service,
-          "pull-retries" => 3,
-          "config" => ".buildkite/docker-compose.yml",
-          "shell" => ["runner", *dir],
-        }.compact
+        plugin :docker_compose, compose_options.compact
       end
     end
 
@@ -65,7 +68,7 @@ module Buildkite::Config
     end
 
     dsl do
-      def bundle(command, label:, env: nil)
+      def bundle(command, label:, env: nil, compose: nil)
         build_context = context.extensions.find(BuildContext)
 
         command do
@@ -73,7 +76,7 @@ module Buildkite::Config
           depends_on "docker-image-#{build_context.ruby.image_key}"
           command command
 
-          install_plugins
+          install_plugins(compose: compose)
 
           env build_env(build_context, nil, env)
 
@@ -85,7 +88,7 @@ module Buildkite::Config
         end
       end
 
-      def rake(dir, task: "test", label: nil, service: "default", pre_steps: nil, env: nil, retry_on: nil, soft_fail: nil, parallelism: nil)
+      def rake(dir, task: "test", label: nil, service: "default", pre_steps: nil, env: nil, retry_on: nil, soft_fail: nil, parallelism: nil, compose: nil)
         build_context = context.extensions.find(BuildContext)
 
         if task.start_with?("mysql2:") || (build_context.rails_version >= Gem::Version.new("7.1.0.alpha") && task.start_with?("trilogy:"))
@@ -99,7 +102,7 @@ module Buildkite::Config
           depends_on "docker-image-#{build_context.ruby.image_key}"
           command "rake #{task}"
 
-          install_plugins(service,  %w[PRE_STEPS RACK], dir)
+          install_plugins(service, %w[PRE_STEPS RACK], dir, compose: compose)
 
           env build_env(build_context, pre_steps, env)
 

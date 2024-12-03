@@ -153,4 +153,32 @@ class TestDockerBuild < TestCase
     assert_equal ["base:buildkite-config-base:ruby-1-9-3-br-main"], compose["cache-from"]
     assert_equal ["base:buildkite-config-base:ruby-1-9-3-br-"], compose["push"]
   end
+
+  def test_builder_compose_options
+    pipeline = PipelineFixture.new do
+      use Buildkite::Config::DockerBuild
+
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        builder Buildkite::Config::RubyConfig.new(version: "3.2"), compose: {
+          "cli_version": "2",
+          "image-name": "buildkite_base",
+          "cache-from": ["buildkite_base"],
+          "push": "",
+          "image-repository": "",
+        }
+      end
+    end
+
+    plugins = pipeline.to_h["steps"][0]["plugins"]
+
+    compose = plugins.find { |plugin|
+      plugin.key?("docker-compose#v1.0")
+    }.fetch("docker-compose#v1.0")
+
+    assert_equal "2", compose["cli_version"]
+    assert_equal "buildkite_base", compose["image-name"]
+    assert_equal ["buildkite_base"], compose["cache-from"]
+    assert_equal "", compose["push"]
+    assert_equal "", compose["image-repository"]
+  end
 end
