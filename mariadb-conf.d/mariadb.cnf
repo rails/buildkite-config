@@ -1,2 +1,0 @@
-[mariadb]
-loose_innodb_snapshot_isolation = off
