@@ -149,9 +149,6 @@ services:
       test: healthcheck.sh --su-mysql --connect --innodb_initialized
       interval: 1s
       retries: 60
-    volumes:
-      - "./mysql-initdb.d:/docker-entrypoint-initdb.d"
-      - "./mariadb-conf.d/mariadb.cnf:/etc/mysql/conf.d/mariadb.cnf"
 
   postgres:
     image: "${POSTGRES_IMAGE-postgres:alpine}"
