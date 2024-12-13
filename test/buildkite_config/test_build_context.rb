@@ -169,11 +169,11 @@ class TestBuildContext < TestCase
 
     sub.stub(:min_ruby, Gem::Version.new("2.7")) do
       sub.stub(:max_ruby, Gem::Version.new("3.5")) do
-        sub.setup_rubies %w(3.4.0-preview2 3.3 3.2 3.1 3.0)
+        sub.setup_rubies %w(3.4.0-rc1 3.3 3.2 3.1 3.0)
       end
     end
 
-    assert_equal "3.4.0-preview2", sub.default_ruby.version.to_s
+    assert_equal "3.4.0-rc1", sub.default_ruby.version.to_s
   end
 
   def test_setup_rubies_default_ruby
