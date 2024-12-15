@@ -147,6 +147,21 @@ class TestRakeCommand < TestCase
     assert_equal "buildkite-config-base:ruby-3-2-local", pipeline.to_h["steps"][0]["env"]["IMAGE_NAME"]
   end
 
+  def test_env_image_name
+    pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
+      use Buildkite::Config::RakeCommand
+
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake "test", task: "test:all", env: { "IMAGE_NAME": "override-at-command-definition" }
+      end
+    end
+
+    assert_includes pipeline.to_h["steps"][0], "env"
+    assert_includes pipeline.to_h["steps"][0]["env"], "IMAGE_NAME"
+    assert_equal "override-at-command-definition", pipeline.to_h["steps"][0]["env"]["IMAGE_NAME"]
+  end
+
   def test_timeout_in_minutes
     pipeline = PipelineFixture.new do
       build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
@@ -216,6 +231,39 @@ class TestRakeCommand < TestCase
 
     assert_equal "default", compose["run"]
     assert_equal "default", compose["pull"]
+    assert_equal ".buildkite/docker-compose.yml", compose["config"]
+    assert_equal ["runner", "test"], compose["shell"]
+  end
+
+  def test_compose_options
+    pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
+      use Buildkite::Config::RakeCommand
+
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake "test", task: "test:all", compose: {
+          "cli_version": "2",
+          "pull": "",
+        }
+      end
+    end
+
+    plugins = pipeline.to_h["steps"][0]["plugins"]
+
+    compose = plugins.find { |plugin|
+      plugin.key?("docker-compose#v1.0")
+    }.fetch("docker-compose#v1.0")
+
+    %w[env run pull config shell].each do |key|
+      assert_includes compose, key
+    end
+
+    assert_includes compose["env"], "PRE_STEPS"
+    assert_includes compose["env"], "RACK"
+
+    assert_equal "2", compose["cli_version"]
+    assert_equal "default", compose["run"]
+    assert_equal "", compose["pull"]
     assert_equal ".buildkite/docker-compose.yml", compose["config"]
     assert_equal ["runner", "test"], compose["shell"]
   end
@@ -461,5 +509,42 @@ class TestRakeCommand < TestCase
     assert_equal "default", step["agents"]["queue"]
     assert_equal ["test-reports/*/*.xml"], step["artifact_paths"]
     assert_equal 30, step["timeout_in_minutes"]
+  end
+
+  def test_bundle_command_options
+    pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
+      use Buildkite::Config::RakeCommand
+
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        bundle "rubocop", label: "rubocop", compose: {
+          "cli_version": "2",
+          "pull": "",
+        }, env: {
+          "IMAGE_NAME": "override-at-command-definition",
+        }
+      end
+    end
+
+    step = pipeline.to_h["steps"][0]
+    assert_equal "override-at-command-definition", step["env"]["IMAGE_NAME"]
+
+    plugins = step["plugins"]
+
+    compose = plugins.find { |plugin|
+      plugin.key?("docker-compose#v1.0")
+    }.fetch("docker-compose#v1.0")
+
+    %w[run pull config shell].each do |key|
+      assert_includes compose, key
+    end
+
+    assert_predicate compose["env"], :nil?
+
+    assert_equal "2", compose["cli_version"]
+    assert_equal "default", compose["run"]
+    assert_equal "", compose["pull"]
+    assert_equal ".buildkite/docker-compose.yml", compose["config"]
+    assert_equal ["runner", "."], compose["shell"]
   end
 end
