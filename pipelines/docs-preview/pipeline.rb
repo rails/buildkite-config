@@ -3,6 +3,7 @@
 Buildkite::Builder.pipeline do
   require "buildkite_config"
   use Buildkite::Config::BuildContext
+  use Buildkite::Config::DockerBuild
 
   plugin :docker, "docker#v5.10.0"
   plugin :artifacts, "artifacts#v1.9.3"
@@ -23,13 +24,16 @@ Buildkite::Builder.pipeline do
     next
   end
 
+  builder build_context.ruby
+
   command do
     label "build", emoji: :rails
+    depends_on "docker-image-#{build_context.ruby.image_key}"
     key "build"
     command "bundle install && bundle exec rake preview_docs"
     timeout_in_minutes 15
     plugin :docker, {
-      image: build_context.image_name_for("br-main", prefix: nil),
+      image: build_context.image_name_for(build_context.build_id, prefix: nil),
       environment: [
         "BUILDKITE_BRANCH",
         "BUILDKITE_BUILD_CREATOR",
