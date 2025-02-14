@@ -33,7 +33,7 @@ module Buildkite::Config
         env
       end
 
-      def install_plugins(service = "default", env = nil, dir = ".")
+      def install_plugins(service = "default", env = nil, dir = ".", mainline: false)
         plugin :artifacts, {
             download: ".dockerignore"
           }
@@ -48,6 +48,12 @@ module Buildkite::Config
           ],
           compressed: ".buildkite.tgz"
         }
+
+        if mainline
+          plugin :secrets, {
+            env: "main_env"
+          }
+        end
 
         plugin :docker_compose, {
           "env" => env,
@@ -72,7 +78,7 @@ module Buildkite::Config
           depends_on "docker-image-#{build_context.ruby.image_key}"
           command command
 
-          install_plugins
+          install_plugins(mainline: build_context.mainline)
 
           env build_env(build_context, nil, env)
 
@@ -98,7 +104,7 @@ module Buildkite::Config
           depends_on "docker-image-#{build_context.ruby.image_key}"
           command "rake #{task}"
 
-          install_plugins(service,  %w[PRE_STEPS RACK], dir)
+          install_plugins(service,  %w[PRE_STEPS RACK], dir, mainline: build_context.mainline)
 
           env build_env(build_context, pre_steps, env)
 

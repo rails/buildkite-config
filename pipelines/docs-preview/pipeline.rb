@@ -6,6 +6,7 @@ Buildkite::Builder.pipeline do
 
   plugin :docker, "docker#v5.10.0"
   plugin :artifacts, "artifacts#v1.9.3"
+  plugin :secrets, "cluster-secrets#v1.0.0"
 
   build_context = context.extensions.find(Buildkite::Config::BuildContext)
   build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.3"))
@@ -50,6 +51,9 @@ Buildkite::Builder.pipeline do
     key "deploy"
     depends_on "build"
     timeout_in_minutes 15
+    plugin :secrets, {
+      env: "docs_preview_env"
+    }
     plugin :docker, {
       environment: [
         "BUILDKITE_BRANCH",
@@ -82,6 +86,9 @@ Buildkite::Builder.pipeline do
     plugin :artifacts, {
       download: ".buildkite/bin/docs-preview-annotate",
       compressed: ".buildkite.tgz"
+    }
+    plugin :secrets, {
+      env: "docs_preview_env"
     }
     command "sh -c \"$$ANNOTATE_COMMAND\" | buildkite-agent annotate --style info"
     # CLOUDFLARE_API_TOKEN is used to fetch preview URL from latest deployment

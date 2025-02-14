@@ -9,6 +9,7 @@ Buildkite::Builder.pipeline do
 
   plugin :docker_compose, "docker-compose#v5.4.1"
   plugin :artifacts, "artifacts#v1.9.3"
+  plugin :secrets, "cluster-secrets#v1.0.0"
 
   if build_context.nightly?
     build_context.rubies << Buildkite::Config::RubyConfig.master_ruby
