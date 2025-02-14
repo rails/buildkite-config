@@ -19,7 +19,6 @@ class TestDockerBuild < TestCase
 
     assert_equal ":docker: builder:3.2", pipeline.to_h["steps"][0]["label"]
     assert_equal "docker-image-builder-3-2", pipeline.to_h["steps"][0]["key"]
-    assert_equal "builder:3.2", pipeline.to_h["steps"][0]["env"]["RUBY_IMAGE"]
   end
 
   def test_builder_artifacts
@@ -60,25 +59,16 @@ class TestDockerBuild < TestCase
       end
     end
 
-    plugins = pipeline.to_h["steps"][0]["plugins"]
+    command = pipeline.to_h["steps"][0]["command"].first
 
-    compose = plugins.find { |plugin|
-      plugin.key?("docker-compose#v1.0")
-    }.fetch("docker-compose#v1.0")
+    expected = <<~COMMAND.squish
+      docker build --push
+        --build-arg RUBY_IMAGE=3.2
+        --tag buildkite-config-base:3-2-local
+        --file .buildkite/Dockerfile .
+    COMMAND
 
-    %w[image-name cache-from push build config env image-repository].each do |key|
-      assert_includes compose, key
-    end
-
-    assert_equal "3-2-local", compose["image-name"]
-    assert_equal ["base:buildkite-config-base:3-2-br-main"], compose["cache-from"]
-    assert_equal ["base:buildkite-config-base:3-2-br-"], compose["push"]
-
-    assert_equal "base", compose["build"]
-    assert_equal ".buildkite/docker-compose.yml", compose["config"]
-    assert_includes compose["env"], "PRE_STEPS"
-    assert_includes compose["env"], "RACK"
-    assert_equal "buildkite-config-base", compose["image-repository"]
+    assert_equal expected.strip, command
   end
 
   def test_builder_timeout_default
@@ -143,14 +133,15 @@ class TestDockerBuild < TestCase
       end
     end
 
-    plugins = pipeline.to_h["steps"][0]["plugins"]
+    command = pipeline.to_h["steps"][0]["command"].first
 
-    compose = plugins.find { |plugin|
-      plugin.key?("docker-compose#v1.0")
-    }.fetch("docker-compose#v1.0")
+    expected = <<~COMMAND.squish
+      docker build --push
+        --build-arg RUBY_IMAGE=ruby:1.9.3
+        --tag buildkite-config-base:ruby-1-9-3-local
+        --file .buildkite/Dockerfile .
+    COMMAND
 
-    assert_equal "ruby-1-9-3-local", compose["image-name"]
-    assert_equal ["base:buildkite-config-base:ruby-1-9-3-br-main"], compose["cache-from"]
-    assert_equal ["base:buildkite-config-base:ruby-1-9-3-br-"], compose["push"]
+    assert_equal expected.strip, command
   end
 end

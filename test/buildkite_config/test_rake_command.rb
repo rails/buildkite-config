@@ -207,7 +207,7 @@ class TestRakeCommand < TestCase
       plugin.key?("docker-compose#v1.0")
     }.fetch("docker-compose#v1.0")
 
-    %w[env run pull config shell].each do |key|
+    %w[env run config shell].each do |key|
       assert_includes compose, key
     end
 
@@ -215,7 +215,6 @@ class TestRakeCommand < TestCase
     assert_includes compose["env"], "RACK"
 
     assert_equal "default", compose["run"]
-    assert_equal "default", compose["pull"]
     assert_equal ".buildkite/docker-compose.yml", compose["config"]
     assert_equal ["runner", "test"], compose["shell"]
   end
@@ -263,12 +262,11 @@ class TestRakeCommand < TestCase
       plugin.key?("docker-compose#v1.0")
     }.fetch("docker-compose#v1.0")
 
-    %w[run pull].each do |key|
+    %w[run].each do |key|
       assert_includes compose, key
     end
 
     assert_equal "myservice", compose["run"]
-    assert_equal "myservice", compose["pull"]
   end
 
   def test_env_yjit
@@ -453,7 +451,6 @@ class TestRakeCommand < TestCase
 
     assert_not_includes compose, "env"
     assert_equal "default", compose["run"]
-    assert_equal "default", compose["pull"]
     assert_equal ".buildkite/docker-compose.yml", compose["config"]
     assert_equal ["runner", "."], compose["shell"]
 

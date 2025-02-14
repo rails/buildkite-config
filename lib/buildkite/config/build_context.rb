@@ -189,8 +189,16 @@ module Buildkite::Config
         Gem::Version.new($1 || "2.0")
       end
 
+      def registry
+        ENV["REGISTRY"] || "973266071021.dkr.ecr.us-east-1.amazonaws.com"
+      end
+
+      def image_name
+        "#{"#{build_queue}-" unless standard_queues.include?(build_queue)}builds"
+      end
+
       def remote_image_base
-        ENV.fetch("REGISTRY") + "/#{"#{build_queue}-" unless standard_queues.include?(build_queue)}builds"
+        [registry, image_name].join("/")
       end
   end
 end
