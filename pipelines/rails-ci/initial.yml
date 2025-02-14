@@ -40,7 +40,6 @@ steps:
         ruby:latest \
         .buildkite/bin/fetch-pr > .buildkite/tmp/.pr-meta.json) || true
 
-
       echo "Generating pipeline:"
       sh -c "$$PIPELINE_COMMAND"
 
@@ -83,4 +82,4 @@ steps:
         buildkite-agent pipeline upload
     timeout_in_minutes: 5
     agents:
-      queue: hosted
+      queue: "${QUEUE-builder}"
