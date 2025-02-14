@@ -27,12 +27,13 @@ end
 
 json = JSON.parse(response.body)
 result = json["result"].first
+url = result["aliases"]&.first || result["url"]
 
 plan = <<~PLAN
 #### :writing_hand: rails/docs-preview:
 
-* <a href="#{result["url"]}/api">:link: API</a>
-* <a href="#{result["url"]}/guides">:link: Guides</a>
+* <a href="#{url}/api">:link: API</a>
+* <a href="#{url}/guides">:link: Guides</a>
 PLAN
 
 puts plan
