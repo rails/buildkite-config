@@ -128,7 +128,7 @@ Buildkite::Builder.pipeline do
         end
       end
 
-      rake "activestorage"
+      rake "activestorage", env: { RUBYPOT: "--enable-frozen-string-literal --debug-frozen-string-literal" }
       rake "activesupport"
       rake "guides"
 
