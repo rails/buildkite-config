@@ -71,7 +71,7 @@ module Buildkite::Config
         command do
           label label
           depends_on "docker-image-#{build_context.ruby.image_key}"
-          command command
+          command "bundle exec #{command}"
 
           install_plugins
 

@@ -425,7 +425,7 @@ class TestRakeCommand < TestCase
     assert_equal "rubocop", step["label"]
     assert_equal "docker-image-ruby-3-2", step["depends_on"][0]
     assert_includes step, "command"
-    assert_equal "rubocop", step["command"][0]
+    assert_equal "bundle exec rubocop", step["command"][0]
 
     plugins = step["plugins"]
 
