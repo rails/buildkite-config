@@ -82,7 +82,6 @@ module Buildkite::Config
               build: "base",
               config: ".buildkite/docker-compose.yml",
               env: %w[PRE_STEPS RACK],
-              "image-name" => build_context.ruby.image_name_for(build_context.build_id),
               "cache-from" => cache_from(build_context),
               push: build_push(build_context),
             }

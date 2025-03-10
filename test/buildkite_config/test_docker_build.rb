@@ -94,10 +94,9 @@ class TestDockerBuild < TestCase
       plugin.key?(plugins_map[:compose])
     }.fetch(plugins_map[:compose])
 
-    %w[image-name cache-from push build config env].each do |key|
+    %w[cache-from push build config env].each do |key|
       assert_includes compose, key
     end
-    assert_equal "3-2-local", compose["image-name"]
     assert_equal ["base:buildkite-config-base:3-2-br-main"], compose["cache-from"]
     assert_equal ["base:buildkite-config-base:3-2-br-"], compose["push"]
 
@@ -229,7 +228,6 @@ class TestDockerBuild < TestCase
       plugin.key?(plugins_map[:compose])
     }.fetch(plugins_map[:compose])
 
-    assert_equal "ruby-1-9-3-local", compose["image-name"]
     assert_equal ["base:buildkite-config-base:ruby-1-9-3-br-main"], compose["cache-from"]
     assert_equal ["base:buildkite-config-base:ruby-1-9-3-br-"], compose["push"]
   ensure
