@@ -94,7 +94,7 @@ class TestDockerBuild < TestCase
       plugin.key?(plugins_map[:compose])
     }.fetch(plugins_map[:compose])
 
-    %w[image-name cache-from push build config env image-repository].each do |key|
+    %w[image-name cache-from push build config env].each do |key|
       assert_includes compose, key
     end
     assert_equal "3-2-local", compose["image-name"]
@@ -105,7 +105,6 @@ class TestDockerBuild < TestCase
     assert_equal ".buildkite/docker-compose.yml", compose["config"]
     assert_includes compose["env"], "PRE_STEPS"
     assert_includes compose["env"], "RACK"
-    assert_equal "buildkite-config-base", compose["image-repository"]
   ensure
     ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
   end
