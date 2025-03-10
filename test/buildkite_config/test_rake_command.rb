@@ -244,7 +244,7 @@ class TestRakeCommand < TestCase
       plugin.key?(plugins_map[:compose])
     }.fetch(plugins_map[:compose])
 
-    %w[env run pull config shell].each do |key|
+    %w[env run pull config shell tty].each do |key|
       assert_includes compose, key
     end
 
@@ -253,6 +253,7 @@ class TestRakeCommand < TestCase
 
     assert_equal "default", compose["run"]
     assert_equal "default", compose["pull"]
+    assert_equal "true", compose["tty"]
     assert_equal ".buildkite/docker-compose.yml", compose["config"]
     assert_equal ["runner", "test"], compose["shell"]
   ensure

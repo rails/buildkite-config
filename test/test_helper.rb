@@ -12,7 +12,7 @@ BUILDKITE_CONFIG_ROOT = Pathname.new(File.expand_path("../..", __dir__))
 module TestHelpers
   def plugins_map
     {
-      compose: "docker-compose#v5.4.1",
+      compose: "docker-compose#v5.6.0",
       artifacts: "artifacts#v1.9.3"
     }
   end

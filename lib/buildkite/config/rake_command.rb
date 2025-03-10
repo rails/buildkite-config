@@ -60,11 +60,10 @@ module Buildkite::Config
           "run" => service,
           "config" => ".buildkite/docker-compose.yml",
           "shell" => ["runner", *dir],
+          "tty" => "true",
         }
 
-        if build_context.hosted?
-          compose_opts["tty"] = "true"
-        else
+        if build_context.self_hosted?
           compose_opts["pull"] = service
           compose_opts["pull-retries"] = 3
         end
