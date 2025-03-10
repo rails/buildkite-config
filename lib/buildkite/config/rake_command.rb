@@ -64,6 +64,7 @@ module Buildkite::Config
         }
 
         if build_context.self_hosted?
+          compose_opts["cli-version"] = "1"
           compose_opts["pull"] = service
           compose_opts["pull-retries"] = 3
         end
