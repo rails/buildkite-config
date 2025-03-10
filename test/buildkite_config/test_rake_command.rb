@@ -175,11 +175,11 @@ class TestRakeCommand < TestCase
     plugins = pipeline.to_h["steps"][0]["plugins"]
 
     artifacts = plugins.select { |plugin|
-      plugin.key?("artifacts#v1.0")
+      plugin.key?(plugins_map[:artifacts])
     }
-    assert_equal ".dockerignore", artifacts[0]["artifacts#v1.0"]["download"]
+    assert_equal ".dockerignore", artifacts[0][plugins_map[:artifacts]]["download"]
 
-    download = artifacts[1]["artifacts#v1.0"]
+    download = artifacts[1][plugins_map[:artifacts]]
     assert_equal %w[
       .buildkite/.empty
       .buildkite/docker-compose.yml
@@ -191,7 +191,10 @@ class TestRakeCommand < TestCase
     assert_equal ".buildkite.tgz", download["compressed"]
   end
 
-  def test_compose
+  def test_compose_hosted
+    @before_env_compute_type = ENV["BUILDKITE_COMPUTE_TYPE"]
+    ENV["BUILDKITE_COMPUTE_TYPE"] = "hosted"
+
     pipeline = PipelineFixture.new do
       build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
       use Buildkite::Config::RakeCommand
@@ -204,10 +207,10 @@ class TestRakeCommand < TestCase
     plugins = pipeline.to_h["steps"][0]["plugins"]
 
     compose = plugins.find { |plugin|
-      plugin.key?("docker-compose#v1.0")
-    }.fetch("docker-compose#v1.0")
+      plugin.key?(plugins_map[:compose])
+    }.fetch(plugins_map[:compose])
 
-    %w[env run config shell].each do |key|
+    %w[env run config shell tty].each do |key|
       assert_includes compose, key
     end
 
@@ -215,8 +218,45 @@ class TestRakeCommand < TestCase
     assert_includes compose["env"], "RACK"
 
     assert_equal "default", compose["run"]
+    assert_equal "true", compose["tty"]
     assert_equal ".buildkite/docker-compose.yml", compose["config"]
     assert_equal ["runner", "test"], compose["shell"]
+  ensure
+    ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
+  end
+
+  def test_compose_self_hosted
+    @before_env_compute_type = ENV["BUILDKITE_COMPUTE_TYPE"]
+    ENV["BUILDKITE_COMPUTE_TYPE"] = "self-hosted"
+
+    pipeline = PipelineFixture.new do
+      build_context.ruby = Buildkite::Config::RubyConfig.new(prefix: "ruby:", version: Gem::Version.new("3.2"))
+      use Buildkite::Config::RakeCommand
+
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        rake "test", task: "test:all"
+      end
+    end
+
+    plugins = pipeline.to_h["steps"][0]["plugins"]
+
+    compose = plugins.find { |plugin|
+      plugin.key?(plugins_map[:compose])
+    }.fetch(plugins_map[:compose])
+
+    %w[env run pull config shell].each do |key|
+      assert_includes compose, key
+    end
+
+    assert_includes compose["env"], "PRE_STEPS"
+    assert_includes compose["env"], "RACK"
+
+    assert_equal "default", compose["run"]
+    assert_equal "default", compose["pull"]
+    assert_equal ".buildkite/docker-compose.yml", compose["config"]
+    assert_equal ["runner", "test"], compose["shell"]
+  ensure
+    ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
   end
 
   def test_multiple
@@ -239,8 +279,8 @@ class TestRakeCommand < TestCase
       plugins = pipeline.to_h["steps"][index]["plugins"]
 
       compose = plugins.find { |plugin|
-        plugin.key?("docker-compose#v1.0")
-      }.fetch("docker-compose#v1.0")
+        plugin.key?(plugins_map[:compose])
+      }.fetch(plugins_map[:compose])
 
       assert_equal "default", compose["run"]
     end
@@ -259,8 +299,8 @@ class TestRakeCommand < TestCase
     plugins = pipeline.to_h["steps"][0]["plugins"]
 
     compose = plugins.find { |plugin|
-      plugin.key?("docker-compose#v1.0")
-    }.fetch("docker-compose#v1.0")
+      plugin.key?(plugins_map[:compose])
+    }.fetch(plugins_map[:compose])
 
     %w[run].each do |key|
       assert_includes compose, key
@@ -309,8 +349,8 @@ class TestRakeCommand < TestCase
     plugins = pipeline.to_h["steps"][0]["plugins"]
 
     compose = plugins.find { |plugin|
-      plugin.key?("docker-compose#v1.0")
-    }.fetch("docker-compose#v1.0")
+      plugin.key?(plugins_map[:compose])
+    }.fetch(plugins_map[:compose])
 
     assert_includes compose["env"], "PRE_STEPS"
   end
@@ -388,8 +428,8 @@ class TestRakeCommand < TestCase
     plugins = pipeline.to_h["steps"][0]["plugins"]
 
     compose = plugins.find { |plugin|
-      plugin.key?("docker-compose#v1.0")
-    }.fetch("docker-compose#v1.0")
+      plugin.key?(plugins_map[:compose])
+    }.fetch(plugins_map[:compose])
 
     assert_includes compose["env"], "RACK"
   end
@@ -431,12 +471,12 @@ class TestRakeCommand < TestCase
 
     artifacts = plugins[0]
 
-    assert_equal "artifacts#v1.0", artifacts.keys.first
-    assert_equal ".dockerignore", artifacts["artifacts#v1.0"]["download"]
+    assert_equal plugins_map[:artifacts], artifacts.keys.first
+    assert_equal ".dockerignore", artifacts[plugins_map[:artifacts]]["download"]
 
     artifacts = plugins[1]
 
-    assert_equal "artifacts#v1.0", artifacts.keys.first
+    assert_equal plugins_map[:artifacts], artifacts.keys.first
     assert_equal %w[
       .buildkite/.empty
       .buildkite/docker-compose.yml
@@ -444,10 +484,10 @@ class TestRakeCommand < TestCase
       .buildkite/Dockerfile.beanstalkd
       .buildkite/mysql-initdb.d
       .buildkite/runner
-    ], artifacts["artifacts#v1.0"]["download"]
-    assert_equal ".buildkite.tgz", artifacts["artifacts#v1.0"]["compressed"]
+    ], artifacts[plugins_map[:artifacts]]["download"]
+    assert_equal ".buildkite.tgz", artifacts[plugins_map[:artifacts]]["compressed"]
 
-    compose = plugins[2].fetch("docker-compose#v1.0")
+    compose = plugins[2].fetch(plugins_map[:compose])
 
     assert_not_includes compose, "env"
     assert_equal "default", compose["run"]

@@ -33,7 +33,7 @@ module Buildkite::Config
         env
       end
 
-      def install_plugins(service = "default", env = nil, dir = ".", mainline: false)
+      def install_plugins(service = "default", env = nil, dir = ".", build_context:)
         plugin :artifacts, {
             download: ".dockerignore"
           }
@@ -49,19 +49,27 @@ module Buildkite::Config
           compressed: ".buildkite.tgz"
         }
 
-        if mainline
+        if build_context.mainline
           plugin :secrets, {
             env: "main_env"
           }
         end
 
-        plugin :docker_compose, {
+        compose_opts = {
           "env" => env,
           "run" => service,
-          "tty" => "true",
           "config" => ".buildkite/docker-compose.yml",
           "shell" => ["runner", *dir],
-        }.compact
+        }
+
+        if build_context.hosted?
+          compose_opts["tty"] = "true"
+        else
+          compose_opts["pull"] = service
+          compose_opts["pull-retries"] = 3
+        end
+
+        plugin :docker_compose, compose_opts.compact
       end
     end
 
@@ -78,7 +86,7 @@ module Buildkite::Config
           depends_on "docker-image-#{build_context.ruby.image_key}"
           command command
 
-          install_plugins(mainline: build_context.mainline)
+          install_plugins(build_context: build_context)
 
           env build_env(build_context, nil, env)
 
@@ -104,7 +112,7 @@ module Buildkite::Config
           depends_on "docker-image-#{build_context.ruby.image_key}"
           command "rake #{task}"
 
-          install_plugins(service,  %w[PRE_STEPS RACK], dir, mainline: build_context.mainline)
+          install_plugins(service,  %w[PRE_STEPS RACK], dir, build_context: build_context)
 
           env build_env(build_context, pre_steps, env)
 

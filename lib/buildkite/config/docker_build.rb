@@ -30,7 +30,15 @@ module Buildkite::Config
       end
 
       def build_push(build_context)
-        build_context.image_name_for(build_context.build_id, prefix: nil)
+        if build_context.hosted?
+          build_context.image_name_for(build_context.build_id, prefix: nil)
+        else
+          [
+            build_context.local_branch =~ /:/ ?
+              build_context.image_name_for("pr-#{build_context.pull_request}") :
+              build_context.image_name_for("br-#{build_context.local_branch}"),
+          ]
+        end
       end
     end
 
@@ -62,14 +70,37 @@ module Buildkite::Config
             compressed: ".buildkite.tgz"
           }
 
-          command "docker build --push --build-arg RUBY_IMAGE=#{build_context.ruby.ruby_image} --tag #{build_push(build_context)} --file .buildkite/Dockerfile ."
+          if build_context.hosted?
+            command <<~COMMAND.squish
+              docker build --push
+                --build-arg RUBY_IMAGE=#{build_context.ruby.ruby_image}
+                --tag #{build_push(build_context)}
+                --file .buildkite/Dockerfile .
+            COMMAND
+          else
+            plugin :docker_compose, {
+              build: "base",
+              config: ".buildkite/docker-compose.yml",
+              env: %w[PRE_STEPS RACK],
+              "image-name" => build_context.ruby.image_name_for(build_context.build_id),
+              "cache-from" => cache_from(build_context),
+              push: build_push(build_context),
+              "image-repository" => build_context.image_base,
+            }
+          end
 
-          env({
+          env_opts = {
             BUNDLER: build_context.bundler,
             RUBYGEMS: build_context.rubygems,
             encrypted_0fb9444d0374_key: nil,
             encrypted_0fb9444d0374_iv: nil
-          })
+          }
+
+          if build_context.self_hosted?
+            env_opts[:RUBY_IMAGE] = build_context.ruby.ruby_image
+          end
+
+          env(env_opts)
 
           timeout_in_minutes 15
 

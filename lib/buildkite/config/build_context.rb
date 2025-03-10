@@ -117,6 +117,18 @@ module Buildkite::Config
       ([ENV["BUILDKITE_PULL_REQUEST"]] - ["false"]).first
     end
 
+    def compute_type
+      ENV["BUILDKITE_COMPUTE_TYPE"] || "self-hosted"
+    end
+
+    def self_hosted?
+      compute_type == "self-hosted"
+    end
+
+    def hosted?
+      !self_hosted?
+    end
+
     def standard_queues
       [nil, "default", "builder"]
     end
@@ -190,7 +202,11 @@ module Buildkite::Config
       end
 
       def registry
-        ENV["REGISTRY"] || "973266071021.dkr.ecr.us-east-1.amazonaws.com"
+        if hosted?
+          ENV["REGISTRY"]
+        else
+          "973266071021.dkr.ecr.us-east-1.amazonaws.com"
+        end
       end
 
       def image_name
