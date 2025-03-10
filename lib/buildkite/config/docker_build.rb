@@ -37,6 +37,7 @@ module Buildkite::Config
             build_context.local_branch =~ /:/ ?
               build_context.image_name_for("pr-#{build_context.pull_request}") :
               build_context.image_name_for("br-#{build_context.local_branch}"),
+            build_context.image_name_for(build_context.build_id)
           ]
         end
       end

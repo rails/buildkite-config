@@ -98,7 +98,7 @@ class TestDockerBuild < TestCase
       assert_includes compose, key
     end
     assert_equal ["base:buildkite-config-base:3-2-br-main"], compose["cache-from"]
-    assert_equal ["base:buildkite-config-base:3-2-br-"], compose["push"]
+    assert_equal ["base:buildkite-config-base:3-2-br-", "base:buildkite-config-base:3-2-local"], compose["push"]
 
     assert_equal "base", compose["build"]
     assert_equal ".buildkite/docker-compose.yml", compose["config"]
@@ -229,7 +229,7 @@ class TestDockerBuild < TestCase
     }.fetch(plugins_map[:compose])
 
     assert_equal ["base:buildkite-config-base:ruby-1-9-3-br-main"], compose["cache-from"]
-    assert_equal ["base:buildkite-config-base:ruby-1-9-3-br-"], compose["push"]
+    assert_equal ["base:buildkite-config-base:ruby-1-9-3-br-", "base:buildkite-config-base:ruby-1-9-3-local"], compose["push"]
   ensure
     ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
   end
