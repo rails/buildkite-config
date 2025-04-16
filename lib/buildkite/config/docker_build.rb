@@ -60,6 +60,7 @@ module Buildkite::Config
               .buildkite/docker-compose.yml
               .buildkite/Dockerfile
               .buildkite/Dockerfile.beanstalkd
+              .buildkite/mariadb-conf.d
               .buildkite/mysql-initdb.d
               .buildkite/runner
             ],

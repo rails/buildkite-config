@@ -185,6 +185,7 @@ class TestRakeCommand < TestCase
       .buildkite/docker-compose.yml
       .buildkite/Dockerfile
       .buildkite/Dockerfile.beanstalkd
+      .buildkite/mariadb-conf.d
       .buildkite/mysql-initdb.d
       .buildkite/runner
     ], download["download"]
@@ -444,6 +445,7 @@ class TestRakeCommand < TestCase
       .buildkite/docker-compose.yml
       .buildkite/Dockerfile
       .buildkite/Dockerfile.beanstalkd
+      .buildkite/mariadb-conf.d
       .buildkite/mysql-initdb.d
       .buildkite/runner
     ], artifacts["artifacts#v1.0"]["download"]

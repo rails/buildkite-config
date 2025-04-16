@@ -45,6 +45,7 @@ class TestDockerBuild < TestCase
       .buildkite/docker-compose.yml
       .buildkite/Dockerfile
       .buildkite/Dockerfile.beanstalkd
+      .buildkite/mariadb-conf.d
       .buildkite/mysql-initdb.d
       .buildkite/runner
     ], download["download"]
