@@ -90,7 +90,7 @@ Buildkite::Builder.pipeline do
         rake "activerecord", task: "mysql2:test",
           service: "mariadb",
           label: "[mariadb]",
-          env: { MYSQL_IMAGE: "mariadb:lts" }
+          env: { MYSQL_IMAGE: "mariadb:11.4" }
 
         rake "activerecord", task: "mysql2:test",
           service: "mysqldb",
@@ -119,7 +119,7 @@ Buildkite::Builder.pipeline do
           rake "activerecord", task: "trilogy:test",
             service: "mariadb",
             label: "[mariadb]",
-            env: { MYSQL_IMAGE: "mariadb:lts" }
+            env: { MYSQL_IMAGE: "mariadb:11.4" }
 
           rake "activerecord", task: "trilogy:test",
             service: "mysqldb",
