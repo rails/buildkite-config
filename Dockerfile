@@ -3,7 +3,7 @@ FROM ${RUBY_IMAGE:-ruby:latest}
 
 ARG BUNDLER
 ARG RUBYGEMS
-RUN echo "--- :ruby: Updating RubyGems and Bundler" \
+RUN set -ex && echo "--- :ruby: Updating RubyGems and Bundler" \
     && (gem update --system ${RUBYGEMS:-} || gem update --system 3.3.3) \
     && (gem install bundler -v "${BUNDLER:->= 0}" || gem install bundler -v "< 2") \
     && ruby --version && gem --version && bundle --version \
@@ -24,14 +24,14 @@ RUN echo "--- :ruby: Updating RubyGems and Bundler" \
     # Debian 12 (bookworm) has this directory by default, but older Debian does not
     && mkdir -p /etc/apt/keyrings \
     # Postgres apt sources
-    && curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
-    && echo "deb http://apt.postgresql.org/pub/repos/apt/ ${codename}-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/keyrings/postgresql.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt/ ${codename}-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
     # Node apt sources
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
     # Yarn apt sources
-    && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
-    && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list \
+    && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor -o /etc/apt/keyrings/yarn.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/yarn.gpg] http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list \
     # Install all the things
     && apt-get update \
     #  buildpack-deps
