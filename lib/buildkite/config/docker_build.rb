@@ -43,12 +43,23 @@ module Buildkite::Config
     end
 
     dsl do
-      def builder(ruby)
+      def builder(ruby, compose: nil)
         build_context = context.extensions.find(BuildContext)
         build_context.ruby = ruby
         return unless build_context.ruby.build?
 
         command do
+          compose_options = {
+            build: "base",
+            config: ".buildkite/docker-compose.yml",
+            env: %w[PRE_STEPS RACK],
+            "image-name" => build_context.ruby.image_name_for(build_context.build_id),
+            "cache-from" => cache_from(build_context),
+            push: build_push(build_context),
+            "image-repository" => build_context.image_base,
+          }
+          compose_options.merge!(compose) if compose
+
           label ":docker: #{build_context.ruby.prefix}#{build_context.ruby.version}"
           key "docker-image-#{build_context.ruby.image_key}"
           plugin :artifacts, {
@@ -66,16 +77,7 @@ module Buildkite::Config
             compressed: ".buildkite.tgz"
           }
 
-          plugin :docker_compose, {
-            build: "base",
-            config: ".buildkite/docker-compose.yml",
-            env: %w[PRE_STEPS RACK],
-            "image-name" => build_context.ruby.image_name_for(build_context.build_id),
-            "cache-from" => cache_from(build_context),
-            push: build_push(build_context),
-            "image-repository" => build_context.image_base,
-          }
-
+          plugin :docker_compose, compose_options
           env({
             BUNDLER: build_context.bundler,
             RUBYGEMS: build_context.rubygems,
