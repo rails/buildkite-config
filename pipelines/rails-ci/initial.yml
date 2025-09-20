@@ -36,6 +36,15 @@ steps:
         ruby:latest \
         .buildkite/bin/fetch-pr > .buildkite/tmp/.pr-meta.json) || true
 
+      echo "Fetching pull-request files:"
+      (docker run --rm \
+        -v "$$PWD":/app:ro -w /app \
+        -e GITHUB_PUBLIC_REPO_TOKEN \
+        -e BUILDKITE_REPO \
+        -e BUILDKITE_PULL_REQUEST \
+        ruby:latest \
+        .buildkite/bin/fetch-pr files > .buildkite/tmp/.pr-files.json) || true
+
       echo "Generating pipeline:"
       sh -c "$$PIPELINE_COMMAND"
 
