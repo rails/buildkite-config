@@ -1,6 +1,9 @@
 ARG RUBY_IMAGE
 FROM ${RUBY_IMAGE:-ruby:latest}
 
+# Arbitrary value to force rebuilds
+ENV CACHE_INVALIDATION=1
+
 ARG BUNDLER
 ARG RUBYGEMS
 RUN set -ex && echo "--- :ruby: Updating RubyGems and Bundler" \
