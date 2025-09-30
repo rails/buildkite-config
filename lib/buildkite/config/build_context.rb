@@ -190,7 +190,7 @@ module Buildkite::Config
       end
 
       def remote_image_base
-        "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{build_queue}-" unless standard_queues.include?(build_queue)}builds"
+        ENV.fetch("REGISTRY") + "/#{"#{build_queue}-" unless standard_queues.include?(build_queue)}builds"
       end
   end
 end
