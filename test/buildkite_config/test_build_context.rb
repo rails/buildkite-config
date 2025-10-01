@@ -33,6 +33,36 @@ class TestBuildContext < TestCase
     ENV["CI"] = @before_env_ci
   end
 
+  def test_ci_env_compute_type_nil
+    @before_env_compute_type = ENV["BUILDKITE_COMPUTE_TYPE"]
+    ENV.delete("BUILDKITE_COMPUTE_TYPE")
+
+    sub = create_build_context
+    assert_predicate sub, :self_hosted?
+  ensure
+    ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
+  end
+
+  def test_ci_env_compute_type_self_hosted
+    @before_env_compute_type = ENV["BUILDKITE_COMPUTE_TYPE"]
+    ENV["BUILDKITE_COMPUTE_TYPE"] = "self-hosted"
+
+    sub = create_build_context
+    assert_predicate sub, :self_hosted?
+  ensure
+    ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
+  end
+
+  def test_ci_env_compute_type_hosted
+    @before_env_compute_type = ENV["BUILDKITE_COMPUTE_TYPE"]
+    ENV["BUILDKITE_COMPUTE_TYPE"] = "hosted"
+
+    sub = create_build_context
+    assert_predicate sub, :hosted?
+  ensure
+    ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
+  end
+
   def test_nightly
     @before_env_nightly = ENV["RAILS_CI_NIGHTLY"]
     ENV["RAILS_CI_NIGHTLY"] = "true"
@@ -216,6 +246,58 @@ class TestBuildContext < TestCase
   def test_remote_image_base
     sub = create_build_context
     assert_equal "973266071021.dkr.ecr.us-east-1.amazonaws.com/builds", sub.send(:remote_image_base)
+  end
+
+  def test_registry_default
+    @before_env_compute_type = ENV["BUILDKITE_COMPUTE_TYPE"]
+    ENV.delete("BUILDKITE_COMPUTE_TYPE")
+    @before_env_registry = ENV["REGISTRY"]
+    ENV.delete("REGISTRY")
+
+    sub = create_build_context
+    assert_equal "973266071021.dkr.ecr.us-east-1.amazonaws.com", sub.send(:registry)
+  ensure
+    ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
+    ENV["REGISTRY"] = @before_env_registry
+  end
+
+  def test_registry_hosted
+    @before_env_compute_type = ENV["BUILDKITE_COMPUTE_TYPE"]
+    ENV["BUILDKITE_COMPUTE_TYPE"] = "hosted"
+    @before_env_registry = ENV["REGISTRY"]
+    ENV["REGISTRY"] = "test_registry_hosted"
+
+    sub = create_build_context
+    assert_equal "test_registry_hosted", sub.send(:registry)
+  ensure
+    ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
+    ENV["REGISTRY"] = @before_env_registry
+  end
+
+  def test_registry_self_hosted
+    @before_env_compute_type = ENV["BUILDKITE_COMPUTE_TYPE"]
+    ENV["BUILDKITE_COMPUTE_TYPE"] = "self-hosted"
+    @before_env_registry = ENV["REGISTRY"]
+    ENV["REGISTRY"] = "test_registry_self_hosted"
+
+    sub = create_build_context
+    assert_equal "973266071021.dkr.ecr.us-east-1.amazonaws.com", sub.send(:registry)
+  ensure
+    ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
+    ENV["REGISTRY"] = @before_env_registry
+  end
+
+  def test_registry_env
+    @before_env_compute_type = ENV["BUILDKITE_COMPUTE_TYPE"]
+    ENV.delete("BUILDKITE_COMPUTE_TYPE")
+    @before_env_registry = ENV["REGISTRY"]
+    ENV["REGISTRY"] = "test_registry_env"
+
+    sub = create_build_context
+    assert_equal "973266071021.dkr.ecr.us-east-1.amazonaws.com", sub.send(:registry)
+  ensure
+    ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
+    ENV["REGISTRY"] = @before_env_registry
   end
 
   def test_remote_image_base_standard_queues

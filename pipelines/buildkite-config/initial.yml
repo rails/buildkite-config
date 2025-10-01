@@ -57,6 +57,7 @@ steps:
           -v "$$PWD":/app:ro -w /app
           -v "$$PWD/tmp":/app/tmp:rw
           -e BUNDLE_FROZEN
+          -e BUILDKITE_BUILD_ID
           ruby:latest
           ./bin/pipeline-annotate
     - command: |
@@ -80,6 +81,7 @@ steps:
           -v "$$PWD/tmp":/app/tmp:rw
           -e RAILS_CI_NIGHTLY
           -e BUNDLE_FROZEN
+          -e BUILDKITE_BUILD_ID
           ruby:latest
           ./bin/pipeline-annotate
 

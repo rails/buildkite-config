@@ -30,6 +30,10 @@ steps:
 
       ([ -f .buildkite/.dockerignore ] && cp .buildkite/.dockerignore .dockerignore) || true
 
+    cache:
+      paths:
+        - "cache/bundler"
+      name: "docs-preview-initial-bundler-cache"
     plugins:
       - artifacts#v1.9.3:
           upload: ".dockerignore"
@@ -48,6 +52,7 @@ steps:
       PIPELINE_COMMAND: >-
         docker run --rm
         -v "$$PWD":/app:ro -w /app
+        -v "$$PWD/cache/bundler":/usr/local/bundle
         -e CI
         -e BUILDKITE
         -e BUILDKITE_AGENT_META_DATA_QUEUE
