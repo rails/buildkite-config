@@ -42,7 +42,7 @@ Buildkite::Builder.pipeline do
     end
   end
 
-  if build_context.skip?
+  if !build_context.full? && (build_context.skip? || build_context.only_markdown?)
     command do
       label ":bk-status-passed: Build skipped"
       skip true
