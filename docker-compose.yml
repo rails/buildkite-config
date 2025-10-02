@@ -173,7 +173,7 @@ services:
       context: ./
       dockerfile: Dockerfile.beanstalkd
     healthcheck:
-      test: echo -e "stats\r\n" | nc localhost 11300 || exit 1
+      test: echo -e "stats\r\n" | nc 127.0.0.1 11300 || exit 1
       interval: 10s
       timeout: 10s
       retries: 3
@@ -182,7 +182,7 @@ services:
   chrome:
     image: seleniarm/standalone-chromium:latest
     healthcheck:
-      test: "curl -f http://localhost:4444/ui || exit 1"
+      test: "curl -f http://127.0.0.1:4444/ui || exit 1"
       interval: 10s
       timeout: 10s
       retries: 3
