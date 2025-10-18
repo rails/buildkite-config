@@ -19,8 +19,10 @@ end
 
 case ARGV
 in ["files"]
+  $stderr.write "Fetching pull-request files: "
   uri = URI("https://api.github.com/repos/#{github_repo}/pulls/#{pull_request_number}/files")
 else
+  $stderr.write "Fetching pull-request metadata: "
   uri = URI("https://api.github.com/repos/#{github_repo}/pulls/#{pull_request_number}")
 end
 
@@ -30,5 +32,7 @@ req["Authorization"] = "token #{github_token}"
 res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
   http.request(req)
 end
+
+$stderr.write "#{res.code}.\n"
 
 puts res.body
