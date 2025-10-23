@@ -23,9 +23,20 @@ module Buildkite::Config
       ENV.has_key?("RAILS_CI_NIGHTLY")
     end
 
+    def full?
+      # [ci full], [full ci], [ci-full], or [full-ci]
+      [ENV["BUILDKITE_MESSAGE"], FetchPr.title].grep(/(ci full|full ci|ci-full|full-ci)/i).any?
+    end
+
     def skip?
       # [ci skip], [skip ci], [ci-skip], or [skip-ci]
       [ENV["BUILDKITE_MESSAGE"], FetchPr.title].grep(/(ci skip|skip ci|ci-skip|skip-ci)/i).any?
+    end
+
+    def only_markdown?
+      filenames = FetchPr.filenames
+
+      !filenames.empty? && filenames.all? { |name| name.end_with? ".md" }
     end
 
     def rails_root

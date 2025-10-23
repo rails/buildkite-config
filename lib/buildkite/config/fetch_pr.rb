@@ -4,11 +4,21 @@ require "json"
 
 module Buildkite::Config
   module FetchPr
-    def self.title
-      pr = JSON.parse(File.read(".buildkite/tmp/.pr-meta.json"))
-      pr["title"]
-    rescue
-      ""
+    class << self
+      def title
+        pr = JSON.parse(File.read(".buildkite/tmp/.pr-meta.json"))
+        pr["title"]
+      rescue
+        ""
+      end
+
+      def filenames
+        JSON
+          .load_file(".buildkite/tmp/.pr-files.json")
+          .map { |f| f["filename"] }
+      rescue
+        []
+      end
     end
   end
 end

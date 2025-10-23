@@ -27,7 +27,6 @@ steps:
 
       rm -rf .buildkite/.git
 
-      echo "Fetching pull-request metadata:"
       (docker run --rm \
         -v "$$PWD":/app:ro -w /app \
         -e GITHUB_PUBLIC_REPO_TOKEN \
@@ -35,6 +34,14 @@ steps:
         -e BUILDKITE_PULL_REQUEST \
         ruby:latest \
         .buildkite/bin/fetch-pr > .buildkite/tmp/.pr-meta.json) || true
+
+      (docker run --rm \
+        -v "$$PWD":/app:ro -w /app \
+        -e GITHUB_PUBLIC_REPO_TOKEN \
+        -e BUILDKITE_REPO \
+        -e BUILDKITE_PULL_REQUEST \
+        ruby:latest \
+        .buildkite/bin/fetch-pr files > .buildkite/tmp/.pr-files.json) || true
 
       echo "Generating pipeline:"
       sh -c "$$PIPELINE_COMMAND"
