@@ -128,6 +128,18 @@ module Buildkite::Config
       ([ENV["BUILDKITE_PULL_REQUEST"]] - ["false"]).first
     end
 
+    def compute_type
+      ENV["BUILDKITE_COMPUTE_TYPE"] || "self-hosted"
+    end
+
+    def self_hosted?
+      compute_type == "self-hosted"
+    end
+
+    def hosted?
+      !self_hosted?
+    end
+
     def standard_queues
       [nil, "default", "builder"]
     end
@@ -200,8 +212,20 @@ module Buildkite::Config
         Gem::Version.new($1 || "2.0")
       end
 
+      def registry
+        if hosted?
+          ENV["REGISTRY"]
+        else
+          "973266071021.dkr.ecr.us-east-1.amazonaws.com"
+        end
+      end
+
+      def image_name
+        "#{"#{build_queue}-" unless standard_queues.include?(build_queue)}builds"
+      end
+
       def remote_image_base
-        "973266071021.dkr.ecr.us-east-1.amazonaws.com/#{"#{build_queue}-" unless standard_queues.include?(build_queue)}builds"
+        [registry, image_name].join("/")
       end
   end
 end
