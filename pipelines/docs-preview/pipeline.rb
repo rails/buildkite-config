@@ -6,6 +6,7 @@ Buildkite::Builder.pipeline do
   use Buildkite::Config::DockerBuild
 
   plugin :docker, "docker#v5.10.0"
+  plugin :docker_compose, "docker-compose#v5.6.0"
   plugin :artifacts, "artifacts#v1.9.3"
   plugin :secrets, "cluster-secrets#v1.0.0"
 
