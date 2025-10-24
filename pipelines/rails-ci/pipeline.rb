@@ -131,7 +131,7 @@ Buildkite::Builder.pipeline do
 
       rake "activestorage"
       rake "activesupport"
-      rake "guides"
+      rake "guides" if build_context.rails_version >= Gem::Version.new("7.2.x")
 
       rake "railties", service: "railties", parallelism: 12
 
