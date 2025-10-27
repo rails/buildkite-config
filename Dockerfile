@@ -7,7 +7,7 @@ ENV CACHE_INVALIDATION=1
 ARG BUNDLER
 ARG RUBYGEMS
 RUN set -ex && echo "--- :ruby: Updating RubyGems and Bundler" \
-    && (gem update --system ${RUBYGEMS:-} || gem update --system 3.3.3) \
+    && (gem update --system ${RUBYGEMS:-} || gem update --system 3.3.27) \
     && (gem install bundler -v "${BUNDLER:->= 0}" || gem install bundler -v "< 2") \
     && ruby --version && gem --version && bundle --version \
     && codename="$(. /etc/os-release; x="${VERSION_CODENAME-${VERSION#*(}}"; echo "${x%%[ )]*}")" \
