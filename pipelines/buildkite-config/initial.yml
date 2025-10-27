@@ -4,16 +4,6 @@
 # This config is intended for running the rails/buildkite-config CI.
 
 steps:
-  - block: "Review Build Script"
-    branches: "!main"
-    prompt: |
-      Our CI scripts run outside the docker containers, which are a necessary security layer.
-
-      Approving a build here is equivalent to copy & pasting it into a production ssh window.
-
-      Prefer a second opinion for any nontrivial change, especially outside `pipeline-generate`.
-
-      - @matthewd
   - group:
     label: ":pipeline: buildkite-config meta-ci"
     key: "meta"
@@ -94,7 +84,13 @@ steps:
         prompt: |
           Are you sure you want to trigger a build of Rails CI pipeline for the main branch with this config?
 
-          We have a finite number of CI resources, so we want to avoid unnecessary builds.
+          Our CI scripts run outside the docker containers, which are a necessary security layer.
+
+          Approving a build here is equivalent to copy & pasting it into a production ssh window.
+
+          Prefer a second opinion for any nontrivial change, especially outside `pipeline-generate`.
+
+          - @matthewd
       - trigger: "rails-ci"
         label: ":pipeline: Build Rails main with new config"
         depends_on: block-rails-ci-main
@@ -110,7 +106,13 @@ steps:
         prompt: |
           Are you sure you want to trigger a build of Rails CI pipeline for the stable branch with this config?
 
-          We have a finite number of CI resources, so we want to avoid unnecessary builds.
+          Our CI scripts run outside the docker containers, which are a necessary security layer.
+
+          Approving a build here is equivalent to copy & pasting it into a production ssh window.
+
+          Prefer a second opinion for any nontrivial change, especially outside `pipeline-generate`.
+
+          - @matthewd
       - trigger: "rails-ci"
         label: ":pipeline: Build Rails 6-1-stable with new config"
         depends_on: block-rails-ci-stable
@@ -126,7 +128,13 @@ steps:
         prompt: |
           Are you sure you want to trigger a build of Rails CI Nightly pipeline for the main branch with this config?
 
-          We have a finite number of CI resources, so we want to avoid unnecessary builds.
+          Our CI scripts run outside the docker containers, which are a necessary security layer.
+
+          Approving a build here is equivalent to copy & pasting it into a production ssh window.
+
+          Prefer a second opinion for any nontrivial change, especially outside `pipeline-generate`.
+
+          - @matthewd
       - trigger: "rails-ci-nightly"
         label: ":pipeline: Build Rails main with new nightly config"
         depends_on: block-rails-ci-nightly-main
@@ -142,7 +150,13 @@ steps:
         prompt: |
           Are you sure you want to trigger a build of Rails CI Nightly pipeline for the stable branch with this config?
 
-          We have a finite number of CI resources, so we want to avoid unnecessary builds.
+          Our CI scripts run outside the docker containers, which are a necessary security layer.
+
+          Approving a build here is equivalent to copy & pasting it into a production ssh window.
+
+          Prefer a second opinion for any nontrivial change, especially outside `pipeline-generate`.
+
+          - @matthewd
       - trigger: "rails-ci-nightly"
         label: ":pipeline: Build Rails 6-1-stable with new nightly config"
         depends_on: block-rails-ci-nightly-stable
