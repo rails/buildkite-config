@@ -17,7 +17,7 @@ Buildkite::Builder.pipeline do
     build_context.rubies << Buildkite::Config::RubyConfig.master_debug_ruby
     build_context.default_ruby = Buildkite::Config::RubyConfig.master_ruby
   else
-    build_context.setup_rubies %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2 3.3 3.4)
+    build_context.setup_rubies %w(2.4 2.5 2.6 2.7 3.0 3.1 3.2 3.3 3.4 4.0)
   end
 
   group do
