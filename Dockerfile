@@ -105,6 +105,10 @@ RUN set -ex && echo "--- :ruby: Updating RubyGems and Bundler" \
     && mkdir /rails
 
 WORKDIR /rails
+RUN if mysql --version 2>/dev/null | grep -qi mariadb; then \
+    printf '[client]\nssl=OFF\n' > $HOME/.my.cnf && \
+    chmod 600 $HOME/.my.cnf; \
+    fi
 ENV RAILS_ENV=test RACK_ENV=test
 ENV JRUBY_OPTS="--dev -J-Xmx1024M"
 
