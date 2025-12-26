@@ -112,11 +112,11 @@ steps:
 
           We have a finite number of CI resources, so we want to avoid unnecessary builds.
       - trigger: "rails-ci"
-        label: ":pipeline: Build Rails 6-1-stable with new config"
+        label: ":pipeline: Build Rails 7-0-stable with new config"
         depends_on: block-rails-ci-stable
         build:
-          message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
-          branch: "6-1-stable"
+          message: "[${BUILDKITE_BRANCH} / 7-0-stable] ${BUILDKITE_MESSAGE}"
+          branch: "7-0-stable"
           env:
             CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
             CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
@@ -144,11 +144,11 @@ steps:
 
           We have a finite number of CI resources, so we want to avoid unnecessary builds.
       - trigger: "rails-ci-nightly"
-        label: ":pipeline: Build Rails 6-1-stable with new nightly config"
+        label: ":pipeline: Build Rails 7-0-stable with new nightly config"
         depends_on: block-rails-ci-nightly-stable
         build:
-          message: "[${BUILDKITE_BRANCH} / 6-1-stable] ${BUILDKITE_MESSAGE}"
-          branch: "6-1-stable"
+          message: "[${BUILDKITE_BRANCH} / 7-0-stable] ${BUILDKITE_MESSAGE}"
+          branch: "7-0-stable"
           env:
             CONFIG_REPO: "${BUILDKITE_PULL_REQUEST_REPO}"
             CONFIG_BRANCH: "${BUILDKITE_BRANCH}"
