@@ -41,6 +41,7 @@ GEM
       reline (>= 0.3.8)
     json (2.6.3)
     language_server-protocol (3.17.0.3)
+    logger (1.7.0)
     minitest (5.26.1)
     mutex_m (0.1.2)
     ostruct (0.6.3)
@@ -106,6 +107,7 @@ DEPENDENCIES
   buildkite-builder
   debug
   diffy
+  logger (~> 1.7)
   ostruct (~> 0.6.3)
   rake
   rubocop
