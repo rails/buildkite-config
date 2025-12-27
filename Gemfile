@@ -12,3 +12,9 @@ gem "rubocop"
 gem "rubocop-minitest"
 gem "rubocop-packaging"
 gem "rubocop-rails"
+
+gem "benchmark", "~> 0.5.0"
+
+gem "ostruct", "~> 0.6.3"
+
+gem "logger", "~> 1.7"
