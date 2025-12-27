@@ -43,6 +43,7 @@ GEM
     language_server-protocol (3.17.0.3)
     minitest (5.26.1)
     mutex_m (0.1.2)
+    ostruct (0.6.3)
     parallel (1.23.0)
     parser (3.2.2.4)
       ast (~> 2.4.1)
@@ -105,6 +106,7 @@ DEPENDENCIES
   buildkite-builder
   debug
   diffy
+  ostruct (~> 0.6.3)
   rake
   rubocop
   rubocop-minitest
