@@ -4,9 +4,6 @@
 steps:
   - name: ":pipeline: rails-initial-pipeline"
     command: |
-      echo "Fetching registry details"
-      export REGISTRY="$$(nsc workspace describe -o json -k registry_url)"
-
       PATH=/bin:/usr/bin
       set -e
 
@@ -24,11 +21,12 @@ steps:
       GIT_BRANCH="$${CONFIG_BRANCH-main}"
       GIT_BRANCH="$${GIT_BRANCH#*:}"
 
-      echo "Cloning buildkite-config:"
+      echo "--- Cloning buildkite-config:"
       echo "git clone --single-branch -b \"$$GIT_BRANCH\" \"$$GIT_REPO\" .buildkite"
       git clone --single-branch -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
       rm -rf .buildkite/.git
 
+      echo "--- Fetching Pull Request Info:"
       (docker run --rm \
         -v "$$PWD":/app:ro -w /app \
         -v "$$PWD/cache/bundler":/usr/local/bundle \
@@ -46,26 +44,8 @@ steps:
         ruby:4.0 \
         .buildkite/bin/fetch-pr files > .buildkite/tmp/.pr-files.json) || true
 
-      echo "Generating pipeline:"
-      sh -c "$$PIPELINE_COMMAND"
-
-      ([ -f .buildkite/.dockerignore ] && cp .buildkite/.dockerignore .dockerignore) || true
-    plugins:
-      - artifacts#v1.9.3:
-          upload: ".dockerignore"
-      - artifacts#v1.9.3:
-          upload:
-            - .buildkite/.empty
-            - .buildkite/docker-compose.yml
-            - .buildkite/Dockerfile
-            - .buildkite/Dockerfile.beanstalkd
-            - .buildkite/mysql-initdb.d
-            - .buildkite/runner
-          compressed: ".buildkite.tgz"
-    env:
-      BUNDLE_FROZEN: true
-      PIPELINE_COMMAND: >-
-        docker run --rm
+      echo "--- Generating pipeline:"
+      docker run --rm
         -v "$$PWD":/app:ro -w /app
         -v "$$PWD/cache/bundler":/usr/local/bundle
         -e CI
@@ -84,8 +64,28 @@ steps:
         -e QUEUE
         -e REGISTRY
         ruby:4.0
-        .buildkite/bin/pipeline-generate rails-ci |
-        buildkite-agent pipeline upload
+        .buildkite/bin/pipeline-generate rails-ci > rails-ci.yml
+
+      echo "--- Uploading pipeline:"
+      buildkite-agent pipeline upload < rails-ci.yml
+      rm rails-ci.yml
+
+
+      ([ -f .buildkite/.dockerignore ] && cp .buildkite/.dockerignore .dockerignore) || true
+    plugins:
+      - artifacts#v1.9.3:
+          upload: ".dockerignore"
+      - artifacts#v1.9.3:
+          upload:
+            - .buildkite/.empty
+            - .buildkite/docker-compose.yml
+            - .buildkite/Dockerfile
+            - .buildkite/Dockerfile.beanstalkd
+            - .buildkite/mysql-initdb.d
+            - .buildkite/runner
+          compressed: ".buildkite.tgz"
+    env:
+      BUNDLE_FROZEN: true
     timeout_in_minutes: 5
     agents:
       queue: "${QUEUE-builder}"
