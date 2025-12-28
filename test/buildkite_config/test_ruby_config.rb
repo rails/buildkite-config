@@ -23,7 +23,7 @@ class TestRubyConfig < TestCase
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
 
     assert_equal Gem::Version.new("3.2"), sub.version
-    assert_not sub.yjit
+    refute sub.yjit
     assert_nil sub.soft_fail
   end
 
@@ -110,7 +110,7 @@ class TestRubyConfig < TestCase
 
   def test_soft_fail_default
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
-    assert_not sub.soft_fail?
+    refute sub.soft_fail?
   end
 
   def test_yjit_enabled
@@ -120,7 +120,7 @@ class TestRubyConfig < TestCase
 
   def test_yjit_enabled_default
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
-    assert_not sub.yjit_enabled?
+    refute sub.yjit_enabled?
   end
 
   def test_build_default

@@ -43,7 +43,7 @@ class TestDockerBuild < TestCase
 
     assert_equal ":docker: builder:3.2", pipeline.to_h["steps"][0]["label"]
     assert_equal "docker-image-builder-3-2", pipeline.to_h["steps"][0]["key"]
-    assert_not_includes pipeline.to_h["steps"][0]["env"], "RUBY_IMAGE"
+    refute_includes pipeline.to_h["steps"][0]["env"], "RUBY_IMAGE"
   ensure
     ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
   end
@@ -121,14 +121,14 @@ class TestDockerBuild < TestCase
 
     command = pipeline.to_h["steps"][0]["command"].first
 
-    expected = <<~COMMAND.squish
+    expected = <<~COMMAND.gsub(/[[:space:]]+/, " ").strip
       docker build --push
         --build-arg RUBY_IMAGE=3.2
         --tag buildkite-config-base:3-2-local
         --file .buildkite/Dockerfile .
     COMMAND
 
-    assert_equal expected.strip, command
+    assert_equal expected, command
   ensure
     ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
   end
@@ -199,14 +199,14 @@ class TestDockerBuild < TestCase
 
     command = pipeline.to_h["steps"][0]["command"].first
 
-    expected = <<~COMMAND.squish
+    expected = <<~COMMAND.gsub(/[[:space:]]+/, " ").strip
       docker build --push
         --build-arg RUBY_IMAGE=ruby:1.9.3
         --tag buildkite-config-base:ruby-1-9-3-local
         --file .buildkite/Dockerfile .
     COMMAND
 
-    assert_equal expected.strip, command
+    assert_equal expected, command
   ensure
     ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
   end

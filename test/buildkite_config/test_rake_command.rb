@@ -331,7 +331,7 @@ class TestRakeCommand < TestCase
     assert_includes pipeline.to_h["steps"][0]["env"], "RUBY_YJIT_ENABLE"
     assert_equal "1", pipeline.to_h["steps"][0]["env"]["RUBY_YJIT_ENABLE"]
 
-    assert_not_includes pipeline.to_h["steps"][0], "soft_fail"
+    refute_includes pipeline.to_h["steps"][0], "soft_fail"
   end
 
   def test_env_pre_steps
@@ -490,7 +490,7 @@ class TestRakeCommand < TestCase
 
     compose = plugins[2].fetch(plugins_map[:compose])
 
-    assert_not_includes compose, "env"
+    refute_includes compose, "env"
     assert_equal "default", compose["run"]
     assert_equal ".buildkite/docker-compose.yml", compose["config"]
     assert_equal ["runner", "."], compose["shell"]
