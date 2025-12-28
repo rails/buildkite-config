@@ -10,7 +10,7 @@ module Buildkite::Config
     def title
       @title ||= if pull_request_number
         begin
-          response = http.get("/repos/#{github_repo}/pulls/#{pull_request_number}")
+          response = http.get("/repos/#{github_repo}/pulls/#{pull_request_number}", headers)
           pr = JSON.parse(response.body)
           pr["title"]
         rescue => error
@@ -25,7 +25,7 @@ module Buildkite::Config
     def filenames
       @filenames ||= if pull_request_number
         begin
-          response = http.get("/repos/#{github_repo}/pulls/#{pull_request_number}/files")
+          response = http.get("/repos/#{github_repo}/pulls/#{pull_request_number}/files", headers)
           pr = JSON.parse(response.body)
           pr.map { |f| f["filename"] }
         rescue => error
@@ -40,6 +40,14 @@ module Buildkite::Config
     private
       def pull_request_number
         Integer(ENV["BUILDKITE_PULL_REQUEST"], exception: false)
+      end
+
+      def headers
+        { "Authorization" => "token #{github_token}" }
+      end
+
+      def github_token
+        ENV.fetch("GITHUB_PUBLIC_REPO_TOKEN") { raise "Missing GITHUB_PUBLIC_REPO_TOKEN!" }
       end
 
       def github_repo
