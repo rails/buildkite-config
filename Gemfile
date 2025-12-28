@@ -12,3 +12,7 @@ gem "rubocop"
 gem "rubocop-minitest"
 gem "rubocop-packaging"
 gem "rubocop-rails"
+
+# required by older rubocop
+gem "benchmark"
+gem "ostruct"
