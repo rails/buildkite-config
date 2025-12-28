@@ -26,24 +26,6 @@ steps:
       git clone --single-branch -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
       rm -rf .buildkite/.git
 
-      echo "--- Fetching Pull Request Info:"
-      (docker run --rm \
-        -v "$$PWD":/app:ro -w /app \
-        -v "$$PWD/cache/bundler":/usr/local/bundle \
-        -e GITHUB_PUBLIC_REPO_TOKEN \
-        -e BUILDKITE_REPO \
-        -e BUILDKITE_PULL_REQUEST \
-        ruby:4.0 \
-        .buildkite/bin/fetch-pr > .buildkite/tmp/.pr-meta.json) || true
-
-      (docker run --rm \
-        -v "$$PWD":/app:ro -w /app \
-        -e GITHUB_PUBLIC_REPO_TOKEN \
-        -e BUILDKITE_REPO \
-        -e BUILDKITE_PULL_REQUEST \
-        ruby:4.0 \
-        .buildkite/bin/fetch-pr files > .buildkite/tmp/.pr-files.json) || true
-
       echo "--- Generating pipeline:"
       docker run --rm \
         -v "$$PWD":/app:ro -w /app \
