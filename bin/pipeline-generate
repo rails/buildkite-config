@@ -3,24 +3,17 @@
 
 pipeline = ARGV.shift
 
-def run(cmd, env = {}, value = false)
-  io = IO.popen(env, cmd)
-  output = io.read
-  io.close
-
-  raise output unless $?.success?
-
-  output if value
-end
-
-env = {}
-
 if ENV.has_key?("BUILDKITE")
-  env["BUNDLE_GEMFILE"] = ".buildkite/Gemfile"
+  ENV["BUNDLE_GEMFILE"] = ".buildkite/Gemfile"
+  ENV["BUNDLE_WITHOUT"] = "test"
 end
 
-run "bundle install", env
+$stderr.puts "--- bundle install"
+unless system("bundle", "install", out: $stderr)
+  exit(1)
+end
 
-pipeline = run "bundle exec buildkite-builder preview #{pipeline}", env, true
-
-puts pipeline
+$stderr.puts "--- bundle exec buildkite-builder preview #{pipeline}"
+unless system("bundle", "exec", "buildkite-builder", "preview", pipeline)
+  exit(1)
+end
