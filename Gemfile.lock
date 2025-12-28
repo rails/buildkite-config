@@ -46,6 +46,7 @@ GEM
     logger (1.7.0)
     minitest (6.0.1)
       prism (~> 1.5)
+    minitest-mock (5.27.0)
     ostruct (0.6.3)
     parallel (1.23.0)
     parser (3.2.2.4)
@@ -112,6 +113,7 @@ DEPENDENCIES
   buildkite-builder
   debug
   diffy
+  minitest-mock
   ostruct
   rake
   rubocop
