@@ -25,9 +25,8 @@ steps:
       GIT_BRANCH="$${GIT_BRANCH#*:}"
 
       echo "Cloning buildkite-config:"
-      echo "git clone -b \"$$GIT_BRANCH\" \"$$GIT_REPO\" .buildkite"
-      git clone -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
-
+      echo "git clone --single-branch -b \"$$GIT_BRANCH\" \"$$GIT_REPO\" .buildkite"
+      git clone --single-branch -b "$$GIT_BRANCH" "$$GIT_REPO" .buildkite
       rm -rf .buildkite/.git
 
       (docker run --rm \
