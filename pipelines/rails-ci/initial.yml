@@ -47,7 +47,7 @@ steps:
       echo "--- Generating pipeline:"
       docker run --rm \
         -v "$$PWD":/app:ro -w /app \
-        -v "$$PWD/cache/bundler":/usr/local/bundle \
+        -v "$$PWD/vendor/bundle":/usr/local/bundle \
         -e CI \
         -e BUILDKITE \
         -e BUILDKITE_AGENT_META_DATA_QUEUE \
