@@ -104,7 +104,7 @@ Buildkite::Builder.pipeline do
       -e CLOUDFLARE_PAGES_PROJECT
       -v ./.buildkite:/workdir/.buildkite
       -w /workdir
-      ruby:latest
+      ruby:4.0
       ruby .buildkite/bin/docs-preview-annotate
     ANNOTATE
   end
