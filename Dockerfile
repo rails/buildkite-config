@@ -1,5 +1,5 @@
 ARG RUBY_IMAGE
-FROM ${RUBY_IMAGE:-ruby:latest}
+FROM ${RUBY_IMAGE:-ruby:4.0}
 
 # Arbitrary value to force rebuilds
 ENV CACHE_INVALIDATION=1

@@ -62,7 +62,7 @@ steps:
         -e DOCKER_IMAGE
         -e RUN_QUEUE
         -e QUEUE
-        ruby:latest
+        ruby:4.0
         .buildkite/bin/pipeline-generate rails-ci |
         buildkite-agent pipeline upload
     timeout_in_minutes: 5

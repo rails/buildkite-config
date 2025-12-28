@@ -36,7 +36,7 @@ steps:
         -e GITHUB_PUBLIC_REPO_TOKEN \
         -e BUILDKITE_REPO \
         -e BUILDKITE_PULL_REQUEST \
-        ruby:latest \
+        ruby:4.0 \
         .buildkite/bin/fetch-pr > .buildkite/tmp/.pr-meta.json) || true
 
       (docker run --rm \
@@ -44,7 +44,7 @@ steps:
         -e GITHUB_PUBLIC_REPO_TOKEN \
         -e BUILDKITE_REPO \
         -e BUILDKITE_PULL_REQUEST \
-        ruby:latest \
+        ruby:4.0 \
         .buildkite/bin/fetch-pr files > .buildkite/tmp/.pr-files.json) || true
 
       echo "Generating pipeline:"
@@ -84,7 +84,7 @@ steps:
         -e RUN_QUEUE
         -e QUEUE
         -e REGISTRY
-        ruby:latest
+        ruby:4.0
         .buildkite/bin/pipeline-generate rails-ci |
         buildkite-agent pipeline upload
     timeout_in_minutes: 5
