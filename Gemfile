@@ -16,7 +16,4 @@ group :test do
   gem "rubocop-minitest"
   gem "rubocop-packaging"
   gem "rubocop-rails"
-
-  # required by older rubocop
-  gem "ostruct"
 end
