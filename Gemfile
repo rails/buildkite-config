@@ -2,13 +2,17 @@
 
 source "https://rubygems.org"
 
-gem "buildkit"
 gem "buildkite-builder"
 gem "benchmark" # https://github.com/Gusto/buildkite-builder/pull/145
-gem "diffy"
+gem "logger"
+
+group :development do
+  gem "buildkit"
+end
 
 group :test do
   gem "rake"
+  gem "diffy"
   gem "debug"
   gem "minitest"
   gem "minitest-mock"

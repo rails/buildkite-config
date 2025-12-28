@@ -102,6 +102,7 @@ DEPENDENCIES
   buildkite-builder
   debug
   diffy
+  logger
   minitest
   minitest-mock
   rake

@@ -5,7 +5,7 @@ pipeline = ARGV.shift
 
 if ENV.has_key?("BUILDKITE")
   ENV["BUNDLE_GEMFILE"] = ".buildkite/Gemfile"
-  ENV["BUNDLE_WITHOUT"] = "test"
+  ENV["BUNDLE_WITHOUT"] = "development:test"
 end
 
 $stderr.puts "--- bundle install"
