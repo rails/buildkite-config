@@ -39,6 +39,7 @@ steps:
         -e BUILDKITE_PULL_REQUEST \
         -e BUILDKITE_PULL_REQUEST_BASE_BRANCH \
         -e BUILDKITE_REBUILT_FROM_BUILD_ID \
+        -e GITHUB_PUBLIC_REPO_TOKEN \
         -e BUILD_QUEUE \
         -e BUNDLE_DEPLOYMENT=1 \
         -e BUNDLE_PATH=/usr/local/bundle \
