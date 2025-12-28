@@ -10,7 +10,7 @@ class TestBuildContext < TestCase
 
   def test_initializer
     sub = create_build_context
-    assert_not_nil sub
+    refute_nil sub
   end
 
   def test_ci_env_buildkite
@@ -78,7 +78,7 @@ class TestBuildContext < TestCase
     ENV["RAILS_CI_NIGHTLY"] = nil
 
     sub = create_build_context
-    assert_not_predicate sub, :nightly?
+    refute_predicate sub, :nightly?
   ensure
     ENV["RAILS_CI_NIGHTLY"] = @before_env_nightly
   end
@@ -128,7 +128,7 @@ class TestBuildContext < TestCase
     ENV["BUILDKITE_MESSAGE"] = "not a skip commit message for ci"
 
     sub = create_build_context
-    assert_not_predicate sub, :skip?
+    refute_predicate sub, :skip?
   ensure
     ENV["BUILDKITE_MESSAGE"] = @before_env_buildkite_message
   end
@@ -148,7 +148,7 @@ class TestBuildContext < TestCase
   def test_supports_trilogy
     sub = create_build_context
     sub.stub(:rails_version_file, "6.1.0.rc1") do
-      assert_not_predicate sub, :supports_trilogy?
+      refute_predicate sub, :supports_trilogy?
     end
 
     sub = create_build_context
@@ -486,7 +486,7 @@ class TestBuildContext < TestCase
   def test_mainline_non_stable_branch
     sub = create_build_context
     sub.stub(:local_branch, "bump/trilogy") do
-      assert_not sub.mainline
+      refute sub.mainline
     end
   end
 
@@ -643,7 +643,7 @@ class TestBuildContext < TestCase
 
   def test_has_railspect
     sub = create_build_context
-    assert_not_predicate sub, :has_railspect?
+    refute_predicate sub, :has_railspect?
 
     file_check = -> (path) do
       assert_equal "#{Dir.pwd}/tools/railspect", path.to_s
@@ -658,7 +658,7 @@ class TestBuildContext < TestCase
     sub = create_build_context
 
     sub.stub(:rails_version, Gem::Version.new("7.0.0")) do
-      assert_not_predicate sub, :support_guides_lint?
+      refute_predicate sub, :support_guides_lint?
     end
 
     sub.stub(:rails_version, Gem::Version.new("7.1.0")) do

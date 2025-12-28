@@ -72,7 +72,7 @@ module Buildkite::Config
           }
 
           if build_context.hosted?
-            command <<~COMMAND.squish
+            command <<~COMMAND.gsub(/[[:space:]]+/, " ").strip
               docker build --push
                 --build-arg RUBY_IMAGE=#{build_context.ruby.ruby_image}
                 --tag #{build_push(build_context)}
