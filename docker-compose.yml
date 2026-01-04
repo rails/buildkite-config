@@ -39,12 +39,6 @@ services:
     volumes:
       - ../test-reports:/rails/test-reports
 
-    depends_on:
-      redis:
-        condition: service_healthy
-      memcached:
-        condition: service_healthy
-
     tmpfs:
       - /rails/tmp:size=1G,exec
 
@@ -93,12 +87,18 @@ services:
       postgres:
         condition: service_healthy
 
-  activejob:
+  activesupport:
     <<: *default
     depends_on:
       redis:
         condition: service_healthy
       memcached:
+        condition: service_healthy
+
+  activejob:
+    <<: *default
+    depends_on:
+      redis:
         condition: service_healthy
       postgres:
         condition: service_healthy
