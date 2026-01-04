@@ -194,6 +194,6 @@ Buildkite::Builder.pipeline do
     rake "actionview", task: "test:isolated"
     rake "activejob", task: "test:isolated"
     rake "activemodel", task: "test:isolated"
-    rake "activesupport", task: "test:isolated"
+    rake "activesupport", task: "test:isolated", service: "activesupport"
   end
 end
