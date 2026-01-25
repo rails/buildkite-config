@@ -31,9 +31,6 @@ RUN set -ex && echo "--- :ruby: Updating RubyGems and Bundler" \
     # Node apt sources
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
-    # Yarn apt sources
-    && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor -o /etc/apt/keyrings/yarn.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/yarn.gpg] http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list \
     # Install all the things
     && apt-get update \
     #  buildpack-deps
@@ -96,7 +93,7 @@ RUN set -ex && echo "--- :ruby: Updating RubyGems and Bundler" \
     #  specific dependencies for the rails build
     && apt-get install -y --no-install-recommends \
         postgresql-client default-mysql-client sqlite3 \
-        git nodejs=18.19.0-1nodesource1 yarn lsof \
+        git nodejs=18.19.0-1nodesource1 lsof \
         ffmpeg mupdf mupdf-tools poppler-utils \
     # clean up
     && apt-get clean \
@@ -125,6 +122,7 @@ ADD .buildkite/.empty actionview/package.jso[n] actionview/
 ADD .buildkite/.empty activestorage/package.jso[n] activestorage/
 ADD .buildkite/.empty package.jso[n] yarn.loc[k] .yarnr[c] ./
 
+RUN npm -g install yarn
 RUN rm -f .empty */.empty \
     && find . -maxdepth 1 -type d -empty -exec rmdir '{}' '+' \
     && if [ -f package.json ]; then \
