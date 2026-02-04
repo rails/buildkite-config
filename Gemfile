@@ -5,6 +5,7 @@ source "https://rubygems.org"
 gem "buildkite-builder"
 gem "benchmark" # https://github.com/Gusto/buildkite-builder/pull/145
 gem "logger"
+gem "net-http"
 
 group :development do
   gem "buildkit"
