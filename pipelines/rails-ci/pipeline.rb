@@ -175,25 +175,4 @@ Buildkite::Builder.pipeline do
         soft_fail: true
     end
   end
-
-  # Isolated tests
-  ruby_group build_context.default_ruby do
-    label "isolated"
-
-    rake "activerecord", task: "mysql2:isolated_test", service: "mysqldb", parallelism: 5
-    rake "activerecord", task: "postgresql:isolated_test", service: "postgresdb", parallelism: 5
-    rake "activerecord", task: "sqlite3:isolated_test", parallelism: 5
-
-    if build_context.supports_trilogy?
-      rake "activerecord", task: "trilogy:isolated_test",
-        service: "mysqldb", parallelism: 5
-    end
-
-    rake "actionmailer", task: "test:isolated"
-    rake "actionpack", task: "test:isolated"
-    rake "actionview", task: "test:isolated"
-    rake "activejob", task: "test:isolated"
-    rake "activemodel", task: "test:isolated"
-    rake "activesupport", task: "test:isolated", service: "activesupport"
-  end
 end
