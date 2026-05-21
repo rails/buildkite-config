@@ -108,6 +108,30 @@ class TestDockerBuild < TestCase
     ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
   end
 
+  def test_builder_compose_plugin_self_hosted_with_slash_in_branch
+    @before_env_compute_type = ENV["BUILDKITE_COMPUTE_TYPE"]
+    @before_env_branch = ENV["BUILDKITE_BRANCH"]
+    ENV["BUILDKITE_COMPUTE_TYPE"] = "self-hosted"
+    ENV["BUILDKITE_BRANCH"] = "feature/fix-branch-name"
+    pipeline = PipelineFixture.new do
+      use Buildkite::Config::DockerBuild
+
+      build_context.stub(:rails_version, Gem::Version.new("7.1")) do
+        builder Buildkite::Config::RubyConfig.new(version: "3.2")
+      end
+    end
+
+    compose = pipeline.to_h["steps"][0]["plugins"].find { |plugin|
+      plugin.key?(plugins_map[:compose])
+    }.fetch(plugins_map[:compose])
+
+    assert_includes compose["cache-from"], "base:buildkite-config-base:3-2-br-feature-fix-branch-name"
+    assert_equal ["base:buildkite-config-base:3-2-br-feature-fix-branch-name", "base:buildkite-config-base:3-2-local"], compose["push"]
+  ensure
+    ENV["BUILDKITE_COMPUTE_TYPE"] = @before_env_compute_type
+    ENV["BUILDKITE_BRANCH"] = @before_env_branch
+  end
+
   def test_builder_compose_plugin_hosted
     @before_env_compute_type = ENV["BUILDKITE_COMPUTE_TYPE"]
     ENV["BUILDKITE_COMPUTE_TYPE"] = "hosted"

@@ -40,7 +40,7 @@ module Buildkite::Config
     end
 
     def image_name_for(suffix = "build_id", short: false)
-      "#{mangle_name(ruby_image)}-#{suffix}"
+      "#{mangle_name(ruby_image)}-#{mangle_tag_suffix(suffix)}"
     end
 
     def ruby_image
@@ -96,6 +96,10 @@ module Buildkite::Config
     private
       def mangle_name(name)
         name.to_s.tr("^A-Za-z0-9", "-")
+      end
+
+      def mangle_tag_suffix(name)
+        name.to_s.gsub(/[^A-Za-z0-9_.-]/, "-")
       end
   end
 end

@@ -42,6 +42,11 @@ class TestRubyConfig < TestCase
     assert_equal "3-2-suffix", sub.image_name_for("suffix")
   end
 
+  def test_image_name_for_suffix_with_slash
+    sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"))
+    assert_equal "3-2-br-feature-branch", sub.image_name_for("br-feature/branch")
+  end
+
   def test_image_name_for_prefix
     sub = Buildkite::Config::RubyConfig.new(version: Gem::Version.new("3.2"), prefix: "my-prefix:")
     assert_equal "my-prefix-3-2-build_id", sub.image_name_for
