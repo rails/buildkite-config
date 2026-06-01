@@ -313,7 +313,7 @@ It will use the current [pipelines/buildkite-config/initial.yml](./pipelines/bui
 
 #### `buildkite/rails-ci`
 
-As of writing this, the `buildkite-config` pipeline can only trigger a `rails-ci` pipeline using the existing intial steps from the Buildkite UI.
+As of writing this, the `buildkite-config` pipeline can only trigger a `rails-ci` pipeline using the existing initial steps from the Buildkite UI.
 
 In the event you want to test your changes to [pipelines/rails-ci/initial.yml](./pipelines/rails-ci/initial.yml) from your current working directory, you can use this script.
 
