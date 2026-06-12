@@ -58,7 +58,7 @@ steps:
           -v "$$PWD/tmp":/app/tmp:rw
           -e BUNDLE_FROZEN
           -e BUILDKITE_BUILD_ID
-          ruby:4,0
+          ruby:4.0
           ./bin/pipeline-annotate
     - command: |
         mkdir -p tmp
@@ -82,7 +82,7 @@ steps:
           -e RAILS_CI_NIGHTLY
           -e BUNDLE_FROZEN
           -e BUILDKITE_BUILD_ID
-          ruby:4,0
+          ruby:4.0
           ./bin/pipeline-annotate
 
   - group:
