@@ -107,6 +107,14 @@ Buildkite::Builder.pipeline do
       end
 
       rake "activerecord", task: "postgresql:test", service: "postgresdb"
+
+      if ruby == build_context.default_ruby && build_context.rails_version >= Gem::Version.new("8.2.x")
+        rake "activerecord", task: "postgresql:test",
+          service: "postgresdb",
+          label: "[postgres_10]",
+          env: { POSTGRES_IMAGE: "postgres:10-alpine" }
+      end
+
       rake "activerecord", task: "sqlite3:test"
 
       if ruby == build_context.default_ruby
