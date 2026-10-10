@@ -111,6 +111,10 @@ Buildkite::Builder.pipeline do
 
       if ruby == build_context.default_ruby
         rake "activerecord", task: "sqlite3_mem:test"
+
+        if build_context.rails_root.join("activerecord/Rakefile").read.include?("test_sqlite3_ractor")
+          rake "activerecord", task: "sqlite3:test:ractor"
+        end
       end
 
       if build_context.supports_trilogy?
