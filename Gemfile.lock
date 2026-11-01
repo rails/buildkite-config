@@ -98,7 +98,6 @@ PLATFORMS
   x86_64-linux-gnu
 
 DEPENDENCIES
-  benchmark
   buildkit
   buildkite-builder
   debug
