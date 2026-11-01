@@ -24,6 +24,9 @@ services:
       # Sauce Labs username and access key. Obfuscated, purposefully not encrypted.
       ENCODED: "U0FVQ0VfQUNDRVNTX0tFWT1hMDM1MzQzZi1lOTIyLTQwYjMtYWEzYy0wNmIzZWE2MzVjNDggU0FVQ0VfVVNFUk5BTUU9cnVieW9ucmFpbHM="
 
+      # Overrides the on-image Browsers for integration test and uses Saucelabs
+      CI_TEST_SAUCELABS:
+
       BEANSTALK_URL: "beanstalk://beanstalkd"
       MEMCACHE_SERVERS: "memcached:11211"
       MYSQL_HOST: mysql
