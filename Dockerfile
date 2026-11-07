@@ -96,6 +96,11 @@ RUN set -ex && echo "--- :ruby: Updating RubyGems and Bundler" \
         postgresql-client default-mysql-client sqlite3 \
         git nodejs iproute2 lsof \
         ffmpeg mupdf mupdf-tools poppler-utils \
+        $( \
+            if apt-cache show 'libheif-plugin-libde265' 2>/dev/null | grep -q '^Version:'; then \
+                echo 'libheif-plugin-libde265'; \
+            fi \
+        ) \
     # clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* \
