@@ -21,6 +21,7 @@ module Buildkite::Config
         pre_steps ||= []
 
         env[:IMAGE_NAME] = build_context.image_name_for(build_context.build_id, prefix: nil)
+        env[:BUILDKITE_ARTIFACT_UPLOAD_SKIP_SYMLINKS] = "true"
 
         if build_context.ruby.yjit_enabled?
           env[:RUBY_YJIT_ENABLE] = "1"
