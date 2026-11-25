@@ -6,6 +6,7 @@ steps:
     command: |
       PATH=/bin:/usr/bin
       set -e
+      rm -rf .dockerignore .buildkite.tgz
 
       if [ -d ".buildkite" ]; then
         echo "+++ :bk-status-failed: .buildkite/ already exists; please remove it and try again"

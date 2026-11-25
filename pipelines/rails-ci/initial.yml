@@ -6,6 +6,7 @@ steps:
     command: |
       PATH=/bin:/usr/bin
       set -e
+      rm -rf .dockerignore .buildkite.tgz rails-ci.yml
 
       if [ -d ".buildkite" ]; then
         echo "+++ :bk-status-failed: .buildkite/ already exists; please remove it and try again"
@@ -29,7 +30,6 @@ steps:
       echo "--- Generating pipeline:"
       docker run --rm \
         -v "$$PWD":/app:ro -w /app \
-        -v "$$PWD/vendor/bundle":/usr/local/bundle \
         -e CI \
         -e BUILDKITE \
         -e BUILDKITE_AGENT_META_DATA_QUEUE \
