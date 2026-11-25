@@ -31,21 +31,31 @@ Buildkite::Builder.pipeline do
     label "build", emoji: :rails
     depends_on "docker-image-#{build_context.ruby.image_key}"
     key "build"
-    command "bundle install && bundle exec rake preview_docs"
     timeout_in_minutes 15
-    plugin :docker, {
-      image: build_context.image_name_for(build_context.build_id, prefix: nil),
-      environment: [
-        "BUILDKITE_BRANCH",
-        "BUILDKITE_BUILD_CREATOR",
-        "BUILDKITE_BUILD_NUMBER",
-        "BUILDKITE_BUILD_URL",
-        "BUILDKITE_COMMIT",
-        "BUILDKITE_MESSAGE",
-        "BUILDKITE_PULL_REQUEST",
-        "BUILDKITE_REPO",
-      ],
-    }
+    # The PR's code runs here, so it gets no writable mount of the host
+    # checkout: a .git/config it wrote would run on the host at a later git
+    # command. It uses the source baked into the image, reads .git only for
+    # `git rev-parse HEAD`, and returns the tarball on stdout. The rm stops the
+    # redirect from following a preview.tar.gz symlink committed in the PR.
+    command <<~COMMAND.gsub(/[[:space:]]+/, " ").strip
+      rm -f preview.tar.gz &&
+      docker run --rm --init
+      -v ./.git:/rails/.git:ro
+      -e GIT_CONFIG_COUNT=1
+      -e GIT_CONFIG_KEY_0=safe.directory
+      -e GIT_CONFIG_VALUE_0=/rails
+      -e BUILDKITE_BRANCH
+      -e BUILDKITE_BUILD_CREATOR
+      -e BUILDKITE_BUILD_NUMBER
+      -e BUILDKITE_BUILD_URL
+      -e BUILDKITE_COMMIT
+      -e BUILDKITE_MESSAGE
+      -e BUILDKITE_PULL_REQUEST
+      -e BUILDKITE_REPO
+      #{build_context.image_name_for(build_context.build_id, prefix: nil)}
+      sh -c 'bundle install >&2 && bundle exec rake preview_docs >&2 && cat preview.tar.gz'
+      > preview.tar.gz
+    COMMAND
     plugin :artifacts, {
       upload: "preview.tar.gz"
     }
