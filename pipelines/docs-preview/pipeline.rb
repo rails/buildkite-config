@@ -91,7 +91,7 @@ Buildkite::Builder.pipeline do
     command "mkdir /tmp/preview"
     command "tar -xzf /tmp/preview.tar.gz -C /tmp/preview"
     command "npm install wrangler@3"
-    command "npx wrangler@3 pages deploy /tmp/preview --project-name=\"$$CLOUDFLARE_PAGES_PROJECT\" --branch=\"$BUILDKITE_BRANCH\""
+    command "npx wrangler@3 pages deploy /tmp/preview --project-name=\"$$CLOUDFLARE_PAGES_PROJECT\" --branch=\"$$BUILDKITE_BRANCH\""
   end
 
   command do
