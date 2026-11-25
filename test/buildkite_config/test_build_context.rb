@@ -628,7 +628,7 @@ class TestBuildContext < TestCase
 
   def test_artifact_paths
     sub = create_build_context
-    assert_equal ["test-reports/*/*.xml"], sub.artifact_paths
+    assert_equal [".buildkite/test-reports/*/*.xml"], sub.artifact_paths
   end
 
   def test_automatic_retry_on

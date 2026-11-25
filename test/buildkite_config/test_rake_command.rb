@@ -101,7 +101,7 @@ class TestRakeCommand < TestCase
     end
 
     assert_includes pipeline.to_h["steps"][0], "artifact_paths"
-    assert_equal ["test-reports/*/*.xml"], pipeline.to_h["steps"][0]["artifact_paths"]
+    assert_equal [".buildkite/test-reports/*/*.xml"], pipeline.to_h["steps"][0]["artifact_paths"]
   end
 
   def test_agents
@@ -152,6 +152,7 @@ class TestRakeCommand < TestCase
     assert_includes pipeline.to_h["steps"][0], "env"
     assert_includes pipeline.to_h["steps"][0]["env"], "IMAGE_NAME"
     assert_equal "buildkite-config-base:ruby-3-2-local", pipeline.to_h["steps"][0]["env"]["IMAGE_NAME"]
+    assert_equal "true", pipeline.to_h["steps"][0]["env"]["BUILDKITE_ARTIFACT_UPLOAD_SKIP_SYMLINKS"]
   end
 
   def test_timeout_in_minutes
@@ -507,7 +508,8 @@ class TestRakeCommand < TestCase
 
     assert_equal "buildkite-config-base:ruby-3-2-local", step["env"]["IMAGE_NAME"]
     assert_equal "default", step["agents"]["queue"]
-    assert_equal ["test-reports/*/*.xml"], step["artifact_paths"]
+    assert_equal [".buildkite/test-reports/*/*.xml"], step["artifact_paths"]
+    assert_equal "true", step["env"]["BUILDKITE_ARTIFACT_UPLOAD_SKIP_SYMLINKS"]
     assert_equal 30, step["timeout_in_minutes"]
   end
 end

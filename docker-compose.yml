@@ -37,7 +37,7 @@ services:
       SELENIUM_DRIVER_URL: "http://chrome:4444/wd/hub"
 
     volumes:
-      - ../test-reports:/rails/test-reports
+      - ./test-reports:/rails/test-reports
 
     tmpfs:
       - /rails/tmp:size=1G,exec
