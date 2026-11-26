@@ -149,7 +149,9 @@ RUN rm -f railties/exe/.empty \
     && find railties/exe -maxdepth 0 -type d -empty -exec rmdir '{}' '+' \
     && echo "--- :bundler: Installing Ruby deps" \
     && (cd tmp && for f in *.gemspec; do d="$(basename -s.gemspec "$f")"; mkdir -p "../$d" && mv "$f" "../$d/"; done) \
-    && rm Gemfile.lock && bundle install -j 8 && cp Gemfile.lock tmp/Gemfile.lock.updated \
+    # Keep the checked-in lockfile for the docs-preview step.
+    && mv Gemfile.lock /tmp/Gemfile.lock.original \
+    && bundle install -j 8 && cp Gemfile.lock tmp/Gemfile.lock.updated \
     && rm -rf /usr/local/bundle/cache \
     && echo "--- :floppy_disk: Copying repository contents"
 

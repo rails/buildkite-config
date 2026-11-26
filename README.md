@@ -10,6 +10,7 @@ There are a few pipelines supported in this project, you can find them all under
   * Runs the tests, linter, and generates a diff of the pipelines in this repo for easy review
 * `docs-preview`
   * Builds the API documentation and Guides and deploys them for review on PRs
+  * The preview container uses the Rails checkout's `Gemfile.lock` instead of the lockfile that the Docker build generates.
 * `rails-ci`
   * This is probably the main pipeline you care about
 * `rails-nightly`
