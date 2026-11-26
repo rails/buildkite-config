@@ -53,7 +53,8 @@ Buildkite::Builder.pipeline do
       -e BUILDKITE_PULL_REQUEST
       -e BUILDKITE_REPO
       #{build_context.image_name_for(build_context.build_id, prefix: nil)}
-      sh -c 'bundle install >&2 && bundle exec rake preview_docs >&2 && cat preview.tar.gz'
+      sh -c 'cp /tmp/Gemfile.lock.original Gemfile.lock &&
+             bundle install >&2 && bundle exec rake preview_docs >&2 && cat preview.tar.gz'
       > preview.tar.gz
     COMMAND
     plugin :artifacts, {
